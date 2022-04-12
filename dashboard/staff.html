@@ -1,0 +1,36 @@
+<!--
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equive=""X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial scale">
+        <title>Home Page</title>
+    </head>
+
+    <body>
+        <h1> This is Staff</h1>
+    </body>
+</html>
+-->
+
+{%extends 'partials/base.html'%}
+{% block title %}Staff Page{% endblock %}
+
+{% block content %}
+<div class="row my-4">
+    <div class="col-md-4"></div>
+    <div class="col-md-8">
+        <table class="table bg-white">
+            <thead class="bg-info text-white">
+                <tr>
+                    <th scope="col">User ID</th>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Position</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+{% endblock %}
