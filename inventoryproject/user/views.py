@@ -8,7 +8,7 @@ def register(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():             # does data validation for us
             form.save()                 # django making life easier
-            return redirect('dashboard-index')
+            return redirect('user-login')       # redirects to login page after succesful user registration
     else:
         form = CreateUserForm()
     context = {
