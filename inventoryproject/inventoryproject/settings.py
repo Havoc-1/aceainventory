@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dashboard.apps.DashboardConfig',
+    # Below are created registered apps
+    'dashboard.apps.DashboardConfig',   # command for first time: "python manage.py startapp dashboard"
+    'user.apps.UserConfig',             # command for first time: "python manage.py startapp user"
+    'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
 ]
 
 MIDDLEWARE = [
@@ -100,6 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
