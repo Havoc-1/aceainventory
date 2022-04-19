@@ -132,3 +132,5 @@ STATIC_ROOT = (BASE_DIR/"asert/")
 STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
+
+LOGIN_REDIRECT_URL = 'dashboard-index'
