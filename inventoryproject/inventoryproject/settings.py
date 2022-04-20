@@ -133,4 +133,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
+# for images
+MEDIA_URL = '/images/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #not for production | creates a path and stores it
+
 LOGIN_REDIRECT_URL = 'dashboard-index'

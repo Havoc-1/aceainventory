@@ -24,7 +24,13 @@
                     <a class="nav-link text-white" href="{% url 'user-logout' %}">Logout<span class="sr-only">(current)</span></a>
                 </li>
             </ul>
-            
+
+            <!-- USER PROFILE (WIP) -->
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                  <a class="nav-link text-white" href="{% url 'view-profile' %}">User Profile<span class="sr-only">(current)</span></a>
+              </li>
+            </ul>            
             {% else %}                              <!-- else statement to show different navigation buttons -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">

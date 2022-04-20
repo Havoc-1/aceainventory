@@ -18,6 +18,10 @@ from django.urls import path, include
 from user import views as user_view
 from django.contrib.auth import views as auth_views
 
+from django.conf.urls.static import static      #allow to set url patterns to import static
+from django.conf import settings                #import var from settings
+
+
 urlpatterns = [
     # everytime the first '' is called, the following views are called
     path('admin/', admin.site.urls),
@@ -25,4 +29,7 @@ urlpatterns = [
     path('register/', user_view.register, name='user-register'),
     path('', auth_views.LoginView.as_view(template_name='user/login.html'), name='user-login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='user/logout.html'), name='user-logout'),
-]
+    path('profile/', user_view.view_profile, name='view-profile'),
+    path('profile/edit/', user_view.edit_profile, name='edit-profile'),
+    path('profile/change-password/', user_view.change_password, name='change-password')
+] + static(settings.MEDIA_URL, document_root =settings.MEDIA_ROOT) #auto create URL to reference images
