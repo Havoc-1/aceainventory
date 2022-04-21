@@ -31,5 +31,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='user/logout.html'), name='user-logout'),
     path('profile/', user_view.view_profile, name='view-profile'),
     path('profile/edit/', user_view.edit_profile, name='edit-profile'),
-    path('profile/change-password/', user_view.change_password, name='change-password')
+    path('profile/password/', user_view.change_password, name='password')
 ] + static(settings.MEDIA_URL, document_root =settings.MEDIA_ROOT) #auto create URL to reference images

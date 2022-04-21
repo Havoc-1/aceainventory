@@ -45,7 +45,7 @@ def change_password(request):
             update_session_auth_hash(request, form.user) #grab the user that changed their password using the form
             return redirect('view-profile')
         else: #form data invalid
-            return redirect('change-password') 
+            return redirect('password') 
     else: # for the GET, init blank form
         form = PasswordChangeForm(user=request.user)
         context = {'form': form}
