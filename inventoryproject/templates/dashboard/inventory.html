@@ -1,0 +1,52 @@
+{%extends 'partials/base.html'%}
+{% block title %}Inventory Page{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include 'partials/topnav.html' %}
+<div class="row my-4">
+    <div class="col-md-4">
+        <h4>Add Inventory Entry</h4>
+        <hr>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+        </form>
+    </div>
+
+    <div class="col-md-8">
+        <table class="table bg-white">
+            <thead class="bg-info text-white">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Remarks</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.brand }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.remarks }}</td>
+                    <td>
+                        <a class="btn btn-info btn-sm mr-2" href="{% url 'dashboard-inventory-edit' item.id %}">Edit</a>                <!-- item.id is PK (primary key)-->
+                        <a class="btn btn-danger btn-sm ml-2" href="{% url 'dashboard-inventory-delete' item.id %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
