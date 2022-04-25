@@ -1,61 +1,73 @@
-<div class="row">
-    <div class="col-md-4 mt-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                Information
-            </div>
-            <div class="card-body">
-                <marquee behavior="" direction="">
-                    <h3 class="my-4">New Information</h3>
-                </marquee>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-8 mt-4">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                Dashboard Statistics
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <a class="text-decoration-none text-dark" href="{% url 'dashboard-staff' %}"> <!-- what you write in the '' is seen in dashboard application urls.py -->
-                            <div class="card my-card shadow">
-                                <div class="card-body text-center">
-                                    <!-- START OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                    <h4>Staff <i class="fas fa-users"></i></h4>
-                                    <h3>{{ customer_count }}</h3>
-                                    <!-- END OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <a class="text-decoration-none text-dark" href="{% url 'dashboard-equipment' %}">
-                            <div class="card my-card shadow">
-                                <div class="card-body text-center">
-                                    <!-- START OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                    <h4>Equipment <i class="fas fa-box"></i></h4>
-                                    <h3>{{ product_count }}</h3>
-                                    <!-- END OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-4">
-                        <a class="text-decoration-none text-dark" href="{% url 'dashboard-deliveries' %}">
-                            <div class="card my-card shadow">
-                                <div class="card-body text-center">
-                                    <!-- START OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                    <h4>Deliveries <i class="fas fa-shipping-fast"></i></h4>
-                                    <h3>{{ order_count }}</h3>
-                                    <!-- END OF CODE FOR DATABASE (NOT YET IMPLEMENTED) -->
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% load bootstrap_icons %}
+<div class="app-body-navigation">
+    <nav class="navigation">
+        <a href="{% url 'dashboard-index' %}">
+            {% bs_icon 'house-door' extra_classes="nav-icons" %}
+            <span>Dashboard</span>
+        </a>
+        <a href="{% url 'view-profile' %}">
+            {% bs_icon 'person-circle' extra_classes="nav-icons" %}
+            <span>Profile</span>
+        </a>
+        <a href="{% url 'user-logout' %}">
+            {% bs_icon 'box-arrow-right' extra_classes="nav-icons" %}
+            <span>Logout</span>
+        </a>
+    </nav>
 </div>
+<!-- NOT YET IMPLEMENTED | LOOK INTO CONVERTING TABLES INTO CARDS -->
+<!--
+<div class="app-body-main-content">
+    <section class="service-section">
+        <h2>{% block title %} {% endblock %}</h2>
+        <div class="tiles">
+            <article class="tile">
+                <div class="tile-header">
+                    <h3>
+                        <span>Delivery 1</span>
+                        <span>Warehouse Name</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>See more</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+            <article class="tile">
+                <div class="tile-header">
+                    <h3>
+                        <span>Delivery 2</span>
+                        <span>Warehouse Name 2</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>See more</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+            <article class="tile">
+                <div class="tile-header">
+                    <i class="ph-file-light"></i>
+                    <h3>
+                        <span>Delivery 3</span>
+                        <span>Warehouse Name 3</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>Go to service</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+        </div>
+        <div class="service-section-footer">
+            <p>some shit here - footer.</p>
+        </div>
+    </section>
+</div>
+-->

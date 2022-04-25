@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'dashboard.apps.DashboardConfig',   # command for first time: "python manage.py startapp dashboard"
     'user.apps.UserConfig',             # command for first time: "python manage.py startapp user"
     'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
+    'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
+    'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
 ]
 
 MIDDLEWARE = [
@@ -140,3 +142,13 @@ MEDIA_URL = '/images/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #not for production | creates a path and stores it
 
 LOGIN_REDIRECT_URL = 'dashboard-index'
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
+#The list of finder backends that know how to find static files in various locations
+#to get scss to work
+STATICFILES_FINDERS = [
+    'compressor.finders.CompressorFinder'
+]

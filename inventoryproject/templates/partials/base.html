@@ -1,4 +1,6 @@
 {% load static %}
+{% load bootstrap_icons %}
+{% load compress %}
 <!doctype html>
 <html lang="en">
     <head>
@@ -8,24 +10,26 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         
-        <!-- CSS -->
-        <link rel="stylesheet" href="{% static '/style.css' %}">
-
+        <!-- SCSS -->
+        {% compress css %}
+        <link type="text/x-scss" href="{% static '/style.scss' %}" rel="stylesheet" media="screen">
+        {%endcompress%}
         <title>{% block title %} {% endblock %}</title>
     </head>
 
     <body>
-        <!-- {#% %#} is template tag -->
-        {% include 'partials/nav.html' %}
+        <div class="app">
+            <!-- {#% %#} is template tag -->
+            <!-- calling nav.html -->
+            {% include 'partials/nav.html' %}
 
+            <!-- code below is for template specific content -->
+            <div class="app-body">
+                {% block content %}
 
-        <!-- code below is for template specific content -->
-        <div class="container">
-            {% block content %}
-
-            {% endblock %}
+                {% endblock %}
+            </div>
         </div>
-
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

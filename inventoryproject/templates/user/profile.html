@@ -3,39 +3,35 @@
 
 
 {% block content %}
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-6 offset-md-3">
-                <div class="border p-3 bg-white">
-                    <h3>Profile Page</h3>
-                    <hr>
-                    {% block body %}
-                    <div class="container">
-                        <b>Username</b>
-                        <p>
-                            {{user.username}} <br>
-                        </p>
-                        <b>Profile Picture</b>
-                            <img src="{{user.UserProfile.image.url}}" width ="240"> <br>
-                        <b>First Name</b>
-                        <p>
-                            {{user.first_name}} <br>
-                        </p>
-                        <b>Last Name</b>
-                        <p>
-                            {{user.last_name}} <br>
-                        </p>
-                        <b>Email</b>
-                        <p>
-                            {{user.email}}
-                        </p>
-                        <a class="btn btn-primary" href="/profile/edit">Edit Profile</a>
-                        <br> <br>
-                        <a class="btn btn-primary" href="/profile/password">Change Password</a>
-                    </div>
-                    {% endblock %}
-                </div>
+    <div class="tiles">
+        <div class="tile-header">
+            <h3>Profile Page</h3>
+            <hr>
+            {% block body %}
+            <div class="container">
+                <b>Username</b>
+                <p>
+                    {{user.username}} <br>
+                </p>
+                <b>Profile Picture</b>
+                    <img src="{{user.UserProfile.image.url}}" width ="240"> <br>
+                <b>First Name</b>
+                <p>
+                    {{user.first_name}} <br>
+                </p>
+                <b>Last Name</b>
+                <p>
+                    {{user.last_name}} <br>
+                </p>
+                <b>Email</b>
+                <p>
+                    {{user.email}}
+                </p>
+                <a class="btn btn-primary" href="/profile/edit">Edit Profile</a>
+                <br> <br>
+                <a class="btn btn-primary" href="/profile/password">Change Password</a>
             </div>
+            {% endblock %}
         </div>
     </div>
 {% endblock %}
