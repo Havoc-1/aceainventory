@@ -143,6 +143,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #not for production | creat
 
 LOGIN_REDIRECT_URL = 'dashboard-index'
 
+LOGIN_URL = 'user-login'
+
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )

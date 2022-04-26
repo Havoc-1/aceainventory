@@ -1,5 +1,6 @@
 {% load bootstrap_icons %}
 <div class="app-body-navigation">
+    {% if user.is_authenticated %}
     <nav class="navigation">
         <a href="{% url 'dashboard-index' %}">
             {% bs_icon 'house-door' extra_classes="nav-icons" %}
@@ -14,6 +15,12 @@
             <span>Logout</span>
         </a>
     </nav>
+
+    {% else %}
+      <a href="{% url 'user-register' %}">Register</a>
+      <a href="{% url 'user-login' %}">Login</a>
+    {% endif %}  
+    
 </div>
 <!-- NOT YET IMPLEMENTED | LOOK INTO CONVERTING TABLES INTO CARDS -->
 <!--

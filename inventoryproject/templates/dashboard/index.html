@@ -3,5 +3,9 @@
 
 {% block content %}
 {% include 'partials/topnav.html' %}
+{% if not user.is_staff or user.is_superuser %}              <!-- verifies the user is logged in-->
+{% include 'dashboard/staff_index.html' %}
+
+{% endif %}
 
 {% endblock %}

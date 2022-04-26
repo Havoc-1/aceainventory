@@ -12,27 +12,25 @@
   </div>
   
   <div class="app-header-navigation">
-    {% if user.is_authenticated %}                  <!-- if statement to show different navigation buttons -->
+    {% if user.is_authenticated and user.is_staff or user.is_superuser %}                  <!-- if statement to show different navigation buttons -->
     <div class="tabs">
-      <a href="{% url 'dashboard-staff' %}">
-        Staff
-      </a>
+      <a href="{% url 'dashboard-staff' %}">Staff</a>
       <!-- Look into class="active" if on.click -->
-      <a href="{% url 'dashboard-inventory' %}">
-        Inventory
-      </a>
-      <a href="{% url 'dashboard-deliveries' %}">
-        Deliveries
-      </a>
-      {% else %}
-      <a href="{% url 'user-register' %}">
-        Register
-      </a>
-      <a href="{% url 'user-login' %}">
-        Login
-      </a>
-    {% endif %}  
+      <a href="{% url 'dashboard-inventory' %}">Inventory</a>
+      <a href="{% url 'dashboard-deliveries' %}">Deliveries</a>
     </div>
+
+    {% elif user.is_authenticated %}
+    <div class="tabs">
+      <a href="{% url 'dashboard-index' %}">Dashboard</a>
+      <!-- Look into class="active" if on.click -->
+    </div>
+
+    {% else %}
+      <a href="{% url 'user-register' %}">Register</a>
+      <a href="{% url 'user-login' %}">Login</a>
+    {% endif %}  
+
   </div>
   <div class="app-header-actions">
     <a href="{% url 'view-profile' %}">
