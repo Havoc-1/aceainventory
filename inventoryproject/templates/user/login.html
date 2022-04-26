@@ -3,19 +3,15 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="container">
-        <div class="row mt-5">
-            <div class="col-md-6 offset-md-3">
-                <div class="border p-3 bg-white">
-                    <h3>Login Page</h3>
-                    <hr>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <input class="btn btn-success" type="submit" value="Login">
-                    </form>
-                </div>
-            </div>
+    <div class="login-card">
+        <div class="login-header">
+            <h3>Login Page</h3>
         </div>
+        <hr>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input class="btn btn-success" type="submit" value="Login">
+        </form>
     </div>
 {% endblock %}

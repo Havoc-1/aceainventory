@@ -2,10 +2,62 @@
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
-{% include 'partials/topnav.html' %}
+{% include 'partials/nav.html' %}
 {% if not user.is_staff or user.is_superuser %}              <!-- verifies the user is logged in-->
 {% include 'dashboard/staff_index.html' %}
 
 {% endif %}
-
+<!-- NOT YET IMPLEMENTED | LOOK INTO CONVERTING TABLES INTO CARDS | HARDCODED FOR DEMO -->
+<div class="app-body-main-content">
+    <section class="service-section">
+        <div class="tiles">
+            <article class="tile">
+                <div class="tile-header">
+                    <h3>
+                        <span>Delivery 1</span>
+                        <span>Warehouse Name</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>See more</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+            <article class="tile">
+                <div class="tile-header">
+                    <h3>
+                        <span>Delivery 2</span>
+                        <span>Warehouse Name 2</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>See more</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+            <article class="tile">
+                <div class="tile-header">
+                    <i class="ph-file-light"></i>
+                    <h3>
+                        <span>Delivery 3</span>
+                        <span>Warehouse Name 3</span>
+                    </h3>
+                </div>
+                <a href="#">
+                    <span>Go to service</span>
+                    <span class="icon-button">
+                        <i class="ph-caret-right-bold"></i>
+                    </span>
+                </a>
+            </article>
+        </div>
+        <div class="service-section-footer">
+            <p>some shit here - footer.</p>
+        </div>
+    </section>
+</div>
 {% endblock %}

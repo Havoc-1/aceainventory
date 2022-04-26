@@ -1,0 +1,97 @@
+{% load bootstrap_icons %}
+<header class="app-header">
+  <div class="app-header-logo">
+    <div class="logo">
+      <span class="logo-icon">
+        <!-- Insert logo url here -->
+      </span>
+      <h1 class="logo-title">
+        <span>ACEA</span>
+        <span>Inventory System</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="app-header-navigation">  
+    <div class="tabs">    
+      <nav class="navbar navbar-expand-md">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="">{% bs_icon 'list' extra_classes="nav-icons1" %}</span>
+        </button>
+        {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+        <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto justify-content-between">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-staff' %}">Staff<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-inventory' %}">Inventory<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-deliveries' %}">Deliveries<span class="sr-only">(current)</span></a>
+            </li>
+            
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'view-profile' %}">Profile<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-index' %}">Dashboard<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'user-logout' %}">Logout<span class="sr-only">(current)</span></a>
+            </li>
+            {% elif user.is_authenticated %}
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-index' %}">Dashboard<span class="sr-only">(current)</span></a>
+            </li>
+            {% else %}
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'user-register' %}">Register<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'user-login' %}">Login<span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+        </div>
+        {% endif %}
+      </nav>
+    </div>
+  </div>
+<!--    OLD HEADER CODE
+  {% if user.is_authenticated and user.is_staff or user.is_superuser %}                  
+    <div class="tabs">
+      <a href="{% url 'dashboard-staff' %}">Staff</a>
+       Look into class="active" if on.click 
+      <a href="{% url 'dashboard-inventory' %}">Inventory</a>
+      <a href="{% url 'dashboard-deliveries' %}">Deliveries</a>
+    </div>
+
+    {% elif user.is_authenticated %}
+    <div class="tabs">
+      <a href="{% url 'dashboard-index' %}">Dashboard</a>
+      Look into class="active" if on.click
+    </div>
+
+    {% else %}
+    <div class="tabs1">
+      <a href="{% url 'user-register' %}">Register</a>
+      <a href="{% url 'user-login' %}">Login</a>
+    </div>
+    {% endif %}  
+  </div> -->    
+  
+  <div class="app-header-actions">
+    {% if user.is_authenticated and user.is_staff or user.is_superuser %}                  <!-- if statement to show different navigation buttons -->
+    <a href="{% url 'view-profile' %}">
+      <button class="user-profile">
+        <span>
+          {{user.username}}
+        </span>
+        <span>
+          <!--pfp code here-->
+        </span>
+      </button>
+    </a>
+    {% endif %} 
+  </div>
+</header>

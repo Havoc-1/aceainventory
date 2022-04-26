@@ -18,16 +18,15 @@
     </head>
 
     <body>
+        <!-- {#% %#} is template tag -->
         <div class="app">
-            <!-- {#% %#} is template tag -->
-            <!-- calling nav.html -->
-            {% include 'partials/nav.html' %}
-
-            <!-- code below is for template specific content -->
+            <!-- calling header.html -->
+            {% include 'partials/header.html' %} 
             <div class="app-body">
-                {% block content %}
-
-                {% endblock %}
+                    <!-- code below is for template specific content -->
+                    {% block content %}
+    
+                    {% endblock %}
             </div>
         </div>
         <!-- Optional JavaScript -->

@@ -1,36 +1,33 @@
 {% extends 'partials/base.html' %}
 {% block title %} Profile Page {% endblock %}
-
+{% include 'partials/nav.html' %}
 
 {% block content %}
-    <div class="tiles">
-        <div class="tile-header">
-            <h3>Profile Page</h3>
+    <div class="profile-card">
+        <div class="profile-header">
+            <h2>Profile Page</h2>
             <hr>
             {% block body %}
-            <div class="container">
-                <b>Username</b>
+                <h3>Username</h3>
                 <p>
-                    {{user.username}} <br>
+                    {{user.username}} 
                 </p>
-                <b>Profile Picture</b>
-                    <img src="{{user.UserProfile.image.url}}" width ="240"> <br>
-                <b>First Name</b>
+                <h3>Profile Picture</h3>
+                    <img src="{{user.UserProfile.image.url}}" width ="240">
+                <h3>First Name</h3>
                 <p>
-                    {{user.first_name}} <br>
+                    {{user.first_name}} 
                 </p>
-                <b>Last Name</b>
+                <h3>Last Name</h3>
                 <p>
-                    {{user.last_name}} <br>
+                    {{user.last_name}}
                 </p>
-                <b>Email</b>
+                <h3>Email</h3>
                 <p>
                     {{user.email}}
                 </p>
                 <a class="btn btn-primary" href="/profile/edit">Edit Profile</a>
-                <br> <br>
                 <a class="btn btn-primary" href="/profile/password">Change Password</a>
-            </div>
             {% endblock %}
         </div>
     </div>
