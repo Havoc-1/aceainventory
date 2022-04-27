@@ -4,20 +4,20 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-<div class="row my-4">
-    <div class="col-md-4">
+<div class="content-card">
+    <div class="content-header">
         <h4>Add Inventory Entry</h4>
         <hr>
+    </div>
         <form method="POST">
             {% csrf_token %}
             {{ form|crispy }}
             <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
         </form>
-    </div>
-
-    <div class="col-md-8">
-        <table class="table bg-white">
-            <thead class="bg-info text-white">
+</div>
+    <div class="container table-responsive py-5">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
                 <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Location</th>
@@ -40,13 +40,12 @@
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.remarks }}</td>
                     <td>
-                        <a class="btn btn-info btn-sm mr-2" href="{% url 'dashboard-inventory-edit' item.id %}">Edit</a>                <!-- item.id is PK (primary key)-->
-                        <a class="btn btn-danger btn-sm ml-2" href="{% url 'dashboard-inventory-delete' item.id %}">Delete</a>
+                        <a class="btn btn-info btn-sm margin-top" href="{% url 'dashboard-inventory-edit' item.id %}">Edit</a>       <!-- item.id is PK (primary key)-->
+                        <a class="btn btn-danger btn-sm" href="{% url 'dashboard-inventory-delete' item.id %}">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-</div>
 {% endblock %}

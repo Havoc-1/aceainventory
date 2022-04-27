@@ -3,20 +3,18 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-<div class="row my-4">
-    <div class="col-md-4"></div>
-    <div class="col-md-8">
-        <table class="table bg-white">
-            <thead class="bg-info text-white">
-                <tr>
-                    <th scope="col">Delivery ID</th>
-                    <th scope="col">Last Updated</th>
-                    <th scope="col">Warehouse Location</th>
-                    <th scope="col">Status</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
+<div class="container table-responsive py-5">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Delivery ID</th>
+                <th scope="col">Last Updated</th>
+                <th scope="col">Warehouse Location</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+    </table>
+</div>
 </div>
 
 {% endblock %}

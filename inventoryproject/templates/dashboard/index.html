@@ -3,10 +3,8 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-{% if not user.is_staff or user.is_superuser %}              <!-- verifies the user is logged in-->
-{% include 'dashboard/staff_index.html' %}
+{% load bootstrap_icons %}
 
-{% endif %}
 <!-- NOT YET IMPLEMENTED | LOOK INTO CONVERTING TABLES INTO CARDS | HARDCODED FOR DEMO -->
 <div class="app-body-main-content">
     <section class="service-section">
@@ -60,4 +58,9 @@
         </div>
     </section>
 </div>
+{% if not user.is_staff or user.is_superuser %}   <!-- verifies the user is logged in-->
+{% include 'dashboard/staff_index.html' %}
+
+{% endif %}
+
 {% endblock %}

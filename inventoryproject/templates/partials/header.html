@@ -18,9 +18,14 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="">{% bs_icon 'list' extra_classes="nav-icons1" %}</span>
         </button>
-        {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+
         <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+          
           <ul class="navbar-nav mr-auto justify-content-between">
+            {% if user.is_authenticated and user.is_staff or user.is_superuser %}
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'dashboard-index' %}">Dashboard<span class="sr-only">(current)</span></a>
+            </li>
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'dashboard-staff' %}">Staff<span class="sr-only">(current)</span></a>
             </li>
@@ -30,7 +35,6 @@
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'dashboard-deliveries' %}">Deliveries<span class="sr-only">(current)</span></a>
             </li>
-            
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'view-profile' %}">Profile<span class="sr-only">(current)</span></a>
             </li>
@@ -41,9 +45,17 @@
               <a class="nav-link" href="{% url 'user-logout' %}">Logout<span class="sr-only">(current)</span></a>
             </li>
             {% elif user.is_authenticated %}
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'dashboard-index' %}">Dashboard<span class="sr-only">(current)</span></a>
-            </li>
+            <ul class="navbar-nav mr-auto justify-content-between">
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'dashboard-index' %}">Dashboard<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'view-profile' %}">Profile<span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'user-logout' %}">Logout<span class="sr-only">(current)</span></a>
+              </li>
+            </ul>
             {% else %}
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'user-register' %}">Register<span class="sr-only">(current)</span></a>
@@ -51,9 +63,9 @@
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'user-login' %}">Login<span class="sr-only">(current)</span></a>
             </li>
+            {% endif %}
           </ul>
         </div>
-        {% endif %}
       </nav>
     </div>
   </div>
@@ -81,7 +93,7 @@
   </div> -->    
   
   <div class="app-header-actions">
-    {% if user.is_authenticated and user.is_staff or user.is_superuser %}                  <!-- if statement to show different navigation buttons -->
+    {% if user.is_authenticated %}                  <!-- if statement to show different navigation buttons -->
     <a href="{% url 'view-profile' %}">
       <button class="user-profile">
         <span>

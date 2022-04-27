@@ -213,8 +213,8 @@ $dropDown     : true;
 }
 
 .nav-icons {
-	width: 70px;
-	height: 30px;
+	width: 20px;
+	height: 20px;
 }
 
 .nav-icons1 {
@@ -380,7 +380,7 @@ $dropDown     : true;
 .profile-card {
 	padding: 1rem;
 	border-radius: 8px;
-	background-color: #0000;
+	background-color: #055034;
 	color: var(--c-gray-900);
 	min-height: 200px;
 	display: flex;
@@ -431,6 +431,88 @@ $dropDown     : true;
 		}
 	}
 }
+
+/* content cards */
+
+.content-card {
+	padding: 1rem;
+	border-radius: 8px;
+	background-color: #fff0;
+	color: var(--c-gray-900);
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	transition: 0.25s ease;
+	grid-column-start: 2;
+	color: white;
+
+	@media only screen and (max-width: 1200px) {
+		justify-content: center;
+		height: auto;
+		width: max-content;
+	}
+
+	.warning {
+		background-color: #803d3d7a;
+		padding: 1rem;
+		border-radius: 8px;
+		min-height: 200px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		position: relative;
+
+	}
+
+	.plain {
+		background-color: #0d7240;
+		padding: 1rem;
+		border-radius: 8px;
+		min-height: 200px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		position: relative;
+	}
+
+	h2 {
+		font-size: 30px;
+	}
+
+	h3 {
+		font-size: 15px;
+		display: flex;
+		flex-direction: column;
+		line-height: 1.375;
+		margin-left: 0.5rem;
+	}
+	p {
+		font-size: 20px;
+		margin-left: 0.5rem;
+	}
+}
+
+.content-header {
+	display: flex;
+	align-items: center;
+	color: white;
+	flex-direction: column;
+	row-gap: 0.5rem;
+	h3 {
+		display: flex;
+		flex-direction: column;
+		line-height: 1.375;
+		margin-left: 0.5rem;
+		align-items: left;
+		color:#bdbbb7;
+		span:first-child {
+			font-weight: 600;
+		}
+	}
+}
+
 /* header profile styles */
 .user-profile {
 	display: flex;
@@ -636,4 +718,29 @@ button {
 		outline: 0;
 		box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-gray-300);
 	}
+}
+/* TABLE STYLING - EDITS TO BOOTSTRAP */
+.btn-sm {
+	margin-top: 0.5rem !important;
+}
+.container {
+	grid-column: 2;
+}
+
+.btn {
+	margin: 0.5rem;
+}
+
+.collapse.show {
+	max-width: 656px;
+	
+}
+
+.card-body {
+	background-color: inherit;
+}
+
+.p {
+	min-width: min-content;
+
 }

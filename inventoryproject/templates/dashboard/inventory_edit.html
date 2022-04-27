@@ -3,11 +3,10 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="container">
-    <div class="row mt-5">
-        <div class="col-md-6 offset-md-3">
-            <div class="border bg-white p-3">
-                <h3>Edit Item</h3>
+<div class="content-card">
+    <div class="content-header">
+        <div class="plain">
+                <h2>Edit Item</h2>
                 <hr>
                 <form method="POST">
                     {% csrf_token %}
@@ -15,7 +14,6 @@
                     <a class="btn btn-secondary" href="{% url 'dashboard-inventory' %}">Cancel</a>
                     <input class="btn btn-info" type="submit" value="Confirm Edits">
                 </form>
-            </div>
         </div>
     </div>
 </div>
