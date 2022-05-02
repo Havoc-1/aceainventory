@@ -1,0 +1,714 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+/* line 3, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+:root {
+  --c-gray-900: #000000;
+  --c-gray-800: #1f1f1f;
+  --c-gray-700: #2e2e2e;
+  --c-gray-600: #313131;
+  --c-gray-500: #969593;
+  --c-gray-400: #a6a6a6;
+  --c-gray-300: #bdbbb7;
+  --c-gray-200: #f1f1f1;
+  --c-gray-100: #ffffff;
+  --c-green-500: #45ffbc;
+  --c-olive-500: #e3ffa8;
+  --c-white: var(--c-gray-100);
+  --c-text-primary: var(--c-gray-100);
+  --c-text-secondary: var(--c-gray-200);
+  --c-text-tertiary: var(--c-gray-500); }
+
+/* line 24, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+body {
+  line-height: 1.5;
+  min-height: 100vh;
+  font-family: "Be Vietnam Pro", sans-serif;
+  background-color: var(--c-gray-900);
+  color: var(--c-text-primary);
+  display: flex;
+  padding-top: 3vw;
+  padding-bottom: 3vw;
+  justify-content: center; }
+
+/* line 36, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+*,
+*:before,
+*:after {
+  box-sizing: border-box; }
+
+/* line 42, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+img {
+  display: block;
+  max-width: 100%; }
+
+/* line 47, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+button,
+select,
+input,
+textarea {
+  font: inherit; }
+
+/* line 54, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+a {
+  color: inherit; }
+
+/* line 58, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.responsive-wrapper {
+  width: 90%;
+  max-width: 1600px;
+  margin-left: auto;
+  margin-right: auto; }
+
+/* NAVBAR SCSS TO WORK WITH BOOTSTRAP */
+/* line 73, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.navbar-default {
+  background-color: rgba(255, 255, 255, 0);
+  border-color: rgba(255, 255, 255, 0); }
+  /* line 76, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-brand {
+    color: #ffffff; }
+    /* line 78, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+      color: #ff0000; }
+  /* line 80, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-text {
+    color: #ffffff; }
+  /* line 82, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-nav,
+  .navbar-default .mr-auto {
+    flex: 1;
+    margin: auto !important;
+    display: flex;
+    justify-content: space-between; }
+    /* line 89, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-nav > li > a,
+    .navbar-default .mr-auto > li > a {
+      color: #ffffff; }
+      /* line 91, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+      .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus,
+      .navbar-default .mr-auto > li > a:hover,
+      .navbar-default .mr-auto > li > a:focus {
+        color: #ff0000; }
+    /* line 94, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-nav > li > .dropdown-menu,
+    .navbar-default .mr-auto > li > .dropdown-menu {
+      background-color: rgba(255, 255, 255, 0); }
+      /* line 96, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+      .navbar-default .navbar-nav > li > .dropdown-menu > li > a,
+      .navbar-default .mr-auto > li > .dropdown-menu > li > a {
+        color: #ffffff; }
+        /* line 98, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+        .navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover, .navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus,
+        .navbar-default .mr-auto > li > .dropdown-menu > li > a:hover,
+        .navbar-default .mr-auto > li > .dropdown-menu > li > a:focus {
+          color: #ff0000;
+          background-color: rgba(255, 255, 255, 0); }
+      /* line 101, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+      .navbar-default .navbar-nav > li > .dropdown-menu .divider,
+      .navbar-default .mr-auto > li > .dropdown-menu .divider {
+        background-color: rgba(255, 255, 255, 0); }
+    /* line 105, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus,
+    .navbar-default .mr-auto > .active > a,
+    .navbar-default .mr-auto > .active > a:hover,
+    .navbar-default .mr-auto > .active > a:focus {
+      color: #ff0000;
+      background-color: rgba(255, 255, 255, 0); }
+    /* line 109, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus,
+    .navbar-default .mr-auto > .open > a,
+    .navbar-default .mr-auto > .open > a:hover,
+    .navbar-default .mr-auto > .open > a:focus {
+      color: #ff0000;
+      background-color: rgba(255, 255, 255, 0); }
+  /* line 112, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-toggle {
+    border-color: rgba(255, 255, 255, 0); }
+    /* line 114, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+      background-color: rgba(255, 255, 255, 0); }
+    /* line 116, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-toggle .icon-bar {
+      background-color: #ffffff; }
+  /* line 118, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-collapse,
+  .navbar-default .navbar-form {
+    border-color: #ffffff; }
+  /* line 121, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-link {
+    color: #ffffff; }
+    /* line 123, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-link:hover {
+      color: #ff0000; }
+
+@media (max-width: 767px) {
+  /* line 127, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ffffff; }
+    /* line 129, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+      color: #ff0000; }
+  /* line 132, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ff0000;
+    background-color: rgba(255, 255, 255, 0); } }
+
+/* line 138, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app {
+  min-height: 80vh;
+  width: 95%;
+  max-width: 1600px;
+  background-color: var(--c-gray-800);
+  padding: 2vw 4vw 6vw;
+  display: flex;
+  flex-direction: column; }
+
+/* line 148, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app-header {
+  display: grid;
+  grid-template-columns: minmax(min-content, 200px) minmax(max-content, 1fr) minmax(min-content, 200px);
+  column-gap: 4rem;
+  align-items: flex-end; }
+  @media (max-width: 1200px) {
+    /* line 148, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--c-gray-600); } }
+/*.app-header-navigation {
+	@media (max-width: 1200px) {
+		display: none;
+	}
+} */
+/* line 170, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app-header-actions {
+  display: flex;
+  align-items: center; }
+  @media (max-width: 1200px) {
+    /* line 170, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .app-header-actions {
+      display: none; } }
+/* line 178, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app-header-mobile {
+  display: none; }
+  @media (max-width: 1200px) {
+    /* line 178, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .app-header-mobile {
+      display: flex; } }
+/* line 185, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app-body {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(min-content, 200px) minmax(max-content, 1fr) minmax(min-content, 200px);
+  column-gap: 4rem;
+  padding-top: 2.5rem; }
+  @media (max-width: 1200px) {
+    /* line 185, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .app-body {
+      grid-template-columns: 1fr;
+      padding-right: 3.5rem;
+      column-gap: 2.5rem; }
+      /* line 199, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+      .app-body > * {
+        margin-bottom: 3.5rem; } }
+/* line 206, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.app-body-navigation {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; }
+  @media (max-width: 1200px) {
+    /* line 206, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .app-body-navigation {
+      display: none; } }
+/* line 215, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.nav-icons {
+  width: 20px;
+  height: 20px; }
+
+/* line 220, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.nav-icons1 {
+  width: 40px;
+  height: 40px;
+  background-color: #969593;
+  border-radius: 8px; }
+
+/* need the logo */
+/* line 228, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.logo {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: 1px solid var(--c-gray-600); }
+  @media (max-width: 1200px) {
+    /* line 228, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .logo {
+      border-bottom: 0; } }
+/* line 239, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.logo-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px; }
+
+/* line 247, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.logo-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  margin-left: 0.75rem;
+  font-size: inherit; }
+  /* line 253, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .logo-title span:first-child {
+    color: var(--c-text-primary); }
+  /* line 256, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .logo-title span:last-child {
+    color: var(--c-text-tertiary); }
+
+/*left nav */
+/* line 262, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  color: var(--c-text-tertiary);
+  padding-top: 1rem; }
+  /* line 268, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .navigation a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    transition: 0.25s ease; }
+    /* line 274, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navigation a * {
+      transition: 0.25s ease; }
+    /* line 278, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navigation a i {
+      margin-right: 0.75rem;
+      font-size: 1.25em;
+      flex-shrink: 0; }
+    /* line 284, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navigation a + a {
+      margin-top: 1.25rem; }
+    /* line 288, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .navigation a:hover, .navigation a:focus {
+      transform: translateX(4px);
+      color: var(--c-text-primary); }
+
+/* top nav */
+/* line 297, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.tabs {
+  display: flex;
+  justify-content: space-between;
+  color: var(--c-text-tertiary);
+  border-bottom: 1px solid var(--c-gray-600); }
+  /* line 303, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tabs a {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    text-decoration: none;
+    border-top: 2px solid transparent;
+    display: inline-flex;
+    transition: 0.25s ease; }
+    /* line 310, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tabs a.active, .tabs a:hover, .tabs a:focus {
+      color: var(--c-text-primary);
+      border-color: var(--c-text-primary); }
+
+/* line 319, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.tabs1 {
+  display: flex;
+  justify-content: flex-end;
+  color: var(--c-text-tertiary);
+  border-bottom: 1px solid var(--c-gray-600); }
+  /* line 325, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tabs1 a {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    margin-left: 5rem;
+    text-decoration: none;
+    border-top: 2px solid transparent;
+    display: inline-flex;
+    transition: 0.25s ease; }
+    /* line 333, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tabs1 a.active, .tabs1 a:hover, .tabs1 a:focus {
+      color: var(--c-text-primary);
+      border-color: var(--c-text-primary); }
+
+/* login page */
+/* line 343, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.login-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #0000;
+  color: var(--c-gray-900);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  transition: 0.25s ease;
+  grid-column-start: 2;
+  max-height: 25rem;
+  color: white; }
+  @media only screen and (max-width: 1200px) {
+    /* line 343, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .login-card {
+      justify-content: center;
+      height: auto;
+      width: max-content; } }
+/* line 364, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.login-header {
+  display: flex;
+  align-items: center;
+  color: white; }
+  /* line 368, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .login-header h3 {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem; }
+    /* line 373, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .login-header h3 span:first-child {
+      font-weight: 600; }
+
+/* profile page */
+/* line 380, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.profile-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #055034;
+  color: var(--c-gray-900);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  transition: 0.25s ease;
+  grid-column-start: 2;
+  color: white; }
+  @media only screen and (max-width: 1200px) {
+    /* line 380, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .profile-card {
+      justify-content: center;
+      height: auto;
+      width: max-content; } }
+  /* line 400, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .profile-card h2 {
+    font-size: 30px; }
+  /* line 404, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .profile-card h3 {
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem; }
+  /* line 411, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .profile-card p {
+    font-size: 20px;
+    margin-left: 0.5rem; }
+
+/* line 417, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  color: white;
+  flex-direction: column;
+  row-gap: 0.5rem; }
+  /* line 423, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .profile-header h3 {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem;
+    color: #bdbbb7; }
+    /* line 429, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .profile-header h3 span:first-child {
+      font-weight: 600; }
+
+/* content cards */
+/* line 437, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.content-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #fff0;
+  color: var(--c-gray-900);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  transition: 0.25s ease;
+  grid-column-start: 2;
+  color: white; }
+  @media only screen and (max-width: 1200px) {
+    /* line 437, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .content-card {
+      justify-content: center;
+      height: auto;
+      width: max-content; } }
+  /* line 457, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-card .warning {
+    background-color: #803d3d7a;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative; }
+  /* line 469, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-card .plain {
+    background-color: #0d7240;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative; }
+  /* line 480, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-card h2 {
+    font-size: 30px; }
+  /* line 484, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-card h3 {
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem; }
+  /* line 491, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-card p {
+    font-size: 20px;
+    margin-left: 0.5rem; }
+
+/* line 497, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.content-header {
+  display: flex;
+  align-items: center;
+  color: white;
+  flex-direction: column;
+  row-gap: 0.5rem; }
+  /* line 503, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .content-header h3 {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem;
+    align-items: left;
+    color: #bdbbb7; }
+    /* line 510, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .content-header h3 span:first-child {
+      font-weight: 600; }
+
+/* header profile styles */
+/* line 517, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.user-profile {
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding-left: 20%;
+  background: transparent;
+  cursor: pointer;
+  color: var(--c-text-tertiary);
+  transition: 0.25s ease; }
+  /* line 527, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .user-profile:hover, .user-profile:focus {
+    color: var(--c-text-primary); }
+    /* line 530, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .user-profile:hover span:last-child, .user-profile:focus span:last-child {
+      box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary); }
+  /* line 535, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .user-profile span:first-child {
+    display: flex;
+    font-size: 1.125rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--c-gray-600);
+    font-weight: 300; }
+  /* line 544, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .user-profile span:last-child {
+    transition: 0.25s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-left: 1.5rem;
+    flex-shrink: 0; }
+
+/* see more icon */
+/* line 559, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  background-color: transparent;
+  border: 1px solid var(--c-gray-500);
+  color: var(--c-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  flex-shrink: 0; }
+  /* line 573, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .icon-button.large {
+    width: 42px;
+    height: 42px;
+    font-size: 1.25em; }
+  /* line 579, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .icon-button i {
+    transition: 0.25s ease; }
+  /* line 583, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .icon-button:hover, .icon-button:focus {
+    background-color: var(--c-gray-600);
+    box-shadow: 0 0 0 4px var(--c-gray-800), 0 0 0 5px var(--c-text-tertiary); }
+
+/* line 590, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 1rem;
+  row-gap: 1rem;
+  margin-top: 1.25rem; }
+  @media (max-width: 700px) {
+    /* line 590, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tiles {
+      grid-template-columns: repeat(1, 1fr); } }
+/* line 601, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.tile {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: var(--c-olive-500);
+  color: var(--c-gray-900);
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: 0.25s ease; }
+  /* line 613, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile:hover {
+    transform: translateY(-5px); }
+  /* line 617, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile:focus-within {
+    box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-olive-500); }
+  /* line 621, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile:nth-child(2) {
+    background-color: var(--c-green-500); }
+    /* line 623, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile:nth-child(2):focus-within {
+      box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-green-500); }
+  /* line 627, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile:nth-child(3) {
+    background-color: var(--c-gray-300); }
+    /* line 629, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile:nth-child(3):focus-within {
+      box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-gray-300); }
+  /* line 634, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600; }
+    /* line 641, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile a .icon-button {
+      color: inherit;
+      border-color: inherit; }
+      /* line 644, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+      .tile a .icon-button:hover, .tile a .icon-button:focus {
+        background-color: transparent; }
+        /* line 647, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+        .tile a .icon-button:hover i, .tile a .icon-button:focus i {
+          transform: none; }
+    /* line 653, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile a:focus {
+      box-shadow: none; }
+    /* line 657, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile a:after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0; }
+
+/* line 669, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.tile-header {
+  display: flex;
+  align-items: center; }
+  /* line 672, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile-header i {
+    font-size: 2.5em; }
+  /* line 676, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+  .tile-header h3 {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.375;
+    margin-left: 0.5rem; }
+    /* line 681, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile-header h3 span:first-child {
+      font-weight: 600; }
+    /* line 685, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .tile-header h3 span:last-child {
+      font-size: 0.825em;
+      font-weight: 200; }
+
+/* detailed cards */
+/* line 694, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.service-section > h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem; }
+
+/* line 700, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.service-section-footer {
+  color: var(--c-text-tertiary);
+  margin-top: 1rem; }
+
+/* line 705, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.mobile-only {
+  display: none; }
+  @media (max-width: 1000px) {
+    /* line 705, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+    .mobile-only {
+      display: inline-flex; } }
+/* line 717, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+input:focus,
+select:focus,
+a:focus,
+textarea:focus,
+button:focus {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--c-gray-800), 0 0 0 4px var(--c-gray-300); }
+
+/* TABLE STYLING - EDITS TO BOOTSTRAP */
+/* line 723, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.btn-sm {
+  margin-top: 0.5rem !important; }
+
+/* line 726, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.container {
+  grid-column: 2; }
+
+/* line 730, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.btn {
+  margin: 0.5rem; }
+
+/* line 734, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.collapse.show {
+  max-width: 656px; }
+
+/* line 739, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.card-body {
+  background-color: inherit; }
+
+/* line 743, c:/users/nofuente/documents/capstone/work env/aceainventory/inventoryproject/asert/style.scss */
+.p {
+  min-width: min-content; }
