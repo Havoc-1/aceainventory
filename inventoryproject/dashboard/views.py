@@ -3,11 +3,17 @@ from django.http import HttpResponse
 from .models import Inventory
 from .forms import InventoryForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 # P.S. path has to be reflected also in urls.py
 @login_required
 def index(request):
-    inventory = Inventory.objects.all                    # makes it so inventory can be viewed by non-staff (ENGINEERING)
+    if 'searchBar' in request.GET:                          # Search Functionality
+        searchBar = request.GET['searchBar']
+        multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
+        inventory = Inventory.objects.filter(multiple_query)
+    else: 
+        inventory = Inventory.objects.all                    # makes it so inventory can be viewed by non-staff (ENGINEERING)                
 
     context ={
         'inventory': inventory,
@@ -20,7 +26,12 @@ def staff(request):
 
 @login_required
 def inventory(request):
-    inventory = Inventory.objects.all                    # ORM Model (the one django uses), same as SQL but Inventory.objects.raw(SELECT * from dashboard_inventory)
+    if 'searchBar' in request.GET:                          # Search Functionality PLACEHOLDERED SINCE DATATABLES ARE IMPLEMENTED
+        searchBar = request.GET['searchBar']
+        multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
+        inventory = Inventory.objects.filter(multiple_query)
+    else: 
+        inventory = Inventory.objects.all                    # ORM Model (the one django uses), same as SQL but Inventory.objects.raw(SELECT * from dashboard_inventory)
 
     if request.method == 'POST':
         form = InventoryForm(request.POST)
@@ -29,7 +40,7 @@ def inventory(request):
             return redirect('dashboard-inventory')
     else:
         form=InventoryForm()
-
+    
     context ={
         'inventory': inventory,
         'form': form,
