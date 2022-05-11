@@ -69,7 +69,3 @@ def inventory_edit(request, pk):                          # pk stands for primar
         'form': form,
     }
     return render(request, 'dashboard/inventory_edit.html', context)
-
-@login_required
-def deliveries(request):
-    return render(request, 'dashboard/deliveries.html')

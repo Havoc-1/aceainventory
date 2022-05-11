@@ -10,4 +10,3 @@ class InventoryAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Inventory, InventoryAdmin)
-admin.site.register(Deliveries)

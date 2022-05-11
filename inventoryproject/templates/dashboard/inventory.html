@@ -4,19 +4,19 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-<div class="content-card">
-    <div class="content-header">
-        <h4>Add Inventory Entry</h4>
-        <hr>
+    <div class="content-card">
+        <div class="content-header">
+            <h4>Add Inventory Entry</h4>
+            <hr>
+        </div>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+            </form>
     </div>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
-        </form>
-</div>
     <div class="container table-responsive py-5">
-        <table id="table_id" class="table table-bordered table-hover">
+        <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">Name</th>

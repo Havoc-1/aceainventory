@@ -1,0 +1,18 @@
+{%extends 'partials/base.html'%}
+{% block title %}Delivery Request Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+<a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-request-new' %}">Create Delivery Requests</a>
+<div class="container table-responsive py-5">
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Delivery Request ID</th>
+                <th scope="col">Delivery Details</th>
+                <th scope="col">Request Date</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+{% endblock %}

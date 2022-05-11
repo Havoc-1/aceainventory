@@ -7,7 +7,6 @@ urlpatterns = [
     path('inventory/', views.inventory, name='dashboard-inventory'),
     path('inventory/delete/<int:pk>/', views.inventory_delete, name='dashboard-inventory-delete'),              # <int:pk> shows the id of deleted item
     path('inventory/edit/<int:pk>/', views.inventory_edit, name='dashboard-inventory-edit'),              # <int:pk> shows the id of deleted item
-    path('deliveries/', views.deliveries, name='dashboard-deliveries'),
 ]
 
 # P.S. path has to be reflected also in views.py
