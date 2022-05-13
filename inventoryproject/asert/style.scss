@@ -395,7 +395,7 @@ $dropDown     : true;
 	@media only screen and (max-width: 1200px) {
 		justify-content: center;
 		height: auto;
-		width: max-content;
+		margin-left:1.25rem;
 	}
 
 	h2 {
@@ -788,7 +788,7 @@ button.dt-button,div.dt-button,a.dt-button{
 
 label {
 	color: white !important;
-	margin: 1.15rem !important;
+	
 }
 
 .dataTables_wrapper .dataTables_filter {
@@ -802,5 +802,6 @@ label {
 }
 
 div.dt-buttons {
-	margin-top: 0.9rem !important;
-}
+	margin-right: 0.9rem !important;
+	margin-bottom: 0.9rem !important;
+  }
