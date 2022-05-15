@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Inventory, Deliveries
+from .models import Inventory, Location, Brand
 from django.contrib.auth.models import Group
 
 admin.site.site_header = 'ACEA Inventory Admin Dashboard'
@@ -10,3 +10,5 @@ class InventoryAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Inventory, InventoryAdmin)
+admin.site.register(Location)
+admin.site.register(Brand)

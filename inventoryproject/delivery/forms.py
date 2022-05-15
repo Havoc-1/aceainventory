@@ -1,15 +1,20 @@
 from django import forms
-from .models import Inventory, Delivery                         
+from .models import Inventory, Delivery, DeliveryItem   
+from django.forms import ModelChoiceField                    
 
 # NOT YET IMPLEMENTED
 
 class DeliveryRequestForm(forms.ModelForm):
     class Meta:         # meta takes at least 2 parameters
         model = Delivery
-        fields = ['inventory', 'quantity']
+        fields = ['inventory', 'staff', 'status', 'remarks']
 
-    quantity = forms.IntegerField()
     inventory = forms.ModelMultipleChoiceField(
-        queryset=Inventory.objects.all(),
+        queryset=DeliveryItem.objects.all(),
         widget=forms.CheckboxSelectMultiple
     )
+
+class DeliveryRequestItemForm(forms.ModelForm):
+    class Meta:         # meta takes at least 2 parameters
+        model = DeliveryItem
+        fields = ['name', 'quantity', 'specifications']

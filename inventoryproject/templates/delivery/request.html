@@ -9,10 +9,23 @@
         <thead class="thead-dark">
             <tr>
                 <th scope="col">Delivery Request ID</th>
-                <th scope="col">Delivery Details</th>
                 <th scope="col">Request Date</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
+        <tbody>
+            {% for item in delivery %}
+            {% if item.status == 'Pending'  %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.date }}</td>
+                <td>
+                    <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-request-edit' item.id %}">Edit</a>       <!-- item.id is PK (primary key)-->
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
     </table>
 </div>
 {% endblock %}

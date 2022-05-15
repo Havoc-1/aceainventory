@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 
 # Register your models here.
 class DeliveryAdmin(admin.ModelAdmin):                     
-    list_display = ('inventory_name', 'quantity')      # displays the delivery item model with the following list
+    list_display = ('name', 'quantity', 'specifications')      # displays the delivery item model with the following list
     # list_filter = ['inventory__type']                # commented out 'til I could figure out what to do with this
 
     @admin.display(description='Name')
