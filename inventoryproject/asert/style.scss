@@ -195,7 +195,7 @@ $dropDown     : true;
 	@media (max-width: 1200px) {
 		grid-template-columns: 1fr;
 		padding-right: 3.5rem;
-		column-gap: 2.5rem;
+		column-gap: 1.5rem;
 		max-width: 300px;
 		& > * {
 			margin-bottom: 3.5rem;
@@ -455,18 +455,6 @@ $dropDown     : true;
 		width: max-content;
 	}
 
-	.warning {
-		background-color: #803d3d7a;
-		padding: 1rem;
-		border-radius: 8px;
-		min-height: 200px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		position: relative;
-
-	}
-
 	.plain {
 		background-color: #0d7240;
 		padding: 1rem;
@@ -514,6 +502,24 @@ $dropDown     : true;
 	}
 }
 
+.logout-card {
+	padding: 1rem;
+	border-radius: 8px;
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	grid-column-start: 2;
+
+
+	@media only screen and (max-width: 1200px) {
+		justify-content: center;
+		height: auto;
+		width: min-content;
+		margin-left: 2.5rem;
+	}
+}
 /* header profile styles */
 .user-profile {
 	display: flex;
@@ -739,10 +745,6 @@ button {
 	margin: 0.5rem;
 }
 
-.collapse.show {
-	max-width: 656px;
-	
-}
 
 .card-body {
 	background-color: inherit;
@@ -805,3 +807,4 @@ div.dt-buttons {
 	margin-right: 0.9rem !important;
 	margin-bottom: 0.9rem !important;
   }
+
