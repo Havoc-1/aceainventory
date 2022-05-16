@@ -4,67 +4,68 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-<div class="content-card">
+<!-- ADDINVENTORY COLLAPSIBLE  -->
+<div class="form-card">
     <p>
-        <a class="btn btn-primary" data-toggle="collapse" href="#collapseForm" role="button" aria-expanded="false" aria-controls="collapseForm">
+        <a class="button-5" data-toggle="collapse" href="#collapseForm" role="button" aria-expanded="false" aria-controls="collapseForm">
             Add Inventory Entry
         </a>
     </p>
     <div class="collapse" id="collapseForm">
         <div class="card card-body">
-                <div class="content-header">
-                    <h4>Add Inventory Entry</h4>
-                    <hr>
-                </div>
-                    <form method="POST">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
-                    </form>
+            <div class="content-header">
+                <h4>Add Inventory Entry</h4>
+                <hr>
+            </div>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+                </form>
         </div>
     </div>
 </div>
 
     
-    <div class="container table-responsive py-5">
-        <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Location</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Brand</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Remarks</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <!-- PLACEHOLDER SEARCH BAR FOR INVENTORY
-            <form class="form-inline my-2 my-lg-0">                 
-                <input class="form-control mr-sm-2" name="searchBar" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-             -->
-            <tbody>
-                {% for item in inventory %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.location }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.brand }}</td>
-                    <td>{{ item.status }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.remarks }}</td>
-                    <td>
-                        <a class="btn btn-info btn-sm margin-top" href="{% url 'dashboard-inventory-edit' item.id %}">Edit</a>       <!-- item.id is PK (primary key)-->
-                        <a class="btn btn-danger btn-sm" href="{% url 'dashboard-inventory-delete' item.id %}">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="container table-responsive py-5">
+    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Location</th>
+                <th scope="col">Type</th>
+                <th scope="col">Brand</th>
+                <th scope="col">Status</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Remarks</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <!-- PLACEHOLDER SEARCH BAR FOR INVENTORY
+        <form class="form-inline my-2 my-lg-0">                 
+            <input class="form-control mr-sm-2" name="searchBar" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+            -->
+        <tbody>
+            {% for item in inventory %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.location }}</td>
+                <td>{{ item.type }}</td>
+                <td>{{ item.brand }}</td>
+                <td>{{ item.status }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.remarks }}</td>
+                <td>
+                    <a class="btn btn-info btn-sm margin-top" href="{% url 'dashboard-inventory-edit' item.id %}">Edit</a>       <!-- item.id is PK (primary key)-->
+                    <a class="btn btn-danger btn-sm" href="{% url 'dashboard-inventory-delete' item.id %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
 {% block js %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
