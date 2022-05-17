@@ -377,6 +377,11 @@ $dropDown     : true;
 	}
 }
 
+.text-muted { 
+	color:#e2e7ec !important; 
+}
+
+
 /* button */
 .button-5 {
 	align-items: center;
@@ -407,7 +412,7 @@ $dropDown     : true;
 
 	&:hover,
 	&:focus {
-		background-color: #00a2ff;
+		background-color: #00ff95;
   		box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
 		transform: translateY(-1px);
 	}
@@ -895,3 +900,6 @@ div.dt-buttons {
 	margin-bottom: 0.9rem !important;
   }
 
+.dataTables_wrapper .dataTables_length, .dataTables_wrapper .dataTables_filter, .dataTables_wrapper .dataTables_info, .dataTables_wrapper .dataTables_processing, .dataTables_wrapper .dataTables_paginate {
+	color: white !important;
+}
