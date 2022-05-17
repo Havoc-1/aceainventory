@@ -28,4 +28,7 @@
         </tbody>
     </table>
 </div>
+{% if not user.is_staff or user.is_superuser %}   <!-- verifies the user is logged in-->
+
+{% endif %}
 {% endblock %}
