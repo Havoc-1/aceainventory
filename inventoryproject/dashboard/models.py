@@ -2,16 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Create your models here.
-TYPE = (                                    # creation of types to display as choices 
-    ('Consummable', 'Consummable'),
-    ('ConstructionSupply', 'ConstructionSupply'),
-    ('DefBars', 'DefBars'),
-    ('Electrical', 'Electrical'),
-    ('Paint', 'Paint'),
-    ('Scrap', 'Scrap'),
-    ('Tools', 'Tools'),
-    ('Uniform', 'Uniform'),
-)
 
 STATUS = (                 
     ('Available', 'Available'),
@@ -22,18 +12,24 @@ STATUS = (
 class Location(models.Model):
     name = models.CharField(max_length=100, null=True)
 
-    def __str__(self):                                                      # function returning the data models to string
+    def __str__(self):                                                      
         return f'{self.name}'
 
 class Brand(models.Model):
     name = models.CharField(max_length=100, null=True)
 
-    def __str__(self):                                                      # function returning the data models to string
+    def __str__(self):                                                      
+        return f'{self.name}'
+
+class Type(models.Model):
+    name = models.CharField(max_length=100, null=True)
+
+    def __str__(self):                                                      
         return f'{self.name}'
 
 class Inventory(models.Model):                                              # django does most of the hardwork, so follow the template (CharField for strings, PositiveIntegerField for int)
     name = models.CharField(max_length=100, null=True)
-    type = models.CharField(max_length=100, choices=TYPE, null=True)
+    type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)  
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)     
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True) 
     status = models.CharField(max_length=100, choices=STATUS, null=True)

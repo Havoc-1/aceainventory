@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from user import views as user_view
-from delivery import views as delivery_view
 from django.contrib.auth import views as auth_views
 
 from django.conf.urls.static import static      #allow to set url patterns to import static
@@ -29,7 +28,7 @@ urlpatterns = [
     path('', include('dashboard.urls')),
     path('', include('delivery.urls')),
     path('register/', user_view.register, name='user-register'),
-    path('', auth_views.LoginView.as_view(template_name='user/login.html'), name='user-login'),
+    path('', user_view.customLoginView.as_view(), name='user-login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='user/logout.html'), name='user-logout'),
     path('profile/', user_view.view_profile, name='view-profile'),
     path('profile/edit/', user_view.edit_profile, name='edit-profile'),
