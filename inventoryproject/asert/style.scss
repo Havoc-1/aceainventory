@@ -405,6 +405,19 @@ $dropDown     : true;
 	vertical-align: baseline;
 	width: auto;
 
+	&:hover,
+	&:focus {
+		background-color: #00a2ff;
+  		box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+		transform: translateY(-1px);
+	}
+
+	&:active {
+		background-color: #fb8332;
+		box-shadow: rgba(0, 0, 0, .06) 0 2px 4px;
+		transform: translateY(0);
+	}
+
 	@media only screen and (max-width: 1200px) {
 		justify-content: center;
 		height: auto;
@@ -414,21 +427,6 @@ $dropDown     : true;
 
 }
 
-.button-5:hover,
-.button-5:focus {
-  background-color: #fb8332;
-  box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-}
-
-.button-5:hover {
-  transform: translateY(-1px);
-}
-
-.button-5:active {
-  background-color: #c85000;
-  box-shadow: rgba(0, 0, 0, .06) 0 2px 4px;
-  transform: translateY(0);
-}
 
 /* profile page */
 .profile-card {
@@ -556,6 +554,20 @@ $dropDown     : true;
 	}
 }
 
+.redirect-card {
+	padding: 1rem;
+	border-radius: 8px;
+	background-color: #fff0;
+	color: var(--c-gray-900);
+	min-height: 200px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: relative;
+	transition: 0.25s ease;
+	grid-column-start: 2;
+	color: white;
+}
 
 
 .content-header {
