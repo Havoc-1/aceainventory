@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Delivery, Inventory
 from django.http import HttpResponse
-from .forms import DeliveryRequestForm, DeliveryRequestItemForm
+from .forms import DeliveryApproveForm, DeliveryRequestForm, DeliveryRequestItemForm, DeliveryArrivalForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View
@@ -16,6 +16,15 @@ def index(request):
         'delivery': delivery,
     }
     return render(request, 'delivery/index.html', context)
+    
+@login_required
+def past(request):
+    delivery = Delivery.objects.all
+
+    context ={
+        'delivery': delivery,
+    }
+    return render(request, 'delivery/past.html', context)
 
 @login_required
 def details(request, pk):
@@ -37,7 +46,6 @@ def delivery_request(request):
 
 class DeliveryRequestNew(LoginRequiredMixin, View):
     template_name = 'delivery/request_new.html'
-
     def get_context_data(self, **kwargs):
         if 'item_form' not in kwargs:
             kwargs['item_form'] = DeliveryRequestItemForm()
@@ -51,7 +59,6 @@ class DeliveryRequestNew(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         ctxt = {}
-
         if 'item' in request.POST:
             item_form = DeliveryRequestItemForm(request.POST)
 
@@ -69,6 +76,7 @@ class DeliveryRequestNew(LoginRequiredMixin, View):
                 ctxt['request_form'] = request_form
 
         return render(request, self.template_name, self.get_context_data(**ctxt))
+
         
 @login_required
 def delivery_request_edit(request, pk):                          # pk stands for primary key
@@ -84,3 +92,35 @@ def delivery_request_edit(request, pk):                          # pk stands for
         'form': form,
     }
     return render(request, 'delivery/request_edit.html', context)
+
+@login_required
+def delivery_request_approve(request, pk):                          # pk stands for primary key
+    item = Delivery.objects.get(id=pk)
+    if request.method=='POST':
+        form = DeliveryApproveForm(request.POST, instance=item)
+        if form.is_valid():                                 
+            form.save()                                     # shows the information from previous page
+            return redirect('delivery-request')          # redirects back to inventory
+    else:
+        form = DeliveryApproveForm(instance=item)
+    context={
+        'item': item,
+        'form': form,
+    }
+    return render(request, 'delivery/request_approve.html', context)
+
+@login_required
+def approve(request, pk):                          # pk stands for primary key
+    item = Delivery.objects.get(id=pk)
+    if request.method=='POST':
+        form = DeliveryArrivalForm(request.POST, instance=item)
+        if form.is_valid():                                 
+            form.save()                                     # shows the information from previous page
+            return redirect('delivery')          # redirects back to inventory
+    else:
+        form = DeliveryArrivalForm(instance=item)
+    context={
+        'item': item,
+        'form': form,
+    }
+    return render(request, 'delivery/approve.html', context)

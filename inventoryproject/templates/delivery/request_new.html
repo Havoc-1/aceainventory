@@ -19,7 +19,7 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ request_form|crispy }}
-                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+                <input class="btn btn-success btn-block" type="submit" value="Create Delivery Request" name="request">
             </form>
         </div>
     </div>
@@ -40,9 +40,10 @@
             <form method="POST">
                 {% csrf_token %}
                 {{ item_form|crispy }}
-                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry" name="item">
             </form>
         </div>
     </div>
 </div>
+<a class="btn btn-secondary" href="{% url 'delivery-request' %}">Go back</a>
 {% endblock %}

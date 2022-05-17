@@ -3,7 +3,6 @@
 
 {% block content %}
 {% include 'partials/nav.html' %}
-    <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-request' %}">Delivery Requests</a>
 <div class="container table-responsive py-5">
     <table id="table_id" class="table table-bordered table-hover">
         <thead class="thead-dark">
@@ -15,22 +14,19 @@
         </thead>
         <tbody>
             {% for item in delivery %}
-            {% if item.status == 'Approved' and not item.arrived %}
+            {% if item.status == 'Approved' and item.arrived %}
             <tr>
                 <td>{{ item.id }}</td>
                 <td>{{ item.date }}</td>
                 <td>
                     <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-details' item.id %}">Details</a>       <!-- item.id is PK (primary key)-->
-                    {% if user.is_staff or user.is_superuser %}  
-                    <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-approve' item.id %}">Approve Arrival</a>       <!-- item.id is PK (primary key)-->
-                    {% endif %}
                 </td>
             </tr>
             {% endif %}
             {% endfor %}
         </tbody>
     </table>
-    <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-past' %}">View Past Deliveries</a>       <!-- item.id is PK (primary key)-->
+    <a class="btn btn-info btn-sm margin-top" href="{% url 'delivery-index' %}">Back to Deliveries</a>       <!-- item.id is PK (primary key)-->
 </div>
 </div>
 

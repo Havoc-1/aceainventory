@@ -21,6 +21,7 @@ class Delivery(models.Model):
     inventory_item = models.ManyToManyField(DeliveryItem)               # ManyToMany since theres a lot
     staff = models.ForeignKey(User, models.CASCADE, null=True)
     status = models.CharField(max_length=100, choices=STATUS, null=True) 
+    arrived = models.BooleanField(default=False)
     remarks = models.CharField(max_length=100, null=True)
     date = models.DateTimeField(auto_now_add=True)
 

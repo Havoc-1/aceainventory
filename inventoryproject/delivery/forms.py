@@ -14,6 +14,16 @@ class DeliveryRequestForm(forms.ModelForm):
         widget=forms.CheckboxSelectMultiple
     )
 
+class DeliveryApproveForm(forms.ModelForm):
+    class Meta:
+        model = Delivery
+        fields = ['status',]
+
+class DeliveryArrivalForm(forms.ModelForm):
+    class Meta:
+        model = Delivery
+        fields = ['arrived', 'remarks']
+
 class DeliveryRequestItemForm(forms.ModelForm):
     class Meta:         # meta takes at least 2 parameters
         model = DeliveryItem
