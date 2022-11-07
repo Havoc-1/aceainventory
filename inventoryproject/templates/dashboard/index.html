@@ -16,12 +16,19 @@
                         <span>Warehouse Name</span>
                     </h3>
                 </div>
-                <a href="#">
-                    <span>See more</span>
-                    <span class="icon-button">
-                        <i class="ph-caret-right-bold"></i>
-                    </span>
-                </a>
+                <p>
+                    <a class="btn" data-toggle="collapse" href="#collapse1" role="button" aria-expanded="false" aria-controls="collapse1">
+                        See more
+                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
+                    </a>
+                </p>
+                <div class="collapse" id="collapse1">
+                    <div class="card card-body">
+                        <p>
+                            Various information inside this card
+                        </p>
+                    </div>
+                </div>
             </article>
             <article class="tile">
                 <div class="tile-header">
@@ -30,12 +37,19 @@
                         <span>Warehouse Name 2</span>
                     </h3>
                 </div>
-                <a href="#">
-                    <span>See more</span>
-                    <span class="icon-button">
-                        <i class="ph-caret-right-bold"></i>
-                    </span>
-                </a>
+                <p>
+                    <a class="btn" data-toggle="collapse" href="#collapse2" role="button" aria-expanded="false" aria-controls="collapse2">
+                        See more
+                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
+                    </a>
+                </p>
+                <div class="collapse" id="collapse2">
+                    <div class="card card-body">
+                        <p>
+                            Various information inside this card
+                        </p>
+                    </div>
+                </div>
             </article>
             <article class="tile">
                 <div class="tile-header">
@@ -45,16 +59,23 @@
                         <span>Warehouse Name 3</span>
                     </h3>
                 </div>
-                <a href="#">
-                    <span>Go to service</span>
-                    <span class="icon-button">
-                        <i class="ph-caret-right-bold"></i>
-                    </span>
-                </a>
+                <p>
+                    <a class="btn" data-toggle="collapse" href="#collapse3" role="button" aria-expanded="false" aria-controls="collapse3">
+                        See more
+                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
+                    </a>
+                </p>
+                <div class="collapse" id="collapse3">
+                    <div class="card card-body">
+                        <p>
+                            Various information inside this card
+                        </p>
+                    </div>
+                </div>
             </article>
         </div>
         <div class="service-section-footer">
-            <p>some shit here - footer.</p>
+            <p>footer information</p>
         </div>
     </section>
 
