@@ -19,12 +19,26 @@
             </div>
                 <form method="POST">
                     {% csrf_token %}
-                    {{ form|crispy }}
-                    <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry">
+                    {{ inventory_form|crispy }}
+                    <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry" name="inventory">
                 </form>
         </div>
     </div>
 </div>
+
+
+<div class="card card-body">
+    <div class="content-header">
+        <h4>Add New Category</h4>
+        <hr>
+    </div>
+        <form method="POST">
+            {% csrf_token %}
+            {{ category_form|crispy }}
+            <input class="btn btn-success btn-block" type="submit" value="Add Category" name="category">
+        </form>
+</div>
+
 
     
 <div class="container table-responsive py-5">
@@ -80,7 +94,7 @@
             dom: 'B<"clear">lfrtip',
             buttons: {
                 name: 'primary',
-                buttons: [ 'copy', 'csv', 'excel', 'pdf' ]
+                buttons: []
                 }
             }
     );

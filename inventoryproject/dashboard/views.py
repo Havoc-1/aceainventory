@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Inventory
-from .forms import InventoryForm
+from .forms import CategoryForm, InventoryForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -24,28 +26,63 @@ def index(request):
 def staff(request):
     return render(request, 'dashboard/staff.html')
 
-@login_required
-def inventory(request):
-    if 'searchBar' in request.GET:                          # Search Functionality PLACEHOLDERED SINCE DATATABLES ARE IMPLEMENTED
-        searchBar = request.GET['searchBar']
-        multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
-        inventory = Inventory.objects.filter(multiple_query)
-    else: 
-        inventory = Inventory.objects.all                    # ORM Model (the one django uses), same as SQL but Inventory.objects.raw(SELECT * from dashboard_inventory)
+# @login_required
+# def inventory(request):
+#     if 'searchBar' in request.GET:                          # Search Functionality PLACEHOLDERED SINCE DATATABLES ARE IMPLEMENTED
+#         searchBar = request.GET['searchBar']
+#         multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
+#         inventory = Inventory.objects.filter(multiple_query)
+#     else: 
+#         inventory = Inventory.objects.all                    # ORM Model (the one django uses), same as SQL but Inventory.objects.raw(SELECT * from dashboard_inventory)
 
-    if request.method == 'POST':
-        form = InventoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('dashboard-inventory')
-    else:
-        form=InventoryForm()
+#     if request.method == 'POST':
+#         form = InventoryForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('dashboard-inventory')
+#     else:
+#         form=InventoryForm()
     
-    context ={
-        'inventory': inventory,
-        'form': form,
-    }
-    return render(request, 'dashboard/inventory.html', context)
+#     context ={
+#         'inventory': inventory,
+#         'form': form,
+#     }
+#     return render(request, 'dashboard/inventory.html', context)
+
+class inventoryView(LoginRequiredMixin, View):
+    template_name = 'dashboard/inventory.html'
+    def get_context_data(self, **kwargs):
+        inventory = Inventory.objects.all
+        kwargs['inventory'] = inventory
+        if 'inventory_form' not in kwargs:
+            kwargs['inventory_form'] = InventoryForm()
+        if 'category_form' not in kwargs:
+            kwargs['category_form'] = CategoryForm()
+
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name, self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        ctxt = {}
+        if 'inventory' in request.POST:
+            inventory_form = InventoryForm(request.POST)
+
+            if inventory_form.is_valid():
+                inventory_form.save()
+            else:
+                ctxt['inventory_form'] = inventory_form
+
+        elif 'category' in request.POST:
+            category_form = CategoryForm(request.POST)
+
+            if category_form.is_valid():
+                category_form.save()
+            else:
+                ctxt['category_form'] = category_form
+
+        return render(request, self.template_name, self.get_context_data(**ctxt))
 
 @login_required
 def inventory_delete(request, pk):                          # pk stands for primary key
