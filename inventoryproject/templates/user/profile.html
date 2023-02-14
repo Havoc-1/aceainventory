@@ -22,6 +22,12 @@
                 <p>
                     {{user.last_name}}
                 </p>
+                <h3>Location</h3>
+                <p>
+                    {% for info in userProfile %}
+                        {{ info.location }}
+                    {% endfor %}
+                </p>
                 <h3>Email</h3>
                 <p>
                     {{user.email}}

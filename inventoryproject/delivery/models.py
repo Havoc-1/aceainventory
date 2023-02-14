@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
-from dashboard.models import Inventory
 
 # Create your models here.
 STATUS = (                                    # creation of types to display as choices (STILL INCOMPLETE)

@@ -1,5 +1,6 @@
 from django import forms
-from .models import Inventory, Delivery, DeliveryItem   
+from .models import Delivery, DeliveryItem   
+
 from django.forms import ModelChoiceField                    
 
 # NOT YET IMPLEMENTED

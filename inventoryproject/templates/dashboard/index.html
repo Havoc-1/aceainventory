@@ -83,34 +83,21 @@
 <!-- REVISION BUG -->
 <div class="table-responsive-sm">
     <table id="table_id" class="table cell-border">
-        <!-- PLACEHOLDER SEARCH 
-        SEARCH BAR FOR INVENTORY 
-        <form class="form-inline my-2 my-lg-0">                 
-            <input class="form-control mr-sm-2" name="searchBar" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-        -->
         <thead class="thead-dark">
             <tr>
                 <th scope="col">Name</th>
                 <th scope="col">Location</th>
                 <th scope="col">Type</th>
-                <th scope="col">Brand</th>
-                <th scope="col">Status</th>
                 <th scope="col">Quantity</th>
-                <th scope="col">Remarks</th>
             </tr>
         </thead>
         <tbody>
-            {% for item in inventory %}
+            {% for item in product %}
             <tr>
                 <td>{{ item.name }}</td>
                 <td>{{ item.location }}</td>
                 <td>{{ item.type }}</td>
-                <td>{{ item.brand }}</td>
-                <td>{{ item.status }}</td>
                 <td>{{ item.quantity }}</td>
-                <td>{{ item.remarks }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -134,7 +121,7 @@
             dom: 'B<"clear">lfrtip',
             buttons: {
                 name: 'primary',
-                buttons: [ 'copy', 'csv', 'excel', 'pdf' ],
+                buttons: [],
                 }
             }
     );

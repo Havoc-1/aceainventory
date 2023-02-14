@@ -3,12 +3,6 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
-STATUS = (                 
-    ('Available', 'Available'),
-    ('Unavailable', 'Unavailable'),
-    ('NA', 'NA')
-)
-
 class Location(models.Model):
     name = models.CharField(max_length=100, null=True)
 
@@ -27,29 +21,48 @@ class Type(models.Model):
     def __str__(self):                                                      
         return f'{self.name}'
 
-class Inventory(models.Model):                                              # django does most of the hardwork, so follow the template (CharField for strings, PositiveIntegerField for int)
+class Product(models.Model):
     name = models.CharField(max_length=100, null=True)
-    type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)  
+    type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)     
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, null=True) 
-    status = models.CharField(max_length=100, choices=STATUS, null=True)
     quantity = models.PositiveIntegerField(null=True)
-    remarks = models.CharField(max_length=100, null=True)
+
+    class Meta:
+        constraints = [
+                models.UniqueConstraint(fields=["name", "location"], name='Location Instance'),
+        ]
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.name} - {self.location}'  
+
+class Delivery(models.Model):
+    # add ordered by user
+    dateRequested = models.DateTimeField(auto_now_add=True, blank=True)
+    dateApproved = models.DateTimeField(null=True, blank=True)
+    dateArrived = models.DateTimeField(null=True, blank=True)
+    delivery_location = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
-        verbose_name_plural = 'Inventory'
+        verbose_name_plural = 'Deliveries'
+
+    def update_dateArrived(self, dateArrived):
+        self.dateArrived = dateArrived
+        self.save()
+
+    def update_dateApproved(self, dateApproved):
+        self.dateApproved = dateApproved
+        self.save()
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'{self.name}--{self.location}--{self.quantity}--{self.status}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
+        return f'{self.arrived}--{self.approved}'
 
-class Deliveries(models.Model):
-    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)       # CASCADE - done so that when the referenced object is deleted, all objects referencing it would be deleted too
-    staff = models.ForeignKey(User, models.CASCADE, null=True)
-    delivery_quantity = models.PositiveIntegerField(null=True)
-    date = models.DateTimeField(auto_now_add=True)
+class DeliveryItem(models.Model):
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
+    quantity = models.PositiveIntegerField(null=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
-        verbose_name_plural = 'Deliveries'                                  # makes it gramatically correct
+        verbose_name_plural = 'Delivery Items'
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'{self.inventory} ordered by {self.staff.username}'         # arrangement and data values here would need to be reflected under dashboard/admin.py under Deliveries model
+        return f'{self.product}--{self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model

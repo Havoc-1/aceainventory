@@ -1,0 +1,60 @@
+{%extends 'partials/base.html'%}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+{% load bootstrap_icons %}
+
+<div>
+    <a href="{% url 'create-delivery'%}"> Create Delivery </a>
+</div>
+
+
+<div class="container table-responsive py-5">
+    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in delivery %}
+            <tr>
+                <td> {{ d.id }} </td>
+                <td> <a href="{% url 'delivery_details' d.id %}"> View </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="container table-responsive py-5">
+    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Date Created</th>
+                <th scope="col">Arrived</th>
+                <th scope="col">Approved</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in delivery %}
+            <tr>
+                <td> {{ item.date }} </td>
+                {% if item.arrived is True %}
+                    <td>Arrived</td>
+                {% else %}
+                    <td>Arrival Pending</td>
+                {% endif %}
+                {% if item.approved is True %}
+                    <td>Approved</td>
+                {% else %}
+                    <td>Approval Pending</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}

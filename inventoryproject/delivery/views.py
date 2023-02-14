@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Delivery, Inventory
+from .models import Delivery
 from django.http import HttpResponse
 from .forms import DeliveryApproveForm, DeliveryRequestForm, DeliveryRequestItemForm, DeliveryArrivalForm
 from django.contrib.auth.decorators import login_required
@@ -59,6 +59,7 @@ class DeliveryRequestNew(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         ctxt = {}
+        print(request.POST)
         if 'item' in request.POST:
             item_form = DeliveryRequestItemForm(request.POST)
 
