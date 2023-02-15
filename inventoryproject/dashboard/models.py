@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -35,12 +36,16 @@ class Product(models.Model):
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.name} - {self.location}'  
 
+
+# ==================================== DELIVERY MODELS ======================================================= #
+
+
 class Delivery(models.Model):
-    # add ordered by user
+    requestedBy = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     dateRequested = models.DateTimeField(auto_now_add=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
-    delivery_location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    deliveryLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Deliveries'
@@ -52,9 +57,15 @@ class Delivery(models.Model):
     def update_dateApproved(self, dateApproved):
         self.dateApproved = dateApproved
         self.save()
-
-    def __str__(self):                                                      # function returning the data models to string
-        return f'{self.arrived}--{self.approved}'
+    
+    def __str__(self):
+        if self.requestedBy:
+            initials = ''.join([name[0] for name in self.requestedBy.get_full_name().split()])
+        else:
+            initials = 'unknown'
+        formatted_date = self.dateRequested.strftime('%d%b%y')
+        slug = slugify(formatted_date).upper()
+        return f'{initials}-{slug}'
 
 class DeliveryItem(models.Model):
     delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
@@ -65,4 +76,4 @@ class DeliveryItem(models.Model):
         verbose_name_plural = 'Delivery Items'
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'{self.product}--{self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
+        return f'{self.delivery} - {self.product.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model

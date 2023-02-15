@@ -1,18 +1,86 @@
-{%extends 'partials/base.html'%}
-{% block title %}Home Page{% endblock %}
+{% extends 'partials/base.html' %}
+{% block title %}Add New Delivery{% endblock %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-{% include 'partials/nav.html' %}
-{% load bootstrap_icons %}
+    {% include 'partials/nav.html' %}
+    <div class="card card-body">
+        <div class="content-header">
+            <h4>Add New Delivery</h4>
+            <hr>
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {{ formset.management_form }}
-    {% for form in formset.forms %}
-        {{ form.as_table }}
-    {% endfor %}
-    <input type="submit" value="Create Delivery">
-</form>
-        
-{% endblock content %}
+        <form method="POST" action="{% url 'create-delivery' %}">
+            {% csrf_token %}
+
+            <table id="items-table">
+                {{ delivery_item_formset.management_form | crispy}}
+                {% for form in delivery_item_formset %}
+                    <tr class="formset-row">
+                        {% for field in form.visible_fields %}
+                            <td>
+                                {{ field|as_crispy_field }}
+                            </td>
+                        {% endfor %}
+                        <td>
+                            <button type="button" class="btn btn-danger delete-row">delet</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
+            <input type="submit" class="btn btn-success btn-block" value="Create Delivery">
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('.add-row').click(function () {
+                addFormsetRow();
+            });
+
+            $(document).on('click', '.delete-row', function () {
+                $(this).closest('.formset-row').remove();
+                updateFormsetIndexes();
+            });
+
+            function updateFormsetIndexes() {
+                var i = 0;
+                $('.formset-row').each(function () {
+                    $(this).find('input, select, textarea').each(function () {
+                        var name = $(this).attr('name').replace(/\d+/g, i);
+                        $(this).attr('name', name);
+                        $(this).attr('id', 'id_' + name);
+                    });
+                    i++;
+                });
+                $('#id_items-TOTAL_FORMS').val(i);
+            }
+
+            function addFormsetRow() {
+                var formCount = $('#id_items-TOTAL_FORMS').val();
+                var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
+                $('#items-table tbody').append('<tr class="formset-row">' + newFormHtml + '</tr>');
+                $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
+                updateFormsetIndexes();
+            }
+        });
+    </script>
+    <script id="formset-template" type="text/template">
+        {% for form in delivery_item_formset %}
+            <tr class="formset-row">
+                {% for field in form.visible_fields %}
+                    <td>
+                        {{ field|as_crispy_field }}
+                    </td>
+                {% endfor %}
+                <td>
+                    <button type="button" class="btn btn-danger delete-row">delet</button>
+                </td>
+            </tr>
+        {% endfor %}
+    </script>
+{% endblock %}

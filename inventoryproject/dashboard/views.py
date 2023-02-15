@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View, CreateView, UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -96,7 +98,6 @@ class productView(LoginRequiredMixin, View):
 
 class DeliveryList(ListView):
     model = Delivery
-    template_name = "dashboard/delivery_list.html"
     context_object_name = "deliveries"
     deliveries = Delivery.objects.all
 
@@ -108,25 +109,27 @@ class DeliveryList(ListView):
 
 def delivery_batch_details(request, pk):
     deliverybatch = get_object_or_404(Delivery, pk=pk)
-    deliverybatchproducts = DeliveryItem.objects.filter(deliveryDetails=deliverybatch)
+    deliverybatchproducts = DeliveryItem.objects.filter(delivery=deliverybatch)
     context = {
         'deliverybatch': deliverybatch,
         'deliverybatchproducts': deliverybatchproducts
     }
     return render(request, 'dashboard/delivery_details.html', context)
-    
+
 def delivery_create_view(request):
     if request.method == 'POST':
-        form = DeliveryForm(request.POST)
-        formset = DeliveryItemFormSet(request.POST, prefix='items')
-        if form.is_valid() and formset.is_valid():
-            delivery = form.save()
-            items = formset.save(commit=False)
-            for item in items:
-                item.delivery = delivery
-                item.save()
-            return redirect('delivery_list')
+        delivery_form = DeliveryForm(request.POST or None)
+        delivery_item_formset = DeliveryItemFormSet(request.POST or None, prefix='items')
+        if delivery_form.is_valid() and delivery_item_formset.is_valid():
+            delivery = delivery_form.save(commit=False)
+            delivery.requestedBy = request.user
+            delivery.deliveryLocation = request.user.userprofile.location
+            delivery.save()  # save the delivery object first
+            delivery_item_formset.instance = delivery  # set the delivery object as the instance for the formset
+            delivery_item_formset.save()  # then save the delivery item formset
+            return redirect('list-deliveries')
     else:
-        form = DeliveryForm()
-        formset = DeliveryItemFormSet(prefix='items')
-    return render(request, 'create_delivery.html', {'form': form, 'formset': formset})
+        delivery_form = DeliveryForm()
+        delivery_item_formset = DeliveryItemFormSet(prefix='items')
+    return render(request, 'dashboard/create_delivery.html', {'delivery_form': delivery_form, 'delivery_item_formset': delivery_item_formset})
+

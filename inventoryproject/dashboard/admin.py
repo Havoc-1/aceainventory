@@ -12,6 +12,6 @@ admin.site.register(Type)
 admin.site.register(DeliveryItem)
 admin.site.register(Product)
 admin.site.register(Delivery)
-# admin.site.unregister(DeliveryItem)
+# admin.site.unregister(Delivery)
 # except admin.sites.AlreadyRegisterd:
 #     pass

@@ -29,8 +29,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 SESSION_COOKIE_AGE = 86400
-DELIVERY_SESSION_ID = 'delivery'
-
 
 # Application definition
 
@@ -47,7 +45,6 @@ INSTALLED_APPS = [
     'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
     'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
     'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
-    'delivery.apps.DeliveryConfig'      # command for first time: "python manage.py startapp delivery"
 ]   
 
 MIDDLEWARE = [
@@ -73,7 +70,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'delivery.context_processors.delivery'
             ],
         },
     },
@@ -118,7 +114,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
