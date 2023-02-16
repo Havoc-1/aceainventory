@@ -19,8 +19,8 @@
             </div>
             <form method="POST">
                 {% csrf_token %}
-                {{ product_form|crispy }}
-                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry" name="product">
+                {{ inventory_form|crispy }}
+                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry" name="inventory">
             </form>
         </div>
     </div>
@@ -52,7 +52,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in product %}
+            {% for item in inventory %}
             <tr>
                 <td>{{ item.name }}</td>
                 <td>{{ item.location }}</td>

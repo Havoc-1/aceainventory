@@ -1,14 +1,17 @@
+import datetime
 from django.forms import model_to_dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Delivery, Location, Product, DeliveryItem, Type
-from .forms import CategoryForm, DeliveryForm, ProductForm, DeliveryItemForm, DeliveryItemFormSet
+from .models import Delivery, Location, Inventory, DeliveryItem, Type
+from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View, CreateView, UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+from django.views.decorators.http import require_POST
+from django.db import transaction
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -16,11 +19,11 @@ def index(request):
     if 'searchBar' in request.GET:                          # Search Functionality
         searchBar = request.GET['searchBar']
         multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
-        product = Product.objects.filter(multiple_query)
+        inventory = Inventory.objects.filter(multiple_query)
     else: 
-        product = Product.objects.all                    # makes it so product can be viewed by non-staff (ENGINEERING)                
+        inventory = Inventory.objects.all                    # makes it so inventory can be viewed by non-staff (ENGINEERING)                
     context ={
-        'product': product,
+        'inventory': inventory,
     }
     return render(request, 'dashboard/index.html', context)
 
@@ -28,13 +31,13 @@ def index(request):
 def staff(request):
     return render(request, 'dashboard/staff.html')
 
-class productView(LoginRequiredMixin, View):
+class inventoryView(LoginRequiredMixin, View):
     template_name = 'dashboard/inventory.html'
     def get_context_data(self, **kwargs):
-        product = Product.objects.all
-        kwargs['product'] = product
-        if 'product_form' not in kwargs:
-            kwargs['product_form'] = ProductForm()
+        inventory = Inventory.objects.all
+        kwargs['inventory'] = inventory
+        if 'inventory_form' not in kwargs:
+            kwargs['inventory_form'] = InventoryForm()
         if 'category_form' not in kwargs:
             kwargs['category_form'] = CategoryForm()
 
@@ -46,23 +49,23 @@ class productView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         ctxt = {}
         print(request.POST)
-        if 'product' in request.POST:
-            product_form = ProductForm(request.POST)
+        if 'inventory' in request.POST:
+            inventory_form = InventoryForm(request.POST)
 
-            if product_form.is_valid():
-                product_form.clean()
-                prod = product_form.clean()
+            if inventory_form.is_valid():
+                inventory_form.clean()
+                prod = inventory_form.clean()
                 print(prod)
                 print(prod.get('location'))
                 if request.method == 'POST':
 
                     print(request.POST.get('location'))
-                    form_data = {'name': product_form.cleaned_data['name'],
-                                'type': product_form.cleaned_data['type'],
-                                'location': product_form.cleaned_data['location'],
-                                'quantity': product_form.cleaned_data['quantity'],}
+                    form_data = {'name': inventory_form.cleaned_data['name'],
+                                'type': inventory_form.cleaned_data['type'],
+                                'location': inventory_form.cleaned_data['location'],
+                                'quantity': inventory_form.cleaned_data['quantity'],}
 
-                    items = Product.objects.filter(name=product_form.cleaned_data['name'])
+                    items = Inventory.objects.filter(name=inventory_form.cleaned_data['name'])
                     items_to_dict = [model_to_dict(i) for i in items]
                     shared_items = {k: form_data for k in form_data if k in items_to_dict and form_data == items_to_dict.values()}
                     location = Location.objects.all
@@ -77,15 +80,15 @@ class productView(LoginRequiredMixin, View):
                     print("Shared Items", shared_items)
 
                     if (shared_items == {}):
-                        ctxt['product_form'] = product_form
-                        product_form.save()
+                        ctxt['inventory_form'] = inventory_form
+                        inventory_form.save()
                     else:
                         print("Running Dupe Code")
-                        duplicate_line = Product.objects.get(id=items_to_dict['id'])
-                        duplicate_line.quantity += product_form.cleaned_data['quantity']
+                        duplicate_line = Inventory.objects.get(id=items_to_dict['id'])
+                        duplicate_line.quantity += inventory_form.cleaned_data['quantity']
                         duplicate_line.save()
             else:
-                ctxt['product_form'] = product_form
+                ctxt['inventory_form'] = inventory_form
 
         elif 'category' in request.POST:
             category_form = CategoryForm(request.POST)
@@ -98,21 +101,64 @@ class productView(LoginRequiredMixin, View):
 
 class DeliveryList(ListView):
     model = Delivery
-    context_object_name = "deliveries"
-    deliveries = Delivery.objects.all
+    context_object_name = "delivery"
 
     def get_context_data(self, **kwargs):
-        delivery = Delivery.objects.all
+        delivery = Delivery.objects.all()
         kwargs['delivery'] = delivery
-
         return kwargs
+
+def approveDelivery(request):
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            delivery = Delivery.objects.filter(id__icontains=pk).first()
+            if delivery:
+                context = {'ord': delivery}
+                if delivery.dateApproved is None:
+                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
+                    delivery.save()
+                return redirect('list-deliveries')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+
+@transaction.atomic
+def arriveDelivery(request):
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            delivery = Delivery.objects.filter(id__icontains=pk).first()
+            if delivery:
+                context = {'ord': delivery}
+                if delivery.dateArrived is None:
+                    delivery.dateArrived = datetime.datetime.now(datetime.timezone.utc)
+                    delivery.save()
+                    
+                    # update inventory items
+                    for item in delivery.deliveryitem_set.all():
+                        inventory_item = item.inventory
+                        inventory_item.quantity += item.quantity
+                        inventory_item.save()
+
+                return redirect('list-deliveries')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+
 
 def delivery_batch_details(request, pk):
     deliverybatch = get_object_or_404(Delivery, pk=pk)
-    deliverybatchproducts = DeliveryItem.objects.filter(delivery=deliverybatch)
+    deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
     context = {
         'deliverybatch': deliverybatch,
-        'deliverybatchproducts': deliverybatchproducts
+        'deliverybatchInventoryitems': deliverybatchInventoryitems
     }
     return render(request, 'dashboard/delivery_details.html', context)
 

@@ -1,11 +1,11 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Delivery, Product, DeliveryItem, Type
+from .models import Delivery, Inventory, DeliveryItem, Type
 
-class ProductForm(forms.ModelForm):
+class InventoryForm(forms.ModelForm):
     class Meta:         # meta takes at least 2 parameters
         abstract = True
-        model = Product
+        model = Inventory
         fields = ['name', 'location', 'type', 'quantity',]
         
 class CategoryForm(forms.ModelForm):
@@ -25,7 +25,7 @@ class DeliveryItemForm(forms.ModelForm):
         model = DeliveryItem
         fields = '__all__'
         
-DeliveryItemFormSet = inlineformset_factory(Delivery, DeliveryItem, form=DeliveryItemForm, extra=1, can_delete=True, can_delete_extra=True)
+DeliveryItemFormSet = inlineformset_factory(Delivery, DeliveryItem, form=DeliveryItemForm, extra=1, can_delete=False, can_delete_extra=True)
 
 # DELIVERY UPDATE FORMS
 class UpdateDateArrivedForm(forms.ModelForm):

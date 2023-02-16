@@ -22,7 +22,7 @@ class Type(models.Model):
     def __str__(self):                                                      
         return f'{self.name}'
 
-class Product(models.Model):
+class Inventory(models.Model):
     name = models.CharField(max_length=100, null=True)
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)     
@@ -32,6 +32,7 @@ class Product(models.Model):
         constraints = [
                 models.UniqueConstraint(fields=["name", "location"], name='Location Instance'),
         ]
+        verbose_name_plural = 'Inventory Items'
     
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.name} - {self.location}'  
@@ -49,14 +50,6 @@ class Delivery(models.Model):
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Deliveries'
-
-    def update_dateArrived(self, dateArrived):
-        self.dateArrived = dateArrived
-        self.save()
-
-    def update_dateApproved(self, dateApproved):
-        self.dateApproved = dateApproved
-        self.save()
     
     def __str__(self):
         if self.requestedBy:
@@ -69,11 +62,11 @@ class Delivery(models.Model):
 
 class DeliveryItem(models.Model):
     delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField(null=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Delivery Items'
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'{self.delivery} - {self.product.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
+        return f'{self.delivery} - {self.inventory.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model

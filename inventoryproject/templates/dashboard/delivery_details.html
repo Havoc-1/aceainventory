@@ -23,10 +23,10 @@
               </tr>
         </thead>
         <tbody>
-        {% for deliverybatchproduct in deliverybatchproducts %}
+        {% for deliverybatchinventory in deliverybatchInventoryitems %}
             <tr>
-                <td>{{ deliverybatchproduct.product.name }}</td>
-                <td>{{ deliverybatchproduct.quantity }}</td>
+                <td>{{ deliverybatchinventory.inventory.name }}</td>
+                <td>{{ deliverybatchinventory.quantity }}</td>
             </tr>
         {% endfor %}
         </tbody>

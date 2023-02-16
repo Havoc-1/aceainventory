@@ -11,74 +11,59 @@
 
 
 <div class="container table-responsive py-5">
-    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
+    <table id="table_id" class="table table-bordered table-hover">         
         <thead class="thead-dark">
             <tr>
                 <th scope="col">ID</th>
-                <th scope="col">View</th>
+                <th scope="col">Date Requested</th>
+                <th scope="col">Status</th>
+                <th scope="col">Approval</th>
+                <th scope="col">Arrival</th>
             </tr>
         </thead>
         <tbody>
             {% for d in delivery %}
             <tr>
-                <td> {{ d }} </td>
-                
-                <td> <a href="{% url 'delivery_details' d.id %}"> View </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+                <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
+                <td> {{ d.dateRequested|date:"d M Y" }} </td>
 
-<div class="container table-responsive py-5">
-    <table id="table_id2" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Date Requested</th>
-                <th scope="col">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in delivery %}
-            <tr>
-                <td> {{ item.dateRequested }} </td>
-                {% if item.dateApproved is None %}
+                {% if d.dateApproved is None %}
                     <td>Approval Pending</td>
-                {% elif item.dateArrived is None %}
+                {% elif d.dateArrived is None %}
                     <td>Arrival Pending</td>
                 {% else %}
                     <td>Delivered</td>
                 {% endif %}
+                <td>
+                    <form action ="{%url 'approveDelivery' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="pk" value="{{d.id}}">
+                    <button type="submit">Approve Delivery</button>
+                    </form>
+                </td>
+                <td>
+                    <form action ="{%url 'arriveDelivery' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="pk" value="{{d.id}}">
+                    <button type="submit">Arrive Delivery</button>
+                    </form>
+                </td>
+
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
 {% endblock content %}
 
 {% block js %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
-    <script>
-        $(document).ready( function () {
-            $('#table_id').DataTable({
-                dom: 'B<"clear">lfrtip',
-                buttons: {
-                    name: 'primary',
-                    buttons: []
-                }
-            });
-            $('#table_id2').DataTable({
-                dom: 'B<"clear">lfrtip',
-                buttons: {
-                    name: 'primary',
-                    buttons: []
-                }
-            });
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            dom: 'B<"clear">lfrtip',
+            buttons: [],
         });
-    </script>
-    </div>
+    });
+</script>
 {% endblock %}
