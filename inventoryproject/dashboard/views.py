@@ -27,10 +27,6 @@ def index(request):
     }
     return render(request, 'dashboard/index.html', context)
 
-@login_required
-def staff(request):
-    return render(request, 'dashboard/staff.html')
-
 class inventoryView(LoginRequiredMixin, View):
     template_name = 'dashboard/inventory.html'
     def get_context_data(self, **kwargs):
@@ -108,6 +104,7 @@ class DeliveryList(ListView):
         kwargs['delivery'] = delivery
         return kwargs
 
+@login_required
 def approveDelivery(request):
     if request.user.is_authenticated:
         pk = request.POST.get('pk') if request.POST.get('pk') else None
@@ -126,6 +123,7 @@ def approveDelivery(request):
     else:
         return HttpResponse("You must be logged in to perform this action.")
 
+@login_required
 @transaction.atomic
 def arriveDelivery(request):
     if request.user.is_authenticated:
@@ -152,7 +150,7 @@ def arriveDelivery(request):
     else:
         return HttpResponse("You must be logged in to perform this action.")
 
-
+@login_required
 def delivery_batch_details(request, pk):
     deliverybatch = get_object_or_404(Delivery, pk=pk)
     deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
@@ -162,6 +160,7 @@ def delivery_batch_details(request, pk):
     }
     return render(request, 'dashboard/delivery_details.html', context)
 
+@login_required
 def delivery_create_view(request):
     if request.method == 'POST':
         delivery_form = DeliveryForm(request.POST or None)

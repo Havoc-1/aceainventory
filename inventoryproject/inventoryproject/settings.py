@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
     'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
     'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
+    'templates',
 ]   
 
 MIDDLEWARE = [
@@ -71,6 +72,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'builtins': ['templates.templatetags.auth_extras'],
         },
     },
 ]

@@ -1,8 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.utils.text import slugify
 
 # Create your models here.
+
+admin_group= Group.objects.get_or_create(name='Administrator')
+management_group= Group.objects.get_or_create(name='Management')
+finance_group = Group.objects.get_or_create(name='Finance')
+engineering_group = Group.objects.get_or_create(name='Engineering')
 
 class Location(models.Model):
     name = models.CharField(max_length=100, null=True)

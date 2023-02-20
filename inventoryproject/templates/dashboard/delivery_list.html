@@ -5,9 +5,11 @@
 {% include 'partials/nav.html' %}
 {% load bootstrap_icons %}
 
+{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
 <div>
     <a href="{% url 'create-delivery'%}"> Create Delivery </a>
 </div>
+{% endif %}
 
 
 <div class="container table-responsive py-5">
@@ -17,8 +19,12 @@
                 <th scope="col">ID</th>
                 <th scope="col">Date Requested</th>
                 <th scope="col">Status</th>
+                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
                 <th scope="col">Approval</th>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                 <th scope="col">Arrival</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -34,6 +40,7 @@
                 {% else %}
                     <td>Delivered</td>
                 {% endif %}
+                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
                 <td>
                     <form action ="{%url 'approveDelivery' %}" method="POST">
                     {% csrf_token %}
@@ -41,6 +48,8 @@
                     <button type="submit">Approve Delivery</button>
                     </form>
                 </td>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                 <td>
                     <form action ="{%url 'arriveDelivery' %}" method="POST">
                     {% csrf_token %}
@@ -48,7 +57,7 @@
                     <button type="submit">Arrive Delivery</button>
                     </form>
                 </td>
-
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
