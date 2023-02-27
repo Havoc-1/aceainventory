@@ -3,10 +3,11 @@ from . import views
 
 urlpatterns = [
     path('dashboard/', views.index, name='dashboard-index'),
+    path('adash/', views.admin_dashboard, name='dashboard-admin'),
+    path('update-user-location/<int:user_id>/', views.update_user_location, name='update-user-location'),
     path('inventory/', views.inventoryView.as_view(), name='dashboard-inventory'),
     path('deliveries/', views.DeliveryList.as_view(), name='list-deliveries'),
     path('create/', views.delivery_create_view, name='create-delivery'),
-    # path('update/<int:pk>/', views.DeliveryUpdate.as_view(), name='update-delivery'),
     path('deliveries/<int:pk>/', views.delivery_batch_details, name='delivery_details'),
     path('approveDelivery',views.approveDelivery, name ='approveDelivery'),
     path('arriveDelivery',views.arriveDelivery, name ='arriveDelivery'),

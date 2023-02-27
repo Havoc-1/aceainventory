@@ -12,6 +12,9 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
 from django.db import transaction
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from user.models import UserProfile
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -97,13 +100,39 @@ class inventoryView(LoginRequiredMixin, View):
                 ctxt['category_form'] = category_form
         return render(request, self.template_name, self.get_context_data(**ctxt))
 
-class DeliveryList(ListView):
+@login_required
+def admin_dashboard(request):
+    if not request.user.groups.filter(name='Administrator').exists():
+        return redirect('dashboard-index')
+    users = UserProfile.objects.all()
+    locations = Location.objects.all()
+    context = {'users': users, 'locations': locations}
+    return render(request, 'dashboard/admin_dashboard.html', context)
+
+@login_required
+def update_user_location(request, user_id):
+    if not request.user.groups.filter(name='Administrator').exists():
+        return redirect('dashboard-index')
+    user_profile = UserProfile.objects.get(user__id=user_id)
+    if request.method == 'POST':
+        location_id = request.POST.get('location')
+        location = Location.objects.get(id=location_id)
+        user_profile.location = location
+        user_profile.save()
+        return redirect('dashboard-admin')
+    locations = Location.objects.all()
+    context = {'user_profile': user_profile, 'locations': locations}
+    return render(request, 'dashboard/update_user_location.html', context)
+
+class DeliveryList(LoginRequiredMixin, ListView):
     model = Delivery
     context_object_name = "delivery"
 
     def get_context_data(self, **kwargs):
         delivery = Delivery.objects.all()
         kwargs['delivery'] = delivery
+        filteredDelivery = delivery.filter(deliveryLocation=self.request.user.userprofile.location)
+        kwargs['filteredDelivery'] = filteredDelivery
         return kwargs
 
 @login_required

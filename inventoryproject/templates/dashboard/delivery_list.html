@@ -11,68 +11,157 @@
 </div>
 {% endif %}
 
-
-<div class="container table-responsive py-5">
-    <table id="table_id" class="table table-bordered table-hover">         
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Date Requested</th>
-                <th scope="col">Status</th>
-                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-                <th scope="col">Approval</th>
-                {% endif %}
-                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                <th scope="col">Arrival</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for d in delivery %}
-            <tr>
-                <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
-                <td> {{ d.dateRequested|date:"d M Y" }} </td>
-
-                {% if d.dateApproved is None %}
-                    <td>Approval Pending</td>
-                {% elif d.dateArrived is None %}
-                    <td>Arrival Pending</td>
-                {% else %}
-                    <td>Delivered</td>
-                {% endif %}
-                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-                <td>
-                    <form action ="{%url 'approveDelivery' %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{d.id}}">
-                    <button class="btn btn-primary" type="submit">Approve Delivery</button>
-                    </form>
-                </td>
-                {% endif %}
-                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                <td>
-                    <form action ="{%url 'arriveDelivery' %}" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{d.id}}">
-                    <button class="btn btn-primary" type="submit">Arrive Delivery</button>
-                    </form>
-                </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" id="unfiltered-btn">Show All Deliveries</button>
+        <button class="btn btn-primary" id="filtered-btn">Show Deliveries in my Location</button>
+    </div>
+    <div id="unfiltered-container">
+        <table id="unfiltered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date Requested</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+                    <th scope="col">Approval</th>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <th scope="col">Arrival</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in delivery %}
+                <tr>
+                    <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
+                    <td> {{ d.dateRequested|date:"d M Y" }} </td>
+    
+                    {% if d.dateApproved is None %}
+                        <td>Approval Pending</td>
+                    {% elif d.dateArrived is None %}
+                        <td>Arrival Pending</td>
+                    {% else %}
+                        <td>Delivered</td>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+                    <td>
+                        <form action ="{%url 'approveDelivery' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{d.id}}">
+                        <button class="btn btn-primary" type="submit">Approve Delivery</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <td>
+                        <form action ="{%url 'arriveDelivery' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{d.id}}">
+                        <button class="btn btn-primary" type="submit">Arrive Delivery</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="filtered-container">
+        <table id="filtered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Date Requested</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+                    <th scope="col">Approval</th>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <th scope="col">Arrival</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in filteredDelivery %}
+                <tr>
+                    <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
+                    <td> {{ d.dateRequested|date:"d M Y" }} </td>
+    
+                    {% if d.dateApproved is None %}
+                        <td>Approval Pending</td>
+                    {% elif d.dateArrived is None %}
+                        <td>Arrival Pending</td>
+                    {% else %}
+                        <td>Delivered</td>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+                    <td>
+                        <form action ="{%url 'approveDelivery' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{d.id}}">
+                        <button class="btn btn-primary" type="submit">Approve Delivery</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <td>
+                        <form action ="{%url 'arriveDelivery' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{d.id}}">
+                        <button class="btn btn-primary" type="submit">Arrive Delivery</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+{% endblock %}
 
-{% endblock content %}
-
+<!-- DATATABLES JS  -->
 {% block js %}
-<script>
-    $(document).ready(function () {
-        $('#table_id').DataTable({
-            dom: 'B<"clear">lfrtip',
-            buttons: [],
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
+    <script>
+        $(document).ready( function () {
+            var unfilteredTable = $('#unfiltered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+    
+            var filteredTable = $('#filtered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            $('#filtered-container').hide();
+
+            $('#unfiltered-btn').on('click', function() {
+                unfilteredTable.draw();
+                $('#unfiltered-container').show();
+                $('#filtered-container').hide();
+            });
+    
+            $('#filtered-btn').on('click', function() {
+                filteredTable.draw();
+                $('#unfiltered-container').hide();
+                $('#filtered-container').show();
+            });
+            
         });
-    });
-</script>
+    </script>
+    
+    </div>
 {% endblock %}
