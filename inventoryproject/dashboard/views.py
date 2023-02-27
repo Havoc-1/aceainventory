@@ -32,6 +32,8 @@ class inventoryView(LoginRequiredMixin, View):
     def get_context_data(self, **kwargs):
         inventory = Inventory.objects.all
         kwargs['inventory'] = inventory
+        filteredInventory = inventory = Inventory.objects.filter(location=self.request.user.userprofile.location)
+        kwargs['filteredInventory'] = filteredInventory
         if 'inventory_form' not in kwargs:
             kwargs['inventory_form'] = InventoryForm()
         if 'category_form' not in kwargs:

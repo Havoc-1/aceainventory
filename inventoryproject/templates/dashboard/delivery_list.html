@@ -45,7 +45,7 @@
                     <form action ="{%url 'approveDelivery' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="pk" value="{{d.id}}">
-                    <button type="submit">Approve Delivery</button>
+                    <button class="btn btn-primary" type="submit">Approve Delivery</button>
                     </form>
                 </td>
                 {% endif %}
@@ -54,7 +54,7 @@
                     <form action ="{%url 'arriveDelivery' %}" method="POST">
                     {% csrf_token %}
                     <input type="hidden" name="pk" value="{{d.id}}">
-                    <button type="submit">Arrive Delivery</button>
+                    <button class="btn btn-primary" type="submit">Arrive Delivery</button>
                     </form>
                 </td>
                 {% endif %}

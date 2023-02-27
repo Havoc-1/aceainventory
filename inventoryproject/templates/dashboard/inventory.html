@@ -39,29 +39,55 @@
         </form>
 </div>
 
-
-    
-<div class="container table-responsive py-5">
-    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Location</th>
-                <th scope="col">Type</th>
-                <th scope="col">Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in inventory %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.location }}</td>
-                <td>{{ item.type }}</td>
-                <td>{{ item.quantity }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" id="unfiltered-btn">Show All Inventory</button>
+        <button class="btn btn-primary" id="filtered-btn">Show Inventory in my Location</button>
+    </div>
+    <div id="unfiltered-container">
+        <table id="unfiltered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col" id="name-header">Name</th>
+                    <th scope="col" id="location-header">Location</th>
+                    <th scope="col" id="type-header">Type</th>
+                    <th scope="col" id="quantity-header">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in inventory %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="filtered-container">
+        <table id="filtered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in filteredInventory %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.type }}</td>
+                    <td>{{ item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
 
@@ -74,16 +100,38 @@
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
     <script>
         $(document).ready( function () {
-            $('#table_id').DataTable({
-
-            dom: 'B<"clear">lfrtip',
-            buttons: {
-                name: 'primary',
-                buttons: []
+            var unfilteredTable = $('#unfiltered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
                 }
-            }
-    );
-    } );
+            });
+    
+            var filteredTable = $('#filtered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            $('#filtered-container').hide();
+
+            $('#unfiltered-btn').on('click', function() {
+                unfilteredTable.draw();
+                $('#unfiltered-container').show();
+                $('#filtered-container').hide();
+            });
+    
+            $('#filtered-btn').on('click', function() {
+                filteredTable.draw();
+                $('#unfiltered-container').hide();
+                $('#filtered-container').show();
+            });
+            
+        });
     </script>
+    
     </div>
 {% endblock %}
