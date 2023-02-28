@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Delivery, Inventory, DeliveryItem, Type
+from .models import Delivery, Inventory, DeliveryItem, Quotation, QuotationItem, Type
 
 class InventoryForm(forms.ModelForm):
     class Meta:         # meta takes at least 2 parameters
@@ -26,6 +26,18 @@ class DeliveryItemForm(forms.ModelForm):
         fields = '__all__'
         
 DeliveryItemFormSet = inlineformset_factory(Delivery, DeliveryItem, form=DeliveryItemForm, extra=1, can_delete=False, can_delete_extra=True)
+
+class QuotationForm(forms.ModelForm):
+    class Meta:
+        model = Quotation
+        exclude = ['approvedBy', 'requestedBy', 'dateCreated', 'dateApproved']
+
+class QuotationItemForm(forms.ModelForm):
+    class Meta:
+        model = DeliveryItem
+        fields = '__all__'
+        
+QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
 
 # DELIVERY UPDATE FORMS
 class UpdateDateArrivedForm(forms.ModelForm):

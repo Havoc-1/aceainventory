@@ -7,7 +7,7 @@
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
 <div>
-    <a href="{% url 'create-delivery'%}"> Create Delivery </a>
+    <a href="{% url 'create-delivery' pk %}"> Create Delivery </a>
 </div>
 {% endif %}
 
@@ -21,7 +21,6 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Date Requested</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
                     <th scope="col">Approval</th>
@@ -34,19 +33,17 @@
             <tbody>
                 {% for d in delivery %}
                 <tr>
-                    <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
-                    <td> {{ d.dateRequested|date:"d M Y" }} </td>
-    
+                    <td><a href="{% url 'delivery_details' d.id %}">{{ d }}</a></td>
                     {% if d.dateApproved is None %}
-                        <td>Approval Pending</td>
+                    <td>Approval Pending</td>
                     {% elif d.dateArrived is None %}
-                        <td>Arrival Pending</td>
+                    <td>Arrival Pending</td>
                     {% else %}
-                        <td>Delivered</td>
+                    <td>Delivered</td>
                     {% endif %}
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
                     <td>
-                        <form action ="{%url 'approveDelivery' %}" method="POST">
+                        <form action="{% url 'approveDelivery' %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="pk" value="{{d.id}}">
                         <button class="btn btn-primary" type="submit">Approve Delivery</button>
@@ -55,11 +52,14 @@
                     {% endif %}
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <td>
-                        <form action ="{%url 'arriveDelivery' %}" method="POST">
+                        <form action="{% url 'arriveDelivery' %}" method="POST">
                         {% csrf_token %}
                         <input type="hidden" name="pk" value="{{d.id}}">
                         <button class="btn btn-primary" type="submit">Arrive Delivery</button>
                         </form>
+                        <td>
+                            <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
+                        </td>
                     </td>
                     {% endif %}
                 </tr>
@@ -72,7 +72,6 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">Date Requested</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
                     <th scope="col">Approval</th>
@@ -86,7 +85,6 @@
                 {% for d in filteredDelivery %}
                 <tr>
                     <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
-                    <td> {{ d.dateRequested|date:"d M Y" }} </td>
     
                     {% if d.dateApproved is None %}
                         <td>Approval Pending</td>

@@ -75,3 +75,28 @@ class DeliveryItem(models.Model):
 
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.delivery} - {self.inventory.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
+    
+
+
+# ==================================== QUOTATION MODELS ======================================================= #
+
+
+class Quotation(models.Model):
+    supplierName = models.CharField(max_length=100, null=True)
+    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations')
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quotations')
+    dateCreated = models.DateTimeField(auto_now_add=True, blank=True)
+    dateApproved = models.DateTimeField(null=True, blank=True)
+
+    class Meta:                                                             # django admin data models are pluralized (they add 's')
+        verbose_name_plural = 'Quotations'
+    
+
+class QuotationItem(models.Model):
+    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
+    quantity = models.PositiveIntegerField(null=True)
+    price = models.PositiveIntegerField(null=True)
+
+    class Meta:                                                             # django admin data models are pluralized (they add 's')
+        verbose_name_plural = 'Quotation Items'

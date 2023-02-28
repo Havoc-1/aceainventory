@@ -2,8 +2,8 @@ import datetime
 from django.forms import model_to_dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Delivery, Location, Inventory, DeliveryItem, Type
-from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet
+from .models import Delivery, Location, Inventory, DeliveryItem, Quotation, QuotationItem, Type
+from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet, QuotationForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View, CreateView, UpdateView, ListView
@@ -134,6 +134,17 @@ class DeliveryList(LoginRequiredMixin, ListView):
         filteredDelivery = delivery.filter(deliveryLocation=self.request.user.userprofile.location)
         kwargs['filteredDelivery'] = filteredDelivery
         return kwargs
+    
+class QuotationList(LoginRequiredMixin, ListView):
+    model = Quotation
+    context_object_name = "quotation"
+
+    def get_context_data(self, **kwargs):
+        quotation = Quotation.objects.all()
+        kwargs['quotation'] = quotation
+        context = super().get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
+        return context
 
 @login_required
 def approveDelivery(request):
@@ -187,12 +198,13 @@ def delivery_batch_details(request, pk):
     deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
     context = {
         'deliverybatch': deliverybatch,
-        'deliverybatchInventoryitems': deliverybatchInventoryitems
+        'deliverybatchInventoryitems': deliverybatchInventoryitems,
+        'pk': pk
     }
     return render(request, 'dashboard/delivery_details.html', context)
 
 @login_required
-def delivery_create_view(request):
+def delivery_create_view(request, pk):
     if request.method == 'POST':
         delivery_form = DeliveryForm(request.POST or None)
         delivery_item_formset = DeliveryItemFormSet(request.POST or None, prefix='items')
@@ -209,3 +221,34 @@ def delivery_create_view(request):
         delivery_item_formset = DeliveryItemFormSet(prefix='items')
     return render(request, 'dashboard/create_delivery.html', {'delivery_form': delivery_form, 'delivery_item_formset': delivery_item_formset})
 
+@login_required
+def quotation_details(request, pk):
+    deliverybatch = get_object_or_404(Delivery, pk=pk)
+    deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
+    quotation = get_object_or_404(Quotation)
+    quotationItems = QuotationItem.objects.filter(quotation=quotation)
+    context = {
+        'deliverybatch': deliverybatch,
+        'deliverybatchInventoryitems': deliverybatchInventoryitems,
+        'quotation': quotation,
+        'quotationItems': quotationItems,
+        'pk': pk,
+    }
+    return render(request, 'dashboard/quotation_details.html', context)
+
+@login_required
+def quotation_create_view(request, pk):
+    if request.method == 'POST':
+        quotation_form = DeliveryForm(request.POST or None)
+        quotation_item_formset = DeliveryItemFormSet(request.POST or None, prefix='items')
+        if quotation_form.is_valid() and quotation_item_formset.is_valid():
+            quotation = quotation_form.save(commit=False)
+            quotation.requestedBy = request.user
+            quotation.save()  # save the delivery object first
+            quotation_item_formset.instance = quotation  # set the delivery object as the instance for the formset
+            quotation_item_formset.save()  # then save the delivery item formset
+            return redirect('list-quotations')
+    else:
+        quotation_form = QuotationForm()
+        quotation_item_formset = DeliveryItemFormSet(prefix='items')
+    return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})

@@ -1,0 +1,30 @@
+{%extends 'partials/base.html'%}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+{% load bootstrap_icons %}
+<h1>Quotation created by {{ q.createdBy }} on {{ q.dateCreated|date:"M d Y" }}</h1>
+
+<div class="container table-responsive py-5">
+    <table id="table_id" class="table table-bordered table-hover">         <!-- table id is essential for DataTables Script under for JS -->
+        <thead class="thead-dark">
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+              </tr>
+        </thead>
+        <tbody>
+        {% for q in quotationItems %}
+            <tr>
+                <td>{{ q.inventory.name }}</td>
+                <td>{{ q.quantity }}</td>
+                <td>{{ q.price }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}
