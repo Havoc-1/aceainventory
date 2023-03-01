@@ -7,7 +7,7 @@
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
 <div>
-    <a href="{% url 'create-delivery' pk %}"> Create Delivery </a>
+    <a href="{% url 'create-delivery'%}"> Create Delivery </a>
 </div>
 {% endif %}
 

@@ -82,8 +82,9 @@ class DeliveryItem(models.Model):
 
 
 class Quotation(models.Model):
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE,null=True, blank=True)
     supplierName = models.CharField(max_length=100, null=True)
-    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations')
+    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
     createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quotations')
     dateCreated = models.DateTimeField(auto_now_add=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)

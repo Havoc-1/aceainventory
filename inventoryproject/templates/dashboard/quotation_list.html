@@ -12,26 +12,45 @@
 {% endif %}
 
 <div class="container py-5">
-    <div class="text-center mb-4">
-        <button class="btn btn-primary" id="unfiltered-btn">Show All Quotations</button>
-        <button class="btn btn-primary" id="filtered-btn">Show Quotations in my Location</button>
-    </div>
     <div id="unfiltered-container">
         <table id="unfiltered-table" class="table table-bordered table-hover">
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">Supplier Name</th>
                     <th scope="col">Items</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
                 </tr>
             </thead>
             <tbody>
-                {% for d in quotation %}
-                <tr>
-                    <td> <a href="{% url 'quotation_details' d.id %}">{{ d.supplierName }} </td>
-                    <td> PLACEHOLDER </td>
-                </tr>
+                {% regroup quotation by supplierName as supplier_quotation_list %}
+                {% for supplier_quotation in supplier_quotation_list %}
+                    <tr>
+                        <td> <a href="{% url 'quotation_details' supplier_quotation.list.0.id %}">{{ supplier_quotation.grouper }} </td>
+                        <td>
+                            <ul>
+                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
+                                    <li>{{ quotation_item.inventory.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
+                                    <li>{{ quotation_item.quantity }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
+                                    <li>{{ quotation_item.price }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
                 {% endfor %}
-            </tbody>
+            </tbody>            
         </table>
     </div>
 </div>

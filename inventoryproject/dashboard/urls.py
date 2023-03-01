@@ -11,7 +11,7 @@ urlpatterns = [
     path('deliveries/<int:pk>/', views.delivery_batch_details, name='delivery_details'),
     path('deliveries/quotation/<int:pk>/',views.QuotationList.as_view(), name='list-quotations'),
     path('deliveries/quotation/<int:pk>/create', views.quotation_create_view, name='create-quotation'),
-    path('deliveries/quotation/<int:pk>/<int:pk2>', views.quotation_details, name='quotation_details'),
+    path('deliveries/quotation/<int:pk>/details', views.quotation_details, name='quotation_details'),
     path('approveDelivery',views.approveDelivery, name ='approveDelivery'),
     path('arriveDelivery',views.arriveDelivery, name ='arriveDelivery'),
 ]

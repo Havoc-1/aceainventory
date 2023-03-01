@@ -12,7 +12,8 @@
 
         <form method="POST" action="{% url 'create-quotation' pk=pk %}">
             {% csrf_token %}
-
+            {{ quotation_form.supplier_name }}
+            {{ quotation_form.as_p }}
             <table id="items-table">
                 {{ quotation_item_formset.management_form | crispy}}
                 {% for form in quotation_item_formset %}

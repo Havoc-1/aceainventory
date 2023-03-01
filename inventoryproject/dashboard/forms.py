@@ -30,11 +30,12 @@ DeliveryItemFormSet = inlineformset_factory(Delivery, DeliveryItem, form=Deliver
 class QuotationForm(forms.ModelForm):
     class Meta:
         model = Quotation
-        exclude = ['approvedBy', 'requestedBy', 'dateCreated', 'dateApproved']
+        exclude = ['delivery', 'approvedBy', 'createdBy', 'dateCreated', 'dateApproved']
+        supplier_name = forms.CharField(max_length=255, label='Supplier Name', widget=forms.TextInput(attrs={'readonly': 'readonly'}))
 
 class QuotationItemForm(forms.ModelForm):
     class Meta:
-        model = DeliveryItem
+        model = QuotationItem
         fields = '__all__'
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
