@@ -3,7 +3,7 @@ from django.forms import model_to_dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Delivery, Location, Inventory, DeliveryItem, Quotation, QuotationItem, Type
-from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet, QuotationForm, QuotationItemFormSet
+from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet, QuotationForm, QuotationItemForm, QuotationItemFormSet
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View, CreateView, UpdateView, ListView
@@ -15,6 +15,7 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from user.models import UserProfile
+from django.forms import inlineformset_factory
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -223,28 +224,100 @@ def delivery_create_view(request):
 
 @login_required
 def quotation_details(request, pk):
-    deliverybatch = get_object_or_404(Delivery, pk=pk)
-    deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
-    quotation = get_object_or_404(Quotation)
-    quotationItems = QuotationItem.objects.filter(quotation=quotation)
+    quotation = get_object_or_404(Quotation, pk=pk)
+    quotation_items = QuotationItem.objects.filter(quotation=quotation)
     context = {
-        'deliverybatch': deliverybatch,
-        'deliverybatchInventoryitems': deliverybatchInventoryitems,
         'quotation': quotation,
-        'quotationItems': quotationItems,
+        'quotation_items': quotation_items,
         'pk': pk,
     }
     return render(request, 'dashboard/quotation_details.html', context)
 
+
+@login_required
+def edit_quotation(request, pk):
+    quotation = get_object_or_404(Quotation, pk=pk)
+    quotation_items = QuotationItem.objects.filter(quotation=quotation)
+
+    if request.method == 'POST':
+        formset = QuotationItemFormSet(request.POST, instance=quotation)
+        form = QuotationForm(request.POST, instance=quotation)
+        if formset.is_valid():
+            formset_instances = formset.save(commit=False)
+            for formset_instance, form in zip(formset_instances, formset.forms):
+                if form.is_valid():
+                    print('pls work')
+                    quotation_item = formset_instance
+                    quotation_item.quotation = quotation
+                    quotation_item.save()
+            formset.save_m2m()
+            form.save()
+            return redirect('quotation_details', pk=quotation.id)
+        else:
+            # check for fo rmset errors
+            for subform in formset:
+                if subform.errors:
+                    print(subform.errors)
+            print(formset.errors)
+    else:
+        form = QuotationForm(instance=quotation)
+        formset = QuotationItemFormSet(instance=quotation)
+    context = {
+        'form': form,
+        'formset': formset,
+        'pk': pk,
+    }
+    print("HELLO???")
+    return render(request, 'dashboard/edit_quotation.html', context) 
+
+
+@login_required
+def delete_quotation(request, pk):
+    quotation = get_object_or_404(Quotation, pk=pk)
+    quotation_items = QuotationItem.objects.filter(quotation=quotation)
+
+    if request.method == 'POST':
+        quotation_items.delete()
+        quotation.delete()
+        return redirect('list-quotations', pk=quotation.delivery.id)
+    
+    else:
+        return HttpResponse("Error.")
+
+@login_required
+def approveDelivery(request):
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            delivery = Delivery.objects.filter(id__icontains=pk).first()
+            if delivery:
+                context = {'ord': delivery}
+                if delivery.dateApproved is None:
+                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
+                    delivery.save()
+                return redirect('list-deliveries')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+
 @login_required
 def quotation_create_view(request, pk):
+    delivery = Delivery.objects.get(pk=pk)
+    delivery_items = delivery.deliveryitem_set.all() # get all delivery items related to this delivery
+    delivery_item_data = [{'inventory': item.inventory, 'quantity': item.quantity} for item in delivery_items]
+    # create list of dictionaries with inventory and quantity data
+    QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=len(delivery_items))
+    # generate formset with extra forms equal to the number of delivery items
     if request.method == 'POST':
         quotation_form = QuotationForm(request.POST or None)
-        quotation_item_formset = QuotationItemFormSet(request.POST or None, prefix='items')
+        quotation_item_formset = QuotationItemFormSet(request.POST or None, prefix='items', initial=delivery_item_data)
+        # initialize formset with the delivery item data
         if quotation_form.is_valid() and quotation_item_formset.is_valid():
             quotation = quotation_form.save(commit=False)
             quotation.createdBy = request.user
-            delivery = Delivery.objects.get(pk=pk)
             quotation.delivery = delivery
             quotation.save() 
             quotation_item_formset.instance = quotation  
@@ -252,5 +325,7 @@ def quotation_create_view(request, pk):
             return redirect('list-quotations', pk=delivery.id)
     else:
         quotation_form = QuotationForm()
-        quotation_item_formset = QuotationItemFormSet(prefix='items')
+        quotation_item_formset = QuotationItemFormSet(prefix='items', initial=delivery_item_data)
+        # initialize formset with the delivery item data
     return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
+

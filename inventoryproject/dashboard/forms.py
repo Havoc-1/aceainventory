@@ -37,6 +37,11 @@ class QuotationItemForm(forms.ModelForm):
     class Meta:
         model = QuotationItem
         fields = '__all__'
+        widgets = {
+            'inventory': forms.Select(attrs={'required': True}),
+            'quantity': forms.NumberInput(attrs={'required': True}),
+            'price': forms.NumberInput(attrs={'required': True}),
+        }
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
 

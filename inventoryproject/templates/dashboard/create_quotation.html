@@ -64,24 +64,47 @@
             function addFormsetRow() {
                 var formCount = $('#id_items-TOTAL_FORMS').val();
                 var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
-                $('#items-table tbody').append('<tr class="formset-row">' + newFormHtml + '</tr>');
+                $('#items-table tbody').append(newFormHtml);
                 $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
+
+                $('.formset-row:last').find('input, select, textarea').each(function () {
+                    var name = $(this).attr('name').replace(/\d+/g, formCount);
+                    var id = 'id_' + name;
+                    $(this).attr('name', name);
+                    $(this).attr('id', id);
+                    $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
+                });
+                
                 updateFormsetIndexes();
+
             }
         });
     </script>
     <script id="formset-template" type="text/template">
-        {% for form in quotation_item_formset %}
-            <tr class="formset-row">
-                {% for field in form.visible_fields %}
-                    <td>
-                        {{ field|as_crispy_field }}
-                    </td>
-                {% endfor %}
+    {% for form in formset %}
+        <tr class="formset-row">
+            {% for field in form.visible_fields %}
                 <td>
-                    <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+                    {{ field|as_crispy_field }}
                 </td>
-            </tr>
-        {% endfor %}
+            {% endfor %}
+            <td>
+                <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+            </td>
+        </tr>
+    {% endfor %}
+    </script>
+    
+    <script id="formset-empty-row" type="text/template">
+        <tr class="formset-row">
+            {% for field in formset.empty_form.visible_fields %}
+                <td>
+                    {{ field|as_crispy_field }}
+                </td>
+            {% endfor %}
+            <td>
+                <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+            </td>
+        </tr>
     </script>
 {% endblock %}
