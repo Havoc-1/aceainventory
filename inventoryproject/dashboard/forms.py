@@ -21,9 +21,14 @@ class DeliveryForm(forms.ModelForm):
         exclude = ['requestedBy', 'deliveryLocation', 'dateApproved', 'dateArrived']
 
 class DeliveryItemForm(forms.ModelForm):
+    inventory = forms.ModelChoiceField(queryset=Inventory.objects.all(), required=True, empty_label="---------", to_field_name="id")
+
     class Meta:
         model = DeliveryItem
-        fields = '__all__'
+        fields = ['inventory', 'quantity']
+        widgets = {
+            'quantity': forms.NumberInput(attrs={'required': True}),
+        }
         
 DeliveryItemFormSet = inlineformset_factory(Delivery, DeliveryItem, form=DeliveryItemForm, extra=1, can_delete=False, can_delete_extra=True)
 

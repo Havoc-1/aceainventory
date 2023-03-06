@@ -18,6 +18,9 @@
             {{ formset.management_form | crispy }}
             {% for form in formset %}
                 <tr class="formset-row">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
                     {% for field in form.visible_fields %}
                         <td>
                             {{ field|as_crispy_field }}
@@ -38,76 +41,62 @@
 {% endblock %}
 
 {% block js %}
-<script>
-    $(document).ready(function () {
-        $('.add-row').click(function () {
-            addFormsetRow();
-        });
+    <script>
+        $(document).ready(function () {
+            $('.add-row').click(function () {
+                addFormsetRow();
+            });
 
 
-        $(document).on('click', '.delete-row', function () {
-            $(this).closest('.formset-row').remove();
-            updateFormsetIndexes();
-        });
+            $(document).on('click', '.delete-row', function () {
+                $(this).closest('.formset-row').remove();
+                updateFormsetIndexes();
+            });
 
-        function updateFormsetIndexes() {
-            var i = 0;
-            $('.formset-row').each(function () {
-                $(this).find('input, select, textarea').each(function () {
-                    var name = $(this).attr('name').replace(/\d+/g, i);
-                    $(this).attr('name', name);
-                    $(this).attr('id', 'id_' + name);
+            function updateFormsetIndexes() {
+                var i = 0;
+                $('.formset-row').each(function () {
+                    $(this).find('input, select, textarea').each(function () {
+                        var name = $(this).attr('name').replace(/\d+/g, i);
+                        $(this).attr('name', name);
+                        $(this).attr('id', 'id_' + name);
+                    });
+                    i++;
                 });
-                i++;
-            });
-            $('#id_items-TOTAL_FORMS').val(i);
-        }
+                $('#id_items-TOTAL_FORMS').val(i);
+            }
 
-        function addFormsetRow() {
-            var formCount = $('#id_items-TOTAL_FORMS').val();
-            var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
-            $('#items-table tbody').append(newFormHtml);
-            $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
+            function addFormsetRow() {
+                var formCount = $('#id_items-TOTAL_FORMS').val();
+                var newFormHtml = $('#formset-empty-row').html().replace(/__prefix__/g, formCount);
+                $('#items-table tbody').append(newFormHtml);
+                $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
 
-            $('.formset-row:last').find('input, select, textarea').each(function () {
-                var name = $(this).attr('name').replace(/\d+/g, formCount);
-                var id = 'id_' + name;
-                $(this).attr('name', name);
-                $(this).attr('id', id);
-                $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
-            });
-            
-            updateFormsetIndexes();
+                $('.formset-row:last').find('input, select, textarea').each(function () {
+                    var name = $(this).attr('name').replace(/\d+/g, formCount);
+                    var id = 'id_' + name;
+                    $(this).attr('name', name);
+                    $(this).attr('id', id);
+                    $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
+                });
+                updateFormsetIndexes();
+            }
+        });
+    </script>
 
-        }
-    });
-</script>
-<script id="formset-template" type="text/template">
-{% for form in formset %}
-    <tr class="formset-row">
-        {% for field in form.visible_fields %}
+    <script id="formset-empty-row" type="text/template">
+        <tr class="formset-row">
+            {% for hidden in formset.empty_form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% for field in formset.empty_form.visible_fields %}
+                <td>
+                    {{ field|as_crispy_field }}
+                </td>
+            {% endfor %}
             <td>
-                {{ field|as_crispy_field }}
+                <button type="button" class="btn btn-danger delete-row">Remove Item</button>
             </td>
-        {% endfor %}
-        <td>
-            <button type="button" class="btn btn-danger delete-row">Remove Item</button>
-        </td>
-    </tr>
-{% endfor %}
-</script>
-
-<script id="formset-empty-row" type="text/template">
-    <tr class="formset-row">
-        {% for field in formset.empty_form.visible_fields %}
-            <td>
-                {{ field|as_crispy_field }}
-            </td>
-        {% endfor %}
-        <td>
-            <button type="button" class="btn btn-danger delete-row">Remove Item</button>
-        </td>
-    </tr>
-</script>
-
+        </tr>
+    </script>
 {% endblock %}

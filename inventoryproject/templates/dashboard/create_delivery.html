@@ -17,11 +17,16 @@
                 {{ delivery_item_formset.management_form | crispy}}
                 {% for form in delivery_item_formset %}
                     <tr class="formset-row">
-                        {% for field in form.visible_fields %}
-                            <td>
-                                {{ field|as_crispy_field }}
-                            </td>
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
                         {% endfor %}
+                        
+                        <td>
+                            {{ form.inventory|as_crispy_field }}
+                        </td>
+                        <td>
+                            {{ form.quantity|as_crispy_field }}
+                        </td>
                         <td>
                             <button type="button" class="btn btn-danger delete-row">Remove Item</button>
                         </td>
@@ -72,11 +77,16 @@
     <script id="formset-template" type="text/template">
         {% for form in delivery_item_formset %}
             <tr class="formset-row">
-                {% for field in form.visible_fields %}
-                    <td>
-                        {{ field|as_crispy_field }}
-                    </td>
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
                 {% endfor %}
+                
+                <td>
+                    {{ form.inventory|as_crispy_field }}
+                </td>
+                <td>
+                    {{ form.quantity|as_crispy_field }}
+                </td>
                 <td>
                     <button type="button" class="btn btn-danger delete-row">Remove Item</button>
                 </td>

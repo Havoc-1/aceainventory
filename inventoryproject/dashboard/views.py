@@ -215,11 +215,19 @@ def delivery_create_view(request):
             delivery.deliveryLocation = request.user.userprofile.location
             delivery.save()  # save the delivery object first
             delivery_item_formset.instance = delivery  # set the delivery object as the instance for the formset
+            # Filter inventory items based on the user's location
+            inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+            for form in delivery_item_formset:
+                form.fields['inventory'].queryset = inventory_items
             delivery_item_formset.save()  # then save the delivery item formset
             return redirect('list-deliveries')
     else:
         delivery_form = DeliveryForm()
         delivery_item_formset = DeliveryItemFormSet(prefix='items')
+        # Filter inventory items based on the user's location
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        for form in delivery_item_formset:
+            form.fields['inventory'].queryset = inventory_items
     return render(request, 'dashboard/create_delivery.html', {'delivery_form': delivery_form, 'delivery_item_formset': delivery_item_formset})
 
 @login_required
@@ -302,6 +310,47 @@ def approveDelivery(request):
             return HttpResponse("No order ID specified.")
     else:
         return HttpResponse("You must be logged in to perform this action.")
+    
+@login_required
+def approveQuotation(request):
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            delivery = Delivery.objects.filter(id__icontains=pk).first()
+            if delivery:
+                context = {'ord': delivery}
+                if delivery.dateApproved is None:
+                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
+                    delivery.save()
+                return redirect('list-deliveries')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+
+@login_required
+def approve_quotation(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            pk = request.POST.get('pk')
+            if pk:
+                quotation = Quotation.objects.filter(id=pk).first()
+                if quotation:
+                    if quotation.dateApproved is None:
+                        quotation.dateApproved = datetime.datetime.now(datetime.timezone.utc)
+                        quotation.approvedBy = request.user
+                        quotation.save()
+                    return redirect('list-quotations')
+                else:
+                    return HttpResponse("Quotation not found.")
+            else:
+                return HttpResponse("No quotation ID specified.")
+        else:
+            return HttpResponse("You must be logged in to perform this action.")
+    else:
+        return HttpResponse("NOT POST")
 
 @login_required
 def quotation_create_view(request, pk):

@@ -5,7 +5,7 @@
 {% include 'partials/nav.html' %}
 {% load bootstrap_icons %}
 
-{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
 <div>
     <a href="{% url 'create-quotation' pk %}"> Create Quotation </a>
 </div>
@@ -20,6 +20,9 @@
                     <th scope="col">Items</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" %}
+                    <th scope="col">Management Approval</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -44,10 +47,19 @@
                         <td>
                             <ul>
                                 {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
-                                    <li>{{ quotation_item.price }}</li>
+                                    <li>₱{{ quotation_item.price|floatformat:2 }}</li>
                                 {% endfor %}
                             </ul>
                         </td>
+                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" %}
+                        <td>
+                            <form action="{% url 'approveQuotation' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="pk" value="{{quotation.id}}">
+                            <button class="btn btn-primary" type="submit">Approve Delivery</button>
+                            </form>
+                        </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>            
@@ -56,11 +68,9 @@
 </div>
 {% endblock %}
 
-<!-- DATATABLES JS  -->
 {% block js %}
     <script>
         $(document).ready( function () {
-            console.log("Document ready"); // Added console log statement
             var unfilteredTable = $('#unfiltered-table').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: {

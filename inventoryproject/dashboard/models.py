@@ -82,6 +82,7 @@ class DeliveryItem(models.Model):
 
 
 class Quotation(models.Model):
+    id = models.AutoField(primary_key=True)
     delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE,null=True, blank=True)
     supplierName = models.CharField(max_length=100, null=True)
     approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
@@ -94,6 +95,7 @@ class Quotation(models.Model):
     
 
 class QuotationItem(models.Model):
+    id = models.AutoField(primary_key=True)
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField(null=True)
