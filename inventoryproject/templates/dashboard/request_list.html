@@ -1,0 +1,128 @@
+{%extends 'partials/base.html'%}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+{% load bootstrap_icons %}
+
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" id="unfiltered-btn">Show All Pending Purchase Requests</button>
+        <button class="btn btn-primary" id="filtered-btn">Show All Accomplished Purchase Requests</button>
+    </div>
+    <div id="unfiltered-container">
+        <table id="unfiltered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <th scope="col">Quotation</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in pRequest %}
+                <tr>
+                    <td>{{ d }}</a></td>
+
+                    {% if d.dateApproved is None %}
+                        <td>No Quotations yet.</td>
+                    {% elif d.approvedQuotations is False %}
+                        <td>Awaiting Quotation Approval</td>
+                    {% elif d.approvedDelivery is False %}
+                        <td>Awaiting Delivery Confirmation</td>
+                    {% else %} 
+                        <td>Delivery Confirmed</td>
+                    {% endif %}
+                    
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <td>
+                        <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
+                    </td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="filtered-container">
+        <table id="filtered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <th scope="col">Quotation</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in filteredRequest %}
+                <tr>
+                    <td>{{ d }}</a></td>
+
+                    {% if d.dateApproved is None %}
+                        <td>No Quotations yet.</td>
+                    {% elif d.approvedQuotations is False %}
+                        <td>Awaiting Quotation Approval</td>
+                    {% elif d.approvedDelivery is False %}
+                        <td>Awaiting Delivery Confirmation</td>
+                    {% else %} 
+                        <td>Delivery Confirmed</td>
+                    {% endif %}
+                    
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <td>
+                        <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
+                    </td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+<!-- DATATABLES JS  -->
+{% block js %}
+    <script>
+        $(document).ready( function () {
+            var unfilteredTable = $('#unfiltered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+    
+            var filteredTable = $('#filtered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            $('#filtered-container').hide();
+
+            $('#unfiltered-btn').on('click', function() {
+                unfilteredTable.draw();
+                $('#unfiltered-container').show();
+                $('#filtered-container').hide();
+            });
+    
+            $('#filtered-btn').on('click', function() {
+                filteredTable.draw();
+                $('#unfiltered-container').hide();
+                $('#filtered-container').show();
+            });
+            
+        });
+    </script>
+    
+    </div>
+{% endblock %}

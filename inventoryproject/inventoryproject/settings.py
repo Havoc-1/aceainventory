@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -31,6 +30,9 @@ ALLOWED_HOSTS = []
 SESSION_COOKIE_AGE = 86400
 
 # Application definition
+# AUTHENTICATION_BACKENDS = [
+#     'oauth2_provider.backends.OAuth2Backend',
+# ]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -39,14 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'oauth2_provider',
     # Below are created registered apps
-    'dashboard.apps.DashboardConfig',   # command for first time: "python manage.py startapp dashboard"
-    'user.apps.UserConfig',             # command for first time: "python manage.py startapp user"
-    'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
-    'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
-    'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
+    'dashboard.apps.DashboardConfig',  # command for first time: "python manage.py startapp dashboard"
+    'user.apps.UserConfig',  # command for first time: "python manage.py startapp user"
+    'crispy_forms',  # command for first time: "pip install django-crispy-forms"
+    'django_bootstrap_icons',  # command for first time: "pip install django-bootstrap-icons"
+    'compressor',  # command for first time: "pip install django_compressor AND pip install django-libsass"
     'templates',
-]   
+    'users',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -56,10 +60,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 ]
 
-ROOT_URLCONF = 'inventoryproject.urls'
 
+ROOT_URLCONF = 'inventoryproject.urls'
+AUTH_USER_MODEL='users.User'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,6 +84,11 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'inventoryproject.wsgi.application'
+AUTHENTICATION_BACKENDS = [
+    'oauth2_provider.backends.OAuth2Backend',
+    # Uncomment following if you want to access the admin
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 
 # Database
@@ -89,7 +100,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -122,7 +132,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
@@ -133,7 +142,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = (BASE_DIR/"asert/")
+STATIC_ROOT = (BASE_DIR / "asert/")
 
 STATICFILES_DIRS = [
     BASE_DIR / "static"
@@ -142,18 +151,27 @@ STATICFILES_DIRS = [
 # for images
 MEDIA_URL = '/images/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images') #not for production | creates a path and stores it
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/images')  # not for production | creates a path and stores it
 
 LOGIN_REDIRECT_URL = 'dashboard-index'
 
-LOGIN_URL = 'user-login'
+# LOGIN_URL = 'user-login'
+LOGIN_URL = '/admin/login'
 
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
 
-#The list of finder backends that know how to find static files in various locations
-#to get scss to work
+# The list of finder backends that know how to find static files in various locations
+# to get scss to work
 STATICFILES_FINDERS = [
     'compressor.finders.CompressorFinder'
 ]
+
+OIDC_KEY = Path(str(BASE_DIR) + "/oidc.key").read_text()
+
+OAUTH2_PROVIDER = {
+    "OIDC_ENABLED": True,
+    "OIDC_RSA_PRIVATE_KEY": OIDC_KEY,
+    "SCOPES": {"all": "all scopes"},
+}

@@ -3,6 +3,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'inventoryproject.settings')
 import django
 django.setup()
 
-from dashboard.models import Delivery
+from dashboard.models import PurchaseRequest
 
-Delivery.objects.all().delete()
+PurchaseRequest.objects.all().delete()
