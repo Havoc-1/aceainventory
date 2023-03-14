@@ -6,16 +6,16 @@
     {% include 'partials/nav.html' %}
     <div class="card card-body">
         <div class="content-header">
-            <h4>Add New Delivery</h4>
+            <h4>Create Purchase Request</h4>
             <hr>
         </div>
 
-        <form method="POST" action="{% url 'create-delivery' %}">
+        <form method="POST" action="{% url 'create-request' %}">
             {% csrf_token %}
 
             <table id="items-table">
-                {{ delivery_item_formset.management_form | crispy}}
-                {% for form in delivery_item_formset %}
+                {{ requestItemFormset.management_form | crispy}}
+                {% for form in requestItemFormset %}
                     <tr class="formset-row">
                         {% for hidden in form.hidden_fields %}
                             {{ hidden }}

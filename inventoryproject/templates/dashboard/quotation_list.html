@@ -20,52 +20,71 @@
                     <th scope="col">Items</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" or request.user|has_group:"Finance" %}
                     <th scope="col">Management Approval</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% regroup quotation by supplierName as supplier_quotation_list %}
-                {% for supplier_quotation in supplier_quotation_list %}
-                    <tr>
-                        <td> <a href="{% url 'quotation_details' supplier_quotation.list.0.id %}">{{ supplier_quotation.grouper }} </td>
-                        <td>
-                            <ul>
-                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
-                                    <li>{{ quotation_item.inventory.name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <ul>
-                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
-                                    <li>{{ quotation_item.quantity }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        <td>
-                            <ul>
-                                {% for quotation_item in supplier_quotation.list.0.quotationitem_set.all %}
-                                    <li>₱{{ quotation_item.price|floatformat:2 }}</li>
-                                {% endfor %}
-                            </ul>
-                        </td>
-                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" %}
+            {% for q in quotationItem %}
+                <tr>
+                    <td>{{ q.supplierName }}</td>
+                    <td>{{ q.inventory.name }}</td>
+                    <td>{{ q.quantity }}</td>
+                    <td>₱{{ q.price|floatformat:2 }}</td>
+                    {% if q.dateApproved is None %}
+                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
                         <td>
                             <form action="{% url 'approveQuotation' %}" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="pk" value="{{quotation.id}}">
-                            <button class="btn btn-primary" type="submit">Approve Delivery</button>
+                            <input type="hidden" name="pk" value="{{q.id}}">
+                            <button class="btn btn-primary" type="submit">Approve Quotation</button>
                             </form>
                         </td>
+                        {% elif request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+                        <td>Waiting Approval</td>
                         {% endif %}
+                    {% else %}
+                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
+                        <td>
+                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
+                            Set Delivery
+                            </button>
+
+                            <!-- Delivery Modal -->
+                            <div class="modal fade" id="deliveryModal{{q.id}}" tabindex="-1" aria-labelledby="deliveryModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deliveryModalLabel">Set Delivery Date</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{% url 'set-delivery' %}" method="POST">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label for="expected_date" class="form-label">Expected Arrival Date</label>
+                                                    <input type="date" class="form-control" name="expected_date" required>
+                                                </div>
+                                                <input type="hidden" name="pk" value="{{q.id}}">
+                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        {% else %}
+                        <td>Approved by {{ q.approvedBy }}</td></td>
+                        {% endif %}
+                    {% endif %}
                     </tr>
-                {% endfor %}
-            </tbody>            
+            {% endfor %}
+            </tbody>           
         </table>
     </div>
 </div>
+
 {% endblock %}
 
 {% block js %}

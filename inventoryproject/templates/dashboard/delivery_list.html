@@ -7,7 +7,7 @@
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
 <div>
-    <a href="{% url 'create-delivery'%}"> Create Delivery </a>
+    <a href="{% url 'create-request'%}"> Create Purchase Request </a>
 </div>
 {% endif %}
 
@@ -25,15 +25,24 @@
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <th scope="col">Arrival</th>
                     {% endif %}
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
-                    <th scope="col">Quotation</th>
-                    {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for d in delivery %}
+                {% for d in deliveryItems %}
                 <tr>
-                    <td><a href="{% url 'delivery_details' d.id %}">{{ d }}</a></td>
+                    <td>
+                        <!-- Add a clickable dropdown button to show the delivery details -->
+                        <div class="dropdown">
+                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ d }}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item">Name: {{ d.inventory }}</a>
+                                <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+                                <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
+                            </div>
+                        </div>
+                    </td>
 
                     {% if d.dateApproved is None %}
                         <td>Approval Pending</td>
@@ -52,13 +61,6 @@
                         </form>
                     </td>
                     {% endif %}
-                    
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
-                    <td>
-                        <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
-                    </td>
-                    {% endif %}
-
                 </tr>
                 {% endfor %}
             </tbody>
@@ -70,16 +72,13 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Status</th>
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-                    <th scope="col">Approval</th>
-                    {% endif %}
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <th scope="col">Arrival</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for d in filteredDelivery %}
+                {% for d in filteredDeliveryItems %}
                 <tr>
                     <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
     
@@ -89,15 +88,6 @@
                         <td>Arrival Pending</td>
                     {% else %}
                         <td>Delivered</td>
-                    {% endif %}
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-                    <td>
-                        <form action ="{%url 'approveDelivery' %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="pk" value="{{d.id}}">
-                        <button class="btn btn-primary" type="submit">Approve Delivery</button>
-                        </form>
-                    </td>
                     {% endif %}
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <td>

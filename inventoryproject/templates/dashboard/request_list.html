@@ -1,0 +1,124 @@
+{%extends 'partials/base.html'%}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+{% load bootstrap_icons %}
+
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" id="unfiltered-btn">Show All Purchase Requests</button>
+        <button class="btn btn-primary" id="filtered-btn">Show Purchase Requests in my Location</button>
+    </div>
+    <div id="unfiltered-container">
+        <table id="unfiltered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <th scope="col">Quotation</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in pRequest %}
+                <tr>
+                    <td>{{ d }}</a></td>
+
+                    {% if d.dateApproved is None %}
+                        <td>Approval Pending</td>
+                    {% else %}
+                        <td>Approved</td>
+                    {% endif %}
+                    
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <td>
+                        <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
+                    </td>
+                    {% endif %}
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="filtered-container">
+        <table id="filtered-table" class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Status</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <th scope="col">Arrival</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in filteredDelivery %}
+                <tr>
+                    <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
+    
+                    {% if d.dateApproved is None %}
+                        <td>Approval Pending</td>
+                    {% elif d.dateArrived is None %}
+                        <td>Arrival Pending</td>
+                    {% else %}
+                        <td>Delivered</td>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    <td>
+                        <form action ="{%url 'arriveDelivery' %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="pk" value="{{d.id}}">
+                        <button class="btn btn-primary" type="submit">Arrive Delivery</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+<!-- DATATABLES JS  -->
+{% block js %}
+    <script>
+        $(document).ready( function () {
+            var unfilteredTable = $('#unfiltered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+    
+            var filteredTable = $('#filtered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            $('#filtered-container').hide();
+
+            $('#unfiltered-btn').on('click', function() {
+                unfilteredTable.draw();
+                $('#unfiltered-container').show();
+                $('#filtered-container').hide();
+            });
+    
+            $('#filtered-btn').on('click', function() {
+                filteredTable.draw();
+                $('#unfiltered-container').hide();
+                $('#filtered-container').show();
+            });
+            
+        });
+    </script>
+    
+    </div>
+{% endblock %}

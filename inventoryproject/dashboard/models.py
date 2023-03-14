@@ -43,18 +43,18 @@ class Inventory(models.Model):
         return f'{self.name} - {self.location}'  
 
 
-# ==================================== DELIVERY MODELS ======================================================= #
+# ==================================== PURCHASE REQUEST MODELS ======================================================= #
 
 
-class Delivery(models.Model):
+class PurchaseRequest(models.Model):
     requestedBy = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_requests',null=True, blank=True)
     dateRequested = models.DateTimeField(auto_now_add=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
-    dateArrived = models.DateTimeField(null=True, blank=True)
-    deliveryLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
+    requestLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
-        verbose_name_plural = 'Deliveries'
+        verbose_name_plural = 'Purchase Requests'
     
     def __str__(self):
         if self.requestedBy:
@@ -65,16 +65,16 @@ class Delivery(models.Model):
         slug = slugify(formatted_date).upper()
         return f'{initials}-{slug}'
 
-class DeliveryItem(models.Model):
-    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
+class PurchaseRequestItem(models.Model):
+    purchaseRequest = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE, related_name='purchase_request_items')
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveIntegerField(null=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
-        verbose_name_plural = 'Delivery Items'
+        verbose_name_plural = 'Purchase Request Items'
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'{self.delivery} - {self.inventory.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
+        return f'{self.purchaseRequest} - {self.inventory.name} - {self.quantity}'               # arrangement and data values here would need to be reflected under dashboard/admin.py under Inventory model
     
 
 
@@ -83,12 +83,9 @@ class DeliveryItem(models.Model):
 
 class Quotation(models.Model):
     id = models.AutoField(primary_key=True)
-    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE,null=True, blank=True)
-    supplierName = models.CharField(max_length=100, null=True)
-    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
+    purchaseRequest = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE,null=True, blank=True)
     createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quotations')
     dateCreated = models.DateTimeField(auto_now_add=True, blank=True)
-    dateApproved = models.DateTimeField(null=True, blank=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Quotations'
@@ -98,8 +95,29 @@ class QuotationItem(models.Model):
     id = models.AutoField(primary_key=True)
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
+    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
+    dateApproved = models.DateTimeField(null=True, blank=True)
+    supplierName = models.CharField(max_length=100, null=True)
     quantity = models.PositiveIntegerField(null=True)
     price = models.PositiveIntegerField(null=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Quotation Items'
+
+
+# ==================================== DELIVERY MODELS ======================================================= #
+    
+
+class DeliveryItem(models.Model):
+    id = models.AutoField(primary_key=True)
+    quotationItem = models.ForeignKey(QuotationItem, on_delete=models.CASCADE, null=True)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
+    deliveryLocation = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
+    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True)
+    dateApproved = models.DateTimeField(null=True, blank=True)
+    expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
+    dateArrived = models.DateTimeField(null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True)
+
+    class Meta:                                                             # django admin data models are pluralized (they add 's')
+        verbose_name_plural = 'Delivery Items'

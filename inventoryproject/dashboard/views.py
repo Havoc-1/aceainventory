@@ -2,8 +2,9 @@ import datetime
 from django.forms import model_to_dict
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Delivery, Location, Inventory, DeliveryItem, Quotation, QuotationItem, Type
-from .forms import CategoryForm, DeliveryForm, InventoryForm, DeliveryItemForm, DeliveryItemFormSet, QuotationForm, QuotationItemForm, QuotationItemFormSet
+from django.urls import reverse
+from .models import *
+from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.views.generic import View, CreateView, UpdateView, ListView
@@ -16,6 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from user.models import UserProfile
 from django.forms import inlineformset_factory
+from django.utils.decorators import method_decorator
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -125,111 +127,107 @@ def update_user_location(request, user_id):
     context = {'user_profile': user_profile, 'locations': locations}
     return render(request, 'dashboard/update_user_location.html', context)
 
+# =============================== LIST VIEWS ========================
 class DeliveryList(LoginRequiredMixin, ListView):
-    model = Delivery
-    context_object_name = "delivery"
+    model = DeliveryItem
+    context_object_name = "deliveryItems"
+    template_name = "dashboard/delivery_list.html"
 
     def get_context_data(self, **kwargs):
-        delivery = Delivery.objects.all()
-        kwargs['delivery'] = delivery
-        filteredDelivery = delivery.filter(deliveryLocation=self.request.user.userprofile.location)
-        kwargs['filteredDelivery'] = filteredDelivery
-        return kwargs
+        context = super().get_context_data(**kwargs)
+        deliveryItem = DeliveryItem.objects.all()
+        context['deliveryItem'] = deliveryItem
+        filteredDeliveryItem = deliveryItem.filter(deliveryLocation=self.request.user.userprofile.location)
+        context['filteredDeliveryItem'] = filteredDeliveryItem
+        return context
     
-class QuotationList(LoginRequiredMixin, ListView):
+@method_decorator(login_required, name='dispatch')
+class QuotationList(ListView):
     model = Quotation
     context_object_name = "quotation"
 
     def get_context_data(self, **kwargs):
-        quotation = Quotation.objects.all()
-        kwargs['quotation'] = quotation
         context = super().get_context_data(**kwargs)
+        # get the purchase request instance for the given pk
+        purchase_request = get_object_or_404(PurchaseRequest, pk=self.kwargs['pk'])
+        # filter the quotation items based on the purchase request instance
+        quotationItem = QuotationItem.objects.filter(quotation__purchaseRequest=purchase_request)
+        context['quotationItem'] = quotationItem
         context['pk'] = self.kwargs['pk']
         return context
 
-@login_required
-def approveDelivery(request):
-    if request.user.is_authenticated:
-        pk = request.POST.get('pk') if request.POST.get('pk') else None
-        if pk:
-            delivery = Delivery.objects.filter(id__icontains=pk).first()
-            if delivery:
-                context = {'ord': delivery}
-                if delivery.dateApproved is None:
-                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
-                    delivery.save()
-                return redirect('list-deliveries')
-            else:
-                return HttpResponse("Order not found.")
-        else:
-            return HttpResponse("No order ID specified.")
-    else:
-        return HttpResponse("You must be logged in to perform this action.")
+    def post(self, request, *args, **kwargs):
+        if request.method == 'POST':
+            # get the quotation item to be approved
+            pk = request.POST.get('pk')
+            quotation_item = get_object_or_404(QuotationItem, pk=pk)
+
+            # render the delivery form
+            return render(request, 'delivery_form.html', {'quotation_item': quotation_item})
+        return super().get(request, *args, **kwargs)
+
+class RequestList(LoginRequiredMixin, ListView):
+    model = PurchaseRequest
+    context_object_name = "pRequest"
+    template_name = "dashboard/request_list.html" 
+
+    def get_context_data(self, **kwargs):
+        pRequest = PurchaseRequest.objects.all()
+        kwargs['pRequest'] = pRequest
+        filteredRequest = PurchaseRequest.objects.filter(requestLocation=self.request.user.userprofile.location)
+        kwargs['filteredRequest'] = filteredRequest
+        return super().get_context_data(**kwargs)
+
+# =========================== DELIVERY VIEWS ======================================
 
 @login_required
-@transaction.atomic
-def arriveDelivery(request):
-    if request.user.is_authenticated:
-        pk = request.POST.get('pk') if request.POST.get('pk') else None
-        if pk:
-            delivery = Delivery.objects.filter(id__icontains=pk).first()
-            if delivery:
-                context = {'ord': delivery}
-                if delivery.dateArrived is None:
-                    delivery.dateArrived = datetime.datetime.now(datetime.timezone.utc)
-                    delivery.save()
-                    
-                    # update inventory items
-                    for item in delivery.deliveryitem_set.all():
-                        inventory_item = item.inventory
-                        inventory_item.quantity += item.quantity
-                        inventory_item.save()
-
-                return redirect('list-deliveries')
-            else:
-                return HttpResponse("Order not found.")
-        else:
-            return HttpResponse("No order ID specified.")
-    else:
-        return HttpResponse("You must be logged in to perform this action.")
-
-@login_required
-def delivery_batch_details(request, pk):
-    deliverybatch = get_object_or_404(Delivery, pk=pk)
-    deliverybatchInventoryitems = DeliveryItem.objects.filter(delivery=deliverybatch)
-    context = {
-        'deliverybatch': deliverybatch,
-        'deliverybatchInventoryitems': deliverybatchInventoryitems,
-        'pk': pk
-    }
-    return render(request, 'dashboard/delivery_details.html', context)
-
-@login_required
-def delivery_create_view(request):
+def createRequest(request):
     if request.method == 'POST':
-        delivery_form = DeliveryForm(request.POST or None)
-        delivery_item_formset = DeliveryItemFormSet(request.POST or None, prefix='items')
-        if delivery_form.is_valid() and delivery_item_formset.is_valid():
-            delivery = delivery_form.save(commit=False)
-            delivery.requestedBy = request.user
-            delivery.deliveryLocation = request.user.userprofile.location
-            delivery.save()  # save the delivery object first
-            delivery_item_formset.instance = delivery  # set the delivery object as the instance for the formset
+        requestForm = RequestForm(request.POST or None)
+        requestItemFormset = RequestItemFormSet(request.POST or None, prefix='items')
+        if requestForm.is_valid() and requestItemFormset.is_valid():
+            pRequest = requestForm.save(commit=False)
+            pRequest.requestedBy = request.user
+            pRequest.requestLocation = request.user.userprofile.location
+            pRequest.save()  # save the delivery object first
+            requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
             # Filter inventory items based on the user's location
             inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
-            for form in delivery_item_formset:
+            for form in requestItemFormset:
                 form.fields['inventory'].queryset = inventory_items
-            delivery_item_formset.save()  # then save the delivery item formset
+            requestItemFormset.save()  # then save the delivery item formset
             return redirect('list-deliveries')
     else:
-        delivery_form = DeliveryForm()
-        delivery_item_formset = DeliveryItemFormSet(prefix='items')
+        requestForm = RequestForm()
+        requestItemFormset = RequestItemFormSet(prefix='items')
         # Filter inventory items based on the user's location
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
-        for form in delivery_item_formset:
+        for form in requestItemFormset:
             form.fields['inventory'].queryset = inventory_items
-    return render(request, 'dashboard/create_delivery.html', {'delivery_form': delivery_form, 'delivery_item_formset': delivery_item_formset})
+    return render(request, 'dashboard/create_request.html', {'requestForm': requestForm, 'requestItemFormset': requestItemFormset})
 
+@login_required
+def create_delivery(request):
+    if request.method == 'POST':
+        quotation_item_pk = request.POST.get('pk')
+        expected_delivery_date = request.POST.get('expected_delivery_date')
+
+        # get the quotation item and create the delivery and delivery item objects
+        quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)
+        DeliveryItem.objects.create(
+            inventory=quotation_item.inventory,
+            quotationItem=quotation_item,
+            quantity=quotation_item.quantity,
+            dateApproved=datetime.datetime.now(datetime.timezone.utc),
+            approvedBy=request.user,
+            expectedDeliveryDate=expected_delivery_date,
+            deliveryLocation=quotation_item.quotation.purchaseRequest.requestLocation,
+        )
+
+        return HttpResponseRedirect(reverse('list-deliveries'))
+    else:
+        return HttpResponse("NOT POST")
+# =========================== QUOTATION VIEWS ================================
 @login_required
 def quotation_details(request, pk):
     quotation = get_object_or_404(Quotation, pk=pk)
@@ -241,6 +239,31 @@ def quotation_details(request, pk):
     }
     return render(request, 'dashboard/quotation_details.html', context)
 
+@login_required
+def quotation_create_view(request, pk):
+    pRequest = PurchaseRequest.objects.get(pk=pk)
+    requestItems = pRequest.purchase_request_items.all() # get all delivery items related to this delivery
+    requestItemsData = [{'inventory': item.inventory, 'quantity': item.quantity} for item in requestItems]
+    # create list of dictionaries with inventory and quantity data
+    QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=len(requestItems))
+    # generate formset with extra forms equal to the number of delivery items
+    if request.method == 'POST':
+        quotation_form = QuotationForm(request.POST or None)
+        quotation_item_formset = QuotationItemFormSet(request.POST or None, prefix='items', initial=requestItemsData)
+        # initialize formset with the delivery item data
+        if quotation_form.is_valid() and quotation_item_formset.is_valid():
+            quotation = quotation_form.save(commit=False)
+            quotation.createdBy = request.user
+            quotation.purchaseRequest = pRequest
+            quotation.save() 
+            quotation_item_formset.instance = quotation  
+            quotation_item_formset.save() 
+            return redirect('list-quotations', pk=pRequest.id)
+    else:
+        quotation_form = QuotationForm()
+        quotation_item_formset = QuotationItemFormSet(prefix='items', initial=requestItemsData)
+        # initialize formset with the delivery item data
+    return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
 
 @login_required
 def edit_quotation(request, pk):
@@ -278,7 +301,6 @@ def edit_quotation(request, pk):
     print("HELLO???")
     return render(request, 'dashboard/edit_quotation.html', context) 
 
-
 @login_required
 def delete_quotation(request, pk):
     quotation = get_object_or_404(Quotation, pk=pk)
@@ -292,57 +314,21 @@ def delete_quotation(request, pk):
     else:
         return HttpResponse("Error.")
 
-@login_required
-def approveDelivery(request):
-    if request.user.is_authenticated:
-        pk = request.POST.get('pk') if request.POST.get('pk') else None
-        if pk:
-            delivery = Delivery.objects.filter(id__icontains=pk).first()
-            if delivery:
-                context = {'ord': delivery}
-                if delivery.dateApproved is None:
-                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
-                    delivery.save()
-                return redirect('list-deliveries')
-            else:
-                return HttpResponse("Order not found.")
-        else:
-            return HttpResponse("No order ID specified.")
-    else:
-        return HttpResponse("You must be logged in to perform this action.")
-    
-@login_required
-def approveQuotation(request):
-    if request.user.is_authenticated:
-        pk = request.POST.get('pk') if request.POST.get('pk') else None
-        if pk:
-            delivery = Delivery.objects.filter(id__icontains=pk).first()
-            if delivery:
-                context = {'ord': delivery}
-                if delivery.dateApproved is None:
-                    delivery.dateApproved = datetime.datetime.now(datetime.timezone.utc)
-                    delivery.save()
-                return redirect('list-deliveries')
-            else:
-                return HttpResponse("Order not found.")
-        else:
-            return HttpResponse("No order ID specified.")
-    else:
-        return HttpResponse("You must be logged in to perform this action.")
+# =============================== APPROVE AND ARRIVE ========================
 
 @login_required
-def approve_quotation(request):
+def approveQuotation(request):
     if request.method == 'POST':
         if request.user.is_authenticated:
             pk = request.POST.get('pk')
             if pk:
-                quotation = Quotation.objects.filter(id=pk).first()
+                quotation = QuotationItem.objects.filter(id=pk).first()
                 if quotation:
                     if quotation.dateApproved is None:
                         quotation.dateApproved = datetime.datetime.now(datetime.timezone.utc)
                         quotation.approvedBy = request.user
                         quotation.save()
-                    return redirect('list-quotations')
+                    return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
                 else:
                     return HttpResponse("Quotation not found.")
             else:
@@ -351,30 +337,29 @@ def approve_quotation(request):
             return HttpResponse("You must be logged in to perform this action.")
     else:
         return HttpResponse("NOT POST")
-
+    
 @login_required
-def quotation_create_view(request, pk):
-    delivery = Delivery.objects.get(pk=pk)
-    delivery_items = delivery.deliveryitem_set.all() # get all delivery items related to this delivery
-    delivery_item_data = [{'inventory': item.inventory, 'quantity': item.quantity} for item in delivery_items]
-    # create list of dictionaries with inventory and quantity data
-    QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=len(delivery_items))
-    # generate formset with extra forms equal to the number of delivery items
-    if request.method == 'POST':
-        quotation_form = QuotationForm(request.POST or None)
-        quotation_item_formset = QuotationItemFormSet(request.POST or None, prefix='items', initial=delivery_item_data)
-        # initialize formset with the delivery item data
-        if quotation_form.is_valid() and quotation_item_formset.is_valid():
-            quotation = quotation_form.save(commit=False)
-            quotation.createdBy = request.user
-            quotation.delivery = delivery
-            quotation.save() 
-            quotation_item_formset.instance = quotation  
-            quotation_item_formset.save() 
-            return redirect('list-quotations', pk=delivery.id)
-    else:
-        quotation_form = QuotationForm()
-        quotation_item_formset = QuotationItemFormSet(prefix='items', initial=delivery_item_data)
-        # initialize formset with the delivery item data
-    return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
+@transaction.atomic
+def arriveDelivery(request):
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            delivery = DeliveryItem.objects.filter(id__icontains=pk).first()
+            if delivery:
+                context = {'ord': delivery}
+                if delivery.dateArrived is None:
+                    delivery.dateArrived = datetime.datetime.now(datetime.timezone.utc)
+                    delivery.save()
 
+                    inventory_item = delivery.inventory
+                    inventory_item.quantity += delivery.quantity
+                    inventory_item.save()
+
+                return redirect('list-deliveries')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+    
