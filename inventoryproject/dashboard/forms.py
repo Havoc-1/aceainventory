@@ -40,10 +40,10 @@ class QuotationForm(forms.ModelForm):
 class QuotationItemForm(forms.ModelForm):
     class Meta:
         model = QuotationItem
-        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved']
+        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved', 'deliverySet']
         widgets = {
             'inventory': forms.Select(attrs={'required': True}),
-            'supplierName': forms.NumberInput(attrs={'required': True}),
+            'supplierName': forms.TextInput(attrs={'required': True}),
             'quantity': forms.NumberInput(attrs={'required': True}),
             'price': forms.NumberInput(attrs={'required': True}),
         }

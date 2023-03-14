@@ -51,6 +51,8 @@ class PurchaseRequest(models.Model):
     approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_requests',null=True, blank=True)
     dateRequested = models.DateTimeField(auto_now_add=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
+    approvedQuotations = models.BooleanField(default=False)
+    approvedDelivery = models.BooleanField(default=False)
     requestLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
@@ -98,6 +100,7 @@ class QuotationItem(models.Model):
     approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
     supplierName = models.CharField(max_length=100, null=True)
+    deliverySet = models.BooleanField(default=False)
     quantity = models.PositiveIntegerField(null=True)
     price = models.PositiveIntegerField(null=True)
 

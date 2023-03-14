@@ -46,34 +46,38 @@
                         {% endif %}
                     {% else %}
                         {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
-                        <td>
-                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
-                            Set Delivery
-                            </button>
+                            {% if q.deliverySet == False %}
+                            <td>
+                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
+                                Set Delivery
+                                </button>
 
-                            <!-- Delivery Modal -->
-                            <div class="modal fade" id="deliveryModal{{q.id}}" tabindex="-1" aria-labelledby="deliveryModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deliveryModalLabel">Set Delivery Date</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form action="{% url 'set-delivery' %}" method="POST">
-                                                {% csrf_token %}
-                                                <div class="mb-3">
-                                                    <label for="expected_date" class="form-label">Expected Arrival Date</label>
-                                                    <input type="date" class="form-control" name="expected_date" required>
-                                                </div>
-                                                <input type="hidden" name="pk" value="{{q.id}}">
-                                                <button type="submit" class="btn btn-primary">Submit</button>
-                                            </form>
+                                <!-- Delivery Modal -->
+                                <div class="modal fade" id="deliveryModal{{q.id}}" tabindex="-1" aria-labelledby="deliveryModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deliveryModalLabel">Set Delivery Date</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{% url 'set-delivery' %}" method="POST">
+                                                    {% csrf_token %}
+                                                    <div class="mb-3">
+                                                        <label for="expected_date" class="form-label">Expected Arrival Date</label>
+                                                        <input type="date" class="form-control" name="expected_date" required>
+                                                    </div>
+                                                    <input type="hidden" name="pk" value="{{q.id}}">
+                                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </td>
+                            </td>
+                            {% else %}
+                                <td>Delivery Created</td>
+                            {% endif %}
                         {% else %}
                         <td>Approved by {{ q.approvedBy }}</td></td>
                         {% endif %}

@@ -7,8 +7,8 @@
 
 <div class="container py-5">
     <div class="text-center mb-4">
-        <button class="btn btn-primary" id="unfiltered-btn">Show All Purchase Requests</button>
-        <button class="btn btn-primary" id="filtered-btn">Show Purchase Requests in my Location</button>
+        <button class="btn btn-primary" id="unfiltered-btn">Show All Pending Purchase Requests</button>
+        <button class="btn btn-primary" id="filtered-btn">Show All Accomplished Purchase Requests</button>
     </div>
     <div id="unfiltered-container">
         <table id="unfiltered-table" class="table table-bordered table-hover">
@@ -27,9 +27,13 @@
                     <td>{{ d }}</a></td>
 
                     {% if d.dateApproved is None %}
-                        <td>Approval Pending</td>
-                    {% else %}
-                        <td>Approved</td>
+                        <td>No Quotations yet.</td>
+                    {% elif d.approvedQuotations is False %}
+                        <td>Awaiting Quotation Approval</td>
+                    {% elif d.approvedDelivery is False %}
+                        <td>Awaiting Delivery Confirmation</td>
+                    {% else %} 
+                        <td>Delivery Confirmed</td>
                     {% endif %}
                     
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
@@ -49,32 +53,32 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Status</th>
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                    <th scope="col">Arrival</th>
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+                    <th scope="col">Quotation</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for d in filteredDelivery %}
+                {% for d in filteredRequest %}
                 <tr>
-                    <td> <a href="{% url 'delivery_details' d.id %}">{{ d }} </td>
-    
+                    <td>{{ d }}</a></td>
+
                     {% if d.dateApproved is None %}
-                        <td>Approval Pending</td>
-                    {% elif d.dateArrived is None %}
-                        <td>Arrival Pending</td>
-                    {% else %}
-                        <td>Delivered</td>
+                        <td>No Quotations yet.</td>
+                    {% elif d.approvedQuotations is False %}
+                        <td>Awaiting Quotation Approval</td>
+                    {% elif d.approvedDelivery is False %}
+                        <td>Awaiting Delivery Confirmation</td>
+                    {% else %} 
+                        <td>Delivery Confirmed</td>
                     {% endif %}
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                    
+                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
                     <td>
-                        <form action ="{%url 'arriveDelivery' %}" method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="pk" value="{{d.id}}">
-                        <button class="btn btn-primary" type="submit">Arrive Delivery</button>
-                        </form>
+                        <a href="{% url 'list-quotations' d.id %}" class="btn btn-primary">View Quotation</a>
                     </td>
                     {% endif %}
+
                 </tr>
                 {% endfor %}
             </tbody>

@@ -172,9 +172,9 @@ class RequestList(LoginRequiredMixin, ListView):
     template_name = "dashboard/request_list.html" 
 
     def get_context_data(self, **kwargs):
-        pRequest = PurchaseRequest.objects.all()
+        pRequest = PurchaseRequest.objects.filter(approvedDelivery=False)
         kwargs['pRequest'] = pRequest
-        filteredRequest = PurchaseRequest.objects.filter(requestLocation=self.request.user.userprofile.location)
+        filteredRequest = PurchaseRequest.objects.filter(approvedDelivery=True)
         kwargs['filteredRequest'] = filteredRequest
         return super().get_context_data(**kwargs)
 
@@ -214,6 +214,11 @@ def create_delivery(request):
 
         # get the quotation item and create the delivery and delivery item objects
         quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)
+        pRequest = quotation_item.quotation.purchaseRequest
+        pRequest.approvedDelivery = True
+        pRequest.save()
+        quotation_item.deliverySet = True
+        quotation_item.save()
         DeliveryItem.objects.create(
             inventory=quotation_item.inventory,
             quotationItem=quotation_item,
@@ -254,7 +259,11 @@ def quotation_create_view(request, pk):
         if quotation_form.is_valid() and quotation_item_formset.is_valid():
             quotation = quotation_form.save(commit=False)
             quotation.createdBy = request.user
+            pRequest.approvedBy = request.user
+            if (pRequest.dateApproved is None):
+                pRequest.dateApproved = datetime.datetime.now(datetime.timezone.utc)
             quotation.purchaseRequest = pRequest
+            pRequest.save()
             quotation.save() 
             quotation_item_formset.instance = quotation  
             quotation_item_formset.save() 
@@ -327,6 +336,9 @@ def approveQuotation(request):
                     if quotation.dateApproved is None:
                         quotation.dateApproved = datetime.datetime.now(datetime.timezone.utc)
                         quotation.approvedBy = request.user
+                        purchase_request = quotation.quotation.purchaseRequest
+                        purchase_request.approvedQuotations = True
+                        purchase_request.save()
                         quotation.save()
                     return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
                 else:
