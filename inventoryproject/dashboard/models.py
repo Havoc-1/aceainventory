@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, User
 from django.utils.text import slugify
+from django.conf import settings
 
 # Create your models here.
 
@@ -47,8 +48,8 @@ class Inventory(models.Model):
 
 
 class PurchaseRequest(models.Model):
-    requestedBy = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_requests',null=True, blank=True)
+    requestedBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    approvedBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='approved_requests',null=True, blank=True)
     dateRequested = models.DateTimeField(auto_now_add=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
     approvedQuotations = models.BooleanField(default=False)
@@ -86,7 +87,7 @@ class PurchaseRequestItem(models.Model):
 class Quotation(models.Model):
     id = models.AutoField(primary_key=True)
     purchaseRequest = models.ForeignKey(PurchaseRequest, on_delete=models.CASCADE,null=True, blank=True)
-    createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_quotations')
+    createdBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_quotations')
     dateCreated = models.DateTimeField(auto_now_add=True, blank=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
@@ -97,7 +98,7 @@ class QuotationItem(models.Model):
     id = models.AutoField(primary_key=True)
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
-    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
+    approvedBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
     supplierName = models.CharField(max_length=100, null=True)
     deliverySet = models.BooleanField(default=False)
@@ -116,7 +117,7 @@ class DeliveryItem(models.Model):
     quotationItem = models.ForeignKey(QuotationItem, on_delete=models.CASCADE, null=True)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
     deliveryLocation = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
-    approvedBy = models.ForeignKey(User, on_delete=models.CASCADE,null=True, blank=True)
+    approvedBy = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
     dateApproved = models.DateTimeField(null=True, blank=True)
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)

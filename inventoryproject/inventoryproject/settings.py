@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'crispy_forms',  # command for first time: "pip install django-crispy-forms"
     'django_bootstrap_icons',  # command for first time: "pip install django-bootstrap-icons"
     'compressor',  # command for first time: "pip install django_compressor AND pip install django-libsass"
+    'bootstrap4',
+    'crispy_bootstrap4',
     'templates',
     'users',
 ]
