@@ -130,6 +130,27 @@ def update_user_location(request, user_id):
     context = {'user_profile': user_profile, 'locations': locations}
     return render(request, 'dashboard/update_user_location.html', context)
 
+@login_required
+def edit_inventory(request):
+    inventory = Inventory.objects.filter(location=request.user.userprofile.location)
+    context = {'inventory': inventory}
+    return render(request, 'dashboard/edit_inventory.html', context)
+
+@login_required
+def update_inventory_restocking(request, inventory_id):
+    inventory = Inventory.objects.get(id=inventory_id)
+    if request.method == 'POST':
+        if request.POST.get('restocking_threshold'):
+            restocking_threshold = request.POST.get('restocking_threshold')
+            inventory.restocking_threshold = restocking_threshold
+        elif request.POST.get('restocking_amount'):
+            restocking_amount = request.POST.get('restocking_amount')
+            inventory.restocking_amount = restocking_amount
+        inventory.save()
+        return redirect('edit_inventory')
+    context = {'inventory': inventory}
+    return render(request, 'dashboard/edit_inventory.html', context)
+
 # =============================== LIST VIEWS ========================
 class DeliveryList(LoginRequiredMixin, ListView):
     model = DeliveryItem

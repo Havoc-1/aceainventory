@@ -37,9 +37,11 @@
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'list-deliveries' %}">Deliveries<span class="sr-only">(current)</span></a>
             </li>
+            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'inventory_withdrawals' %}">Withdraw Inventory<span class="sr-only">(current)</span></a>
             </li>
+            {% endif %}
               {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
               <li class="nav-item active">
                 <a class="nav-link" href="{% url 'list-requests' %}">Purchase Requests<span class="sr-only">(current)</span></a>
