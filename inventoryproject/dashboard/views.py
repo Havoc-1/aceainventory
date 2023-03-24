@@ -132,7 +132,7 @@ def update_user_location(request, user_id):
 
 @login_required
 def edit_inventory(request):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Engineering').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     inventory = Inventory.objects.filter(location=request.user.userprofile.location)
     context = {'inventory': inventory}
@@ -140,7 +140,7 @@ def edit_inventory(request):
 
 @login_required
 def update_inventory_restocking(request, inventory_id):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Engineering').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     inventory = Inventory.objects.get(id=inventory_id)
     if request.method == 'POST':
@@ -175,7 +175,7 @@ class QuotationList(ListView):
     context_object_name = "quotation"
 
     def get(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+        if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
             return redirect('dashboard-index')
         return super().get(request, *args, **kwargs)
 
@@ -212,7 +212,7 @@ class RequestList(LoginRequiredMixin, ListView):
         return super().get_context_data(**kwargs)
     
     def get(self, request, *args, **kwargs):
-        if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+        if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
             return redirect('dashboard-index')
         return super().get(request, *args, **kwargs)
 
@@ -296,7 +296,7 @@ def create_delivery(request):
 # =========================== QUOTATION VIEWS ================================
 @login_required
 def quotation_details(request, pk):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
@@ -309,7 +309,7 @@ def quotation_details(request, pk):
 
 @login_required
 def quotation_create_view(request, pk):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     pRequest = PurchaseRequest.objects.get(pk=pk)
     requestItems = pRequest.purchase_request_items.all() # get all delivery items related to this delivery
@@ -341,7 +341,7 @@ def quotation_create_view(request, pk):
 
 @login_required
 def edit_quotation(request, pk):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
@@ -379,7 +379,7 @@ def edit_quotation(request, pk):
 
 @login_required
 def delete_quotation(request, pk):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
@@ -396,7 +396,7 @@ def delete_quotation(request, pk):
 
 @login_required
 def approveQuotation(request):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     if request.method == 'POST':
         if request.user.is_authenticated:
@@ -424,7 +424,7 @@ def approveQuotation(request):
 @login_required
 @transaction.atomic
 def arriveDelivery(request):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Finance').exists() or not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
         return redirect('dashboard-index')
     if request.user.is_authenticated:
         pk = request.POST.get('pk') if request.POST.get('pk') else None
@@ -452,14 +452,15 @@ def arriveDelivery(request):
 
 @login_required
 def inventory_withdrawals(request):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Engineering').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        print("uh oh")
         return redirect('dashboard-index')
     inventory_withdrawals = InventoryWithdrawn.objects.all()
     return render(request, 'dashboard/inventory_withdrawals.html', {'inventory_withdrawals': inventory_withdrawals})
 
 @login_required
 def inventory_withdraw(request):
-    if not request.user.groups.filter(name='Administrator').exists() or not request.user.groups.filter(name='Engineering').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     formset = InventoryWithdrawnFormSet(request.POST or None, queryset=InventoryWithdrawn.objects.none())
     print(request.POST)
