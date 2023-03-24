@@ -68,14 +68,25 @@
             function addFormsetRow() {
                 var formCount = $('#id_items-TOTAL_FORMS').val();
                 var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
-                $('#items-table tbody').append('<tr class="formset-row">' + newFormHtml + '</tr>');
+                var newRow = $('<tbody>').append(newFormHtml).find('.formset-row');
+                $('#items-table tbody').append(newRow);
                 $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
+                
+                newRow.find('input, select, textarea').each(function () {
+                    var name = $(this).attr('name').replace(/\d+/g, formCount);
+                    var id = 'id_' + name;
+                    $(this).attr('name', name);
+                    $(this).attr('id', id);
+                    $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
+                });
                 updateFormsetIndexes();
             }
+
+
         });
     </script>
     <script id="formset-template" type="text/template">
-        {% for form in delivery_item_formset %}
+        {% for form in requestItemFormsetEmpty %}
             <tr class="formset-row">
                 {% for hidden in form.hidden_fields %}
                     {{ hidden }}

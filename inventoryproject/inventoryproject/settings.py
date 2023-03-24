@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
     'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
     'templates',
+    'crispy_bootstrap4'
 ]   
 
 MIDDLEWARE = [

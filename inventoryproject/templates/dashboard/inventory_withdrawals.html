@@ -1,0 +1,32 @@
+{%extends 'partials/base.html'%}
+{% block title %}Inventory Page{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+  <h2>Inventory Withdrawals</h2>
+  <a href="{% url 'inventory_withdraw' %}" class="btn btn-primary">Withdraw Inventory</a>
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Inventory Item</th>
+        <th>Quantity</th>
+        <th>Withdrawn By</th>
+        <th>Withdrawn Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for withdrawal in inventory_withdrawals %}
+        <tr>
+          <td>{{ withdrawal.inventory }}</td>
+          <td>{{ withdrawal.quantity }}</td>
+          <td>{{ withdrawal.withdrawn_by }}</td>
+          <td>{{ withdrawal.withdrawn_date }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}

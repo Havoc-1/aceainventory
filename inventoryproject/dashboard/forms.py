@@ -1,6 +1,6 @@
 from django import forms
-from django.forms import inlineformset_factory
-from .models import PurchaseRequest, Inventory, PurchaseRequestItem, Quotation, QuotationItem, Type
+from django.forms import inlineformset_factory, modelformset_factory
+from .models import *
 
 class InventoryForm(forms.ModelForm):
     class Meta:         # meta takes at least 2 parameters
@@ -30,7 +30,6 @@ class RequestItemForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={'required': True}),
         }
         
-RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
 
 class QuotationForm(forms.ModelForm):
     class Meta:
@@ -50,38 +49,18 @@ class QuotationItemForm(forms.ModelForm):
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
 
-# DELIVERY UPDATE FORMS
-# class UpdateDateArrivedForm(forms.ModelForm):
-#     class Meta:
-#         model = PurchaseRequest
-#         fields = ['dateArrived']
-
-#     def update_date_arrived(request, pk):
-#         delivery = get_object_or_404(PurchaseRequest, pk=pk)
-#         if request.method == 'POST':
-#             form = UpdateDateArrivedForm(request.POST, instance=delivery)
-#             if form.is_valid():
-#                 delivery.update_dateArrived(form.cleaned_data['dateArrived'])
-#                 return redirect('delivery_list')
-#         else:
-#             form = UpdateDateArrivedForm(instance=delivery)
-#         return render(request, 'update_date_arrived.html', {'form': form})
-
-
-# class UpdateDateApprovedForm(forms.ModelForm):
-#     class Meta:
-#         model = PurchaseRequest
-#         fields = ['dateApproved']
-
-#     def update_date_approved(request, pk):
-#         delivery = get_object_or_404(PurchaseRequest, pk=pk)
-#         if request.method == 'POST':
-#             form = UpdateDateApprovedForm(request.POST, instance=delivery)
-#             if form.is_valid():
-#                 delivery.update_dateApproved(form.cleaned_data['dateApproved'])
-#                 return redirect('delivery_list')
-#         else:
-#             form = UpdateDateApprovedForm(instance=delivery)
-#         return render(request, 'update_date_approved.html', {'form': form})
-
-# ======================================================================================================== #
+class InventoryWithdrawnForm(forms.ModelForm):
+    class Meta:
+        model = InventoryWithdrawn
+        fields = ['inventory', 'quantity']
+        widgets = {
+            'inventory': forms.Select(attrs={'required': True}),
+            'quantity': forms.NumberInput(attrs={'required': True}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['inventory'].queryset = Inventory.objects.filter(quantity__gt=0)
+        
+InventoryWithdrawnFormSet = modelformset_factory(
+    InventoryWithdrawn, form=InventoryWithdrawnForm, extra=1)

@@ -32,6 +32,8 @@ class Inventory(models.Model):
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)     
     quantity = models.PositiveIntegerField(null=True)
+    restocking_threshold = models.PositiveIntegerField(null=True)
+    restocking_amount = models.PositiveIntegerField(null=True)
 
     class Meta:
         constraints = [
@@ -41,6 +43,18 @@ class Inventory(models.Model):
     
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.name} - {self.location}'  
+
+class InventoryWithdrawn(models.Model):
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)     
+    quantity = models.PositiveIntegerField(null=True)
+    withdrawn_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    withdrawn_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Withdrawn Inventory Items'
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.inventory} - {self.quantity}'  
 
 
 # ==================================== PURCHASE REQUEST MODELS ======================================================= #
