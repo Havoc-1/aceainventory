@@ -6,8 +6,10 @@
 {% load bootstrap_icons %}
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-<div>
-    <a href="{% url 'create-quotation' pk %}"> Create Quotation </a>
+<div class="container py-5">
+    <div>
+        <a href="{% url 'create-quotation' pk %}" class="btn btn-success"> Create Quotation </a>
+    </div>
 </div>
 {% endif %}
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, User
 from django.utils.text import slugify
+import datetime
 
 # Create your models here.
 
@@ -135,6 +136,19 @@ class DeliveryItem(models.Model):
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
     quantity = models.PositiveIntegerField(null=True)
+
+    @property
+    def status(self):
+        if self.dateArrived is None:
+            if self.dateApproved is None:
+                return 'Approval Pending'
+            elif self.expectedDeliveryDate and self.expectedDeliveryDate < datetime.datetime.now(datetime.timezone.utc):
+                late_days = (datetime.datetime.now(datetime.timezone.utc) - self.expectedDeliveryDate).days
+                return f'Arrival Late by {late_days} day/s'
+            else:
+                return 'Arrival Pending'
+        else:
+            return 'Delivered'
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Delivery Items'

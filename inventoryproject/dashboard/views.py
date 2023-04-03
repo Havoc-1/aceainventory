@@ -97,13 +97,6 @@ class inventoryView(LoginRequiredMixin, View):
             else:
                 ctxt['inventory_form'] = inventory_form
 
-        elif 'category' in request.POST:
-            category_form = CategoryForm(request.POST)
-
-            if category_form.is_valid():
-                category_form.save()
-            else:
-                ctxt['category_form'] = category_form
         return render(request, self.template_name, self.get_context_data(**ctxt))
 
 @login_required
@@ -112,23 +105,66 @@ def admin_dashboard(request):
         return redirect('dashboard-index')
     users = UserProfile.objects.all()
     locations = Location.objects.all()
-    context = {'users': users, 'locations': locations}
+    groups = Group.objects.all()
+    context = {'users': users, 'locations': locations, 'groups': groups, 'category_form': CategoryForm()}
+    
+    if 'category' in request.POST:
+        category_form = CategoryForm(request.POST)
+
+        if category_form.is_valid():
+            category_form.save()
+        else:
+            context['category_form'] = category_form
+    
+    if 'add_group' in request.POST:
+        user_id = request.POST.get('user_id')
+        group_id = request.POST.get('group_id')
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
+        user.groups.add(group)
+        
+    if 'remove_group' in request.POST:
+        user_id = request.POST.get('user_id')
+        group_id = request.POST.get('group_id')
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
+        user.groups.remove(group)
+    
     return render(request, 'dashboard/admin_dashboard.html', context)
 
 @login_required
 def update_user_location(request, user_id):
     if not request.user.groups.filter(name='Administrator').exists():
         return redirect('dashboard-index')
-    user_profile = UserProfile.objects.get(user__id=user_id)
+    user = User.objects.get(id=user_id)
     if request.method == 'POST':
-        location_id = request.POST.get('location')
-        location = Location.objects.get(id=location_id)
-        user_profile.location = location
+        location_id = request.POST['location']
+        user_profile = UserProfile.objects.get(user=user)
+        user_profile.location_id = location_id
         user_profile.save()
         return redirect('dashboard-admin')
-    locations = Location.objects.all()
-    context = {'user_profile': user_profile, 'locations': locations}
-    return render(request, 'dashboard/update_user_location.html', context)
+    else:
+        locations = Location.objects.all()
+        return render(request, 'update_user_location.html', {'user': user, 'locations': locations})
+
+@login_required
+def update_user_groups(request, user_id):
+    if not request.user.groups.filter(name='Administrator').exists():
+        return redirect('dashboard-index')
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        add_group_id = request.POST.get('add_group')
+        if add_group_id:
+            group = Group.objects.get(id=add_group_id)
+            user.groups.add(group)
+        remove_group_id = request.POST.get('remove_group')
+        if remove_group_id:
+            group = Group.objects.get(id=remove_group_id)
+            user.groups.remove(group)
+        return redirect('dashboard-admin')
+    else:
+        groups = Group.objects.all()
+        return render(request, 'update_user_groups.html', {'user': user, 'groups': groups})
 
 @login_required
 def edit_inventory(request):
@@ -209,6 +245,15 @@ class RequestList(LoginRequiredMixin, ListView):
         kwargs['pRequest'] = pRequest
         filteredRequest = PurchaseRequest.objects.filter(approvedDelivery=True)
         kwargs['filteredRequest'] = filteredRequest
+
+        for request in filteredRequest:
+            yes_items = DeliveryItem.objects.filter(quotationItem__quotation__purchaseRequest=request, dateApproved__isnull=False)
+            yes_count = yes_items.count()
+            quotation_items = QuotationItem.objects.filter(quotation__purchaseRequest=request, dateApproved__isnull=False)
+            no_count = quotation_items.count()
+        kwargs['yes_count'] = yes_count
+        kwargs['no_count'] = no_count
+
         return super().get_context_data(**kwargs)
     
     def get(self, request, *args, **kwargs):
@@ -271,7 +316,8 @@ def createRequest(request):
 def create_delivery(request):
     if request.method == 'POST':
         quotation_item_pk = request.POST.get('pk')
-        expected_delivery_date = request.POST.get('expected_delivery_date')
+        expected_delivery_date = request.POST.get('expected_date')
+        print("expected_delivery_date: ", expected_delivery_date)
 
         # get the quotation item and create the delivery and delivery item objects
         quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)

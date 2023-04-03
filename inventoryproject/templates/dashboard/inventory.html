@@ -26,23 +26,6 @@
     </div>
 </div>
 
-{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-    <a href="{% url 'create-request' %}?restock=true">Create Purchase Request</a>
-    <a href="{% url 'edit_inventory' %}">Edit Inventory</a>
-{% endif %}
-
-
-<div class="card card-body">
-    <div class="content-header">
-        <h4>Add New Category</h4>
-        <hr>
-    </div>
-        <form method="POST">
-            {% csrf_token %}
-            {{ category_form|crispy }}
-            <input class="btn btn-success btn-block" type="submit" value="Add Category" name="category">
-        </form>
-</div>
 
 <div class="container py-5">
     <div class="text-center mb-4">
@@ -55,7 +38,7 @@
                 <tr>
                     <th scope="col" id="name-header">Name</th>
                     <th scope="col" id="location-header">Location</th>
-                    <th scope="col" id="type-header">Type</th>
+                    <th scope="col" id="type-header">Category</th>
                     <th scope="col" id="quantity-header">Quantity</th>
                 </tr>
             </thead>
@@ -77,7 +60,7 @@
                 <tr>
                     <th scope="col">Name</th>
                     <th scope="col">Location</th>
-                    <th scope="col">Type</th>
+                    <th scope="col">Category</th>
                     <th scope="col">Quantity</th>
                 </tr>
             </thead>
@@ -94,6 +77,18 @@
         </table>
     </div>
 </div>
+
+{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+    <div class="container py-5">
+        <div>
+            <a href="{% url 'create-request'%}?restock=true" class="btn btn-success"> Create Purchase Request </a>
+        </div>
+        <div>
+            <a href="{% url 'edit_inventory' %}" class="btn btn-success"> Edit Inventory </a>
+        </div>
+    </div>
+{% endif %}
+
 {% endblock %}
 
 <!-- DATATABLES JS  -->
