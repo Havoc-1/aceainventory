@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Group, User
 from django.utils.text import slugify
+import datetime
 
 # Create your models here.
 
@@ -32,6 +33,8 @@ class Inventory(models.Model):
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True)     
     quantity = models.PositiveIntegerField(null=True)
+    restocking_threshold = models.PositiveIntegerField(null=True)
+    restocking_amount = models.PositiveIntegerField(null=True)
 
     class Meta:
         constraints = [
@@ -41,6 +44,18 @@ class Inventory(models.Model):
     
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.name} - {self.location}'  
+
+class InventoryWithdrawn(models.Model):
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)     
+    quantity = models.PositiveIntegerField(null=True)
+    withdrawn_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    withdrawn_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Withdrawn Inventory Items'
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.inventory} - {self.quantity}'  
 
 
 # ==================================== PURCHASE REQUEST MODELS ======================================================= #
@@ -121,6 +136,19 @@ class DeliveryItem(models.Model):
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
     quantity = models.PositiveIntegerField(null=True)
+
+    @property
+    def status(self):
+        if self.dateArrived is None:
+            if self.dateApproved is None:
+                return 'Approval Pending'
+            elif self.expectedDeliveryDate and self.expectedDeliveryDate < datetime.datetime.now(datetime.timezone.utc):
+                late_days = (datetime.datetime.now(datetime.timezone.utc) - self.expectedDeliveryDate).days
+                return f'Arrival Late by {late_days} day/s'
+            else:
+                return 'Arrival Pending'
+        else:
+            return 'Delivered'
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Delivery Items'

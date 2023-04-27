@@ -1,0 +1,54 @@
+{%extends 'partials/base.html'%}
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+{% include 'partials/nav.html' %}
+{% load bootstrap_icons %}
+
+<table id="table" class="table table-bordered table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Inventory</th>
+            <th scope="col">Restocking Threshold</th>
+            <th scope="col">Restocking Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in inventory %}
+            <tr>
+                <td>{{ i.name }}</td>
+                <td>
+                    <form method="post" action="{% url 'update-inventory-restocking' i.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="restocking_threshold" min="0" value="{{ i.restocking_threshold }}" required>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'update-inventory-restocking' i.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="restocking_amount" min="0" value="{{ i.restocking_amount }}" required>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    
+</table>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready( function () {
+            var table = $('#table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            }); 
+        });
+    </script>
+    
+{% endblock %}

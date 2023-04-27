@@ -1,49 +1,108 @@
-{%extends 'partials/base.html'%}
-{% block title %}Home Page{% endblock %}
+{% extends 'partials/base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 {% include 'partials/nav.html' %}
 {% load bootstrap_icons %}
 
-<table id="table" class="table table-bordered table-hover">
-    <thead class="thead-dark">
-        <tr>
-            <th scope="col">Username</th>
-            <th scope="col">Location</th>
-            <th scope="col">Update Location</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in users %}
-            <tr>
-            <td>{{ user.user.username }}</td>
-            <td>{{ user.location }}</td>
-            <td>
-                <form method="post" action="{% url 'update-user-location' user.user.id %}">
+
+<div class="form-card">
+    <p>
+        <a class="button-5" data-toggle="collapse" href="#collapseForm" role="button" aria-expanded="false" aria-controls="collapseForm">
+            Add Category
+        </a>
+    </p>
+    <div class="collapse" id="collapseForm">
+        <div class="card card-body">
+            <div class="content-header">
+                <h4>Add New Category</h4>
+                <hr>
+            </div>
+            <form method="POST">
                 {% csrf_token %}
-                <select name="location">
-                    {% for location in locations %}
-                    <option value="{{ location.id }}"
-                        {% if location.id == user.location.id %} selected {% endif %}>
-                        {{ location.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-                <button type="submit">Update</button>
-                </form>
-            </td>
+                {{ category_form|crispy }}
+                <input class="btn btn-success btn-block" type="submit" value="Add Category" name="category">
+            </form>
+        </div>
+    </div>
+</div>
+
+<br><br>
+<div class="container py-5">
+    <table id="table" class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Location</th>
+                <th scope="col">Roles</th>
+                <th scope="col">Update Location</th>
+                <th scope="col">Update Roles</th>
+                <th scope="col">Remove Roles</th>
             </tr>
-        {% endfor %}
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.user.username }}</td>
+                    <td>{{ user.location }}</td>
+                    <td>
+                        {% for group in user.user.groups.all %}
+                            {{ group.name }}
+                        {% empty %}
+                            No groups
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'update-user-location' user.user.id %}">
+                            {% csrf_token %}
+                            <select name="location">
+                                {% for location in locations %}
+                                    <option value="{{ location.id }}"
+                                        {% if location.id == user.location.id %} selected {% endif %}>
+                                        {{ location.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'update-user-groups' user.user.id %}">
+                            {% csrf_token %}
+                            <select name="add_group">
+                                <option value="" disabled selected>-------------------</option>
+                                {% for group in groups %}
+                                    {% if group not in user.user.groups.all %}
+                                        <option value="{{ group.id }}">{{ group.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                            <button type="submit">Add Role</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'update-user-groups' user.user.id %}">
+                            {% csrf_token %}
+                            <select name="remove_group">
+                                {% for group in user.user.groups.all %}
+                                    <option value="{{ group.id }}">{{ group.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit">Remove Role</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
         </tbody>
-</table>
+    </table>
+</div>
+
+
 {% endblock %}
 
+
 {% block js %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.css"/>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.18/af-2.3.0/b-1.5.2/b-colvis-1.5.2/b-flash-1.5.2/b-html5-1.5.2/b-print-1.5.2/cr-1.5.0/fh-3.1.4/r-2.2.2/datatables.min.js"></script>
     <script>
         $(document).ready( function () {
             var table = $('#table').DataTable({

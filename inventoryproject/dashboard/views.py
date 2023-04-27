@@ -1,5 +1,5 @@
 import datetime
-from django.forms import model_to_dict
+from django.forms import model_to_dict, modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
@@ -17,7 +17,10 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from user.models import UserProfile
 from django.forms import inlineformset_factory
+from django.contrib import messages
 from django.utils.decorators import method_decorator
+from django.db.models import F
+
 
 # P.S. path has to be reflected also in urls.py
 @login_required
@@ -94,13 +97,6 @@ class inventoryView(LoginRequiredMixin, View):
             else:
                 ctxt['inventory_form'] = inventory_form
 
-        elif 'category' in request.POST:
-            category_form = CategoryForm(request.POST)
-
-            if category_form.is_valid():
-                category_form.save()
-            else:
-                ctxt['category_form'] = category_form
         return render(request, self.template_name, self.get_context_data(**ctxt))
 
 @login_required
@@ -109,23 +105,91 @@ def admin_dashboard(request):
         return redirect('dashboard-index')
     users = UserProfile.objects.all()
     locations = Location.objects.all()
-    context = {'users': users, 'locations': locations}
+    groups = Group.objects.all()
+    context = {'users': users, 'locations': locations, 'groups': groups, 'category_form': CategoryForm()}
+    
+    if 'category' in request.POST:
+        category_form = CategoryForm(request.POST)
+
+        if category_form.is_valid():
+            category_form.save()
+        else:
+            context['category_form'] = category_form
+    
+    if 'add_group' in request.POST:
+        user_id = request.POST.get('user_id')
+        group_id = request.POST.get('group_id')
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
+        user.groups.add(group)
+        
+    if 'remove_group' in request.POST:
+        user_id = request.POST.get('user_id')
+        group_id = request.POST.get('group_id')
+        user = User.objects.get(id=user_id)
+        group = Group.objects.get(id=group_id)
+        user.groups.remove(group)
+    
     return render(request, 'dashboard/admin_dashboard.html', context)
 
 @login_required
 def update_user_location(request, user_id):
     if not request.user.groups.filter(name='Administrator').exists():
         return redirect('dashboard-index')
-    user_profile = UserProfile.objects.get(user__id=user_id)
+    user = User.objects.get(id=user_id)
     if request.method == 'POST':
-        location_id = request.POST.get('location')
-        location = Location.objects.get(id=location_id)
-        user_profile.location = location
+        location_id = request.POST['location']
+        user_profile = UserProfile.objects.get(user=user)
+        user_profile.location_id = location_id
         user_profile.save()
         return redirect('dashboard-admin')
-    locations = Location.objects.all()
-    context = {'user_profile': user_profile, 'locations': locations}
-    return render(request, 'dashboard/update_user_location.html', context)
+    else:
+        locations = Location.objects.all()
+        return render(request, 'update_user_location.html', {'user': user, 'locations': locations})
+
+@login_required
+def update_user_groups(request, user_id):
+    if not request.user.groups.filter(name='Administrator').exists():
+        return redirect('dashboard-index')
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        add_group_id = request.POST.get('add_group')
+        if add_group_id:
+            group = Group.objects.get(id=add_group_id)
+            user.groups.add(group)
+        remove_group_id = request.POST.get('remove_group')
+        if remove_group_id:
+            group = Group.objects.get(id=remove_group_id)
+            user.groups.remove(group)
+        return redirect('dashboard-admin')
+    else:
+        groups = Group.objects.all()
+        return render(request, 'update_user_groups.html', {'user': user, 'groups': groups})
+
+@login_required
+def edit_inventory(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    inventory = Inventory.objects.filter(location=request.user.userprofile.location)
+    context = {'inventory': inventory}
+    return render(request, 'dashboard/edit_inventory.html', context)
+
+@login_required
+def update_inventory_restocking(request, inventory_id):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    inventory = Inventory.objects.get(id=inventory_id)
+    if request.method == 'POST':
+        if request.POST.get('restocking_threshold'):
+            restocking_threshold = request.POST.get('restocking_threshold')
+            inventory.restocking_threshold = restocking_threshold
+        elif request.POST.get('restocking_amount'):
+            restocking_amount = request.POST.get('restocking_amount')
+            inventory.restocking_amount = restocking_amount
+        inventory.save()
+        return redirect('edit_inventory')
+    context = {'inventory': inventory}
+    return render(request, 'dashboard/edit_inventory.html', context)
 
 # =============================== LIST VIEWS ========================
 class DeliveryList(LoginRequiredMixin, ListView):
@@ -145,6 +209,11 @@ class DeliveryList(LoginRequiredMixin, ListView):
 class QuotationList(ListView):
     model = Quotation
     context_object_name = "quotation"
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+            return redirect('dashboard-index')
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -176,41 +245,79 @@ class RequestList(LoginRequiredMixin, ListView):
         kwargs['pRequest'] = pRequest
         filteredRequest = PurchaseRequest.objects.filter(approvedDelivery=True)
         kwargs['filteredRequest'] = filteredRequest
+
+        for request in filteredRequest:
+            yes_items = DeliveryItem.objects.filter(quotationItem__quotation__purchaseRequest=request, dateApproved__isnull=False)
+            yes_count = yes_items.count()
+            quotation_items = QuotationItem.objects.filter(quotation__purchaseRequest=request, dateApproved__isnull=False)
+            no_count = quotation_items.count()
+        kwargs['yes_count'] = yes_count
+        kwargs['no_count'] = no_count
+
         return super().get_context_data(**kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+            return redirect('dashboard-index')
+        return super().get(request, *args, **kwargs)
+
 
 # =========================== DELIVERY VIEWS ======================================
 
 @login_required
 def createRequest(request):
     if request.method == 'POST':
+        print("RUNNING POST: ", request.POST)
+        RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
         requestForm = RequestForm(request.POST or None)
+        requestItemFormsetEmpty = RequestItemFormSet(prefix='items')
         requestItemFormset = RequestItemFormSet(request.POST or None, prefix='items')
         if requestForm.is_valid() and requestItemFormset.is_valid():
+            print("REQ ITEMFORMSET: ", requestItemFormset)
             pRequest = requestForm.save(commit=False)
             pRequest.requestedBy = request.user
             pRequest.requestLocation = request.user.userprofile.location
             pRequest.save()  # save the delivery object first
             requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
-            # Filter inventory items based on the user's location
-            inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+
+            # Save each purchase request item separately
             for form in requestItemFormset:
-                form.fields['inventory'].queryset = inventory_items
-            requestItemFormset.save()  # then save the delivery item formset
+                item = form.save(commit=False)
+                item.purchaseRequest = pRequest
+                print("ITEM", item)
+                item.save()
+                print("POST FINISH")
+
             return redirect('list-deliveries')
     else:
-        requestForm = RequestForm()
-        requestItemFormset = RequestItemFormSet(prefix='items')
-        # Filter inventory items based on the user's location
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
-        for form in requestItemFormset:
-            form.fields['inventory'].queryset = inventory_items
-    return render(request, 'dashboard/create_request.html', {'requestForm': requestForm, 'requestItemFormset': requestItemFormset})
+        restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
+        initial_data=[]
+        for item in  restock_items:
+            initial_data.append({'inventory': item.id, 'quantity': item.restocking_amount - item.quantity})
+        
+        requestForm = RequestForm()
+        RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=len(initial_data), can_delete=False, can_delete_extra=True)
+        RequestItemFormSetEmpty = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
+        
+        requestItemFormset = RequestItemFormSet(prefix='items')
+        requestItemFormsetEmpty = RequestItemFormSetEmpty(prefix='items')
+
+        if request.GET.get('restock'):
+            
+            requestItemFormset = RequestItemFormSet(initial=initial_data, prefix='items')
+            for form in requestItemFormset:
+                form.fields['inventory'].queryset = inventory_items
+    return render(request, 'dashboard/create_request.html', {'requestForm': requestForm, 'requestItemFormset': requestItemFormset, 'requestItemFormsetEmpty': requestItemFormsetEmpty})
+
+
 
 @login_required
 def create_delivery(request):
     if request.method == 'POST':
         quotation_item_pk = request.POST.get('pk')
-        expected_delivery_date = request.POST.get('expected_delivery_date')
+        expected_delivery_date = request.POST.get('expected_date')
+        print("expected_delivery_date: ", expected_delivery_date)
 
         # get the quotation item and create the delivery and delivery item objects
         quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)
@@ -235,6 +342,8 @@ def create_delivery(request):
 # =========================== QUOTATION VIEWS ================================
 @login_required
 def quotation_details(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
     context = {
@@ -246,6 +355,8 @@ def quotation_details(request, pk):
 
 @login_required
 def quotation_create_view(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     pRequest = PurchaseRequest.objects.get(pk=pk)
     requestItems = pRequest.purchase_request_items.all() # get all delivery items related to this delivery
     requestItemsData = [{'inventory': item.inventory, 'quantity': item.quantity} for item in requestItems]
@@ -276,6 +387,8 @@ def quotation_create_view(request, pk):
 
 @login_required
 def edit_quotation(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
 
@@ -312,6 +425,8 @@ def edit_quotation(request, pk):
 
 @login_required
 def delete_quotation(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     quotation = get_object_or_404(Quotation, pk=pk)
     quotation_items = QuotationItem.objects.filter(quotation=quotation)
 
@@ -327,6 +442,8 @@ def delete_quotation(request, pk):
 
 @login_required
 def approveQuotation(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     if request.method == 'POST':
         if request.user.is_authenticated:
             pk = request.POST.get('pk')
@@ -353,6 +470,8 @@ def approveQuotation(request):
 @login_required
 @transaction.atomic
 def arriveDelivery(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
     if request.user.is_authenticated:
         pk = request.POST.get('pk') if request.POST.get('pk') else None
         if pk:
@@ -375,3 +494,37 @@ def arriveDelivery(request):
     else:
         return HttpResponse("You must be logged in to perform this action.")
     
+# ============================ WITHDRAW INVENTORY ===========================
+
+@login_required
+def inventory_withdrawals(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        print("uh oh")
+        return redirect('dashboard-index')
+    inventory_withdrawals = InventoryWithdrawn.objects.all()
+    return render(request, 'dashboard/inventory_withdrawals.html', {'inventory_withdrawals': inventory_withdrawals})
+
+@login_required
+def inventory_withdraw(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    formset = InventoryWithdrawnFormSet(request.POST or None, queryset=InventoryWithdrawn.objects.none())
+    print(request.POST)
+    if request.method == 'POST':
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            print(instances)
+            for instance in instances:
+                print(instance)
+                inventory = instance.inventory
+                quantity = instance.quantity
+                if inventory.quantity >= quantity:
+                    inventory.quantity -= quantity
+                    inventory.save()
+                    instance.withdrawn_by = request.user
+                    instance.save()
+                else:
+                    return redirect('inventory_withdraw')
+            messages.success(request, 'Inventory withdrawn successfully.')
+            return redirect('inventory_withdrawals')
+    return render(request, 'dashboard/inventory_withdraw.html', {'formset': formset})

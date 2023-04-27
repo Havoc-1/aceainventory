@@ -6,8 +6,10 @@
 {% load bootstrap_icons %}
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-<div>
-    <a href="{% url 'create-request'%}"> Create Purchase Request </a>
+<div class="container py-5">
+    <div>
+        <a href="{% url 'create-request'%}" class="btn btn-success"> Create Purchase Request </a>
+    </div>
 </div>
 {% endif %}
 
@@ -44,13 +46,7 @@
                         </div>
                     </td>
 
-                    {% if d.dateApproved is None %}
-                        <td>Approval Pending</td>
-                    {% elif d.dateArrived is None %}
-                        <td>Arrival Pending</td>
-                    {% else %}
-                        <td>Delivered</td>
-                    {% endif %}
+                    <td>{{ d.status }}</td>
 
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <td>
@@ -85,7 +81,7 @@
                     {% if d.dateApproved is None %}
                         <td>Approval Pending</td>
                     {% elif d.dateArrived is None %}
-                        <td>Arrival Pending</td>
+                        <td>Arrival Pending: {{ d.status }}</td>
                     {% else %}
                         <td>Delivered</td>
                     {% endif %}

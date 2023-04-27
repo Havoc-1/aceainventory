@@ -33,7 +33,7 @@
                     {% elif d.approvedDelivery is False %}
                         <td>Awaiting Delivery Confirmation</td>
                     {% else %} 
-                        <td>Delivery Confirmed</td>
+                        <td>Delivery Confirmed ({{ delivery_counts }})</td>
                     {% endif %}
                     
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
@@ -70,7 +70,11 @@
                     {% elif d.approvedDelivery is False %}
                         <td>Awaiting Delivery Confirmation</td>
                     {% else %} 
-                        <td>Delivery Confirmed</td>
+                        {% if yes_count == no_count%}
+                            <td>All Deliveries Confirmed</td>
+                        {% else %}
+                            <td>({{ yes_count }}/{{ no_count }}) Delivery Confirmed </td>
+                        {% endif %}
                     {% endif %}
                     
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}

@@ -1,0 +1,86 @@
+{% extends 'partials/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Inventory Withdraw{% endblock %}
+
+{% block content %}
+  {% include 'partials/nav.html' %}
+  <div class="container mt-3">
+    <h2 class="text-center mb-3">Withdraw Inventory</h2>
+    <form method="POST">
+      {% csrf_token %}
+      <table id="items-table">
+        {{ formset.management_form | crispy}}
+        {% for form in formset %}
+          <tr class="formset-row">
+            <td>{{ form.inventory|as_crispy_field }}</td>
+
+            <td>{{ form.quantity|as_crispy_field }}</td>
+            <td><button type="button" class="btn btn-danger delete-row">Remove Item</button></td>
+          </tr>
+        {% endfor %}
+      </table>
+      <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
+      <button class="btn btn-primary" type="submit">Withdraw Inventory</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block js %}
+ <script id="formset-empty-row" type="text/template">
+        <tr class="formset-row">
+            {% for form in formset %}
+            <td>{{ form.inventory|as_crispy_field }}</td>
+
+            <td>{{ form.quantity|as_crispy_field }}</td>
+            {% endfor %}
+            <td><button type="button" class="btn btn-danger delete-row">Remove Item</button></td>
+        </tr>
+</script>
+
+<script>
+  $(document).ready(function () {
+    $('.add-row').click(function () {
+      addFormsetRow();
+    });
+
+    $(document).on('click', '.delete-row', function () {
+      $(this).closest('.formset-row').remove();
+      updateFormsetIndexes();
+    });
+
+    function updateFormsetIndexes() {
+        var i = 0;
+        $('.formset-row').each(function () {
+            $(this).find('input, select, textarea').each(function () {
+                var name = $(this).attr('name').replace(/\d+/g, i);
+                $(this).attr('name', name);
+                $(this).attr('id', 'id_' + name);
+            });
+            i++;
+        });
+        $('#id_form-TOTAL_FORMS').val(i);
+    }
+ 
+    function addFormsetRow() {
+        var formCount = $('#id_form-TOTAL_FORMS').val();
+        var newFormHtml = $('#formset-empty-row').html().replace(/__prefix__/g, formCount);
+        $('#items-table tbody').append(newFormHtml);
+        $('#id_form-TOTAL_FORMS').val(parseInt(formCount) + 1);
+        
+        // Set the name attribute for the new form elements
+        $('.formset-row:last').find('input, select, textarea').each(function () {
+            var name = $(this).attr('name').replace(/\d+/g, formCount);
+            var id = 'id_' + name;
+            $(this).attr('name', name);
+            $(this).attr('id', id);
+            $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
+        });
+
+        updateFormsetIndexes();
+    }
+
+
+  });
+</script>
+{% endblock %}
