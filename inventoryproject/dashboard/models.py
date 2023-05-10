@@ -69,6 +69,8 @@ class PurchaseRequest(models.Model):
     approvedQuotations = models.BooleanField(default=False)
     approvedDelivery = models.BooleanField(default=False)
     requestLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
+    confirmedDeliveryCount = models.PositiveIntegerField(null=True)
+    totalDeliveryCount = models.PositiveIntegerField(null=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Purchase Requests'
@@ -146,9 +148,12 @@ class DeliveryItem(models.Model):
                 late_days = (datetime.datetime.now(datetime.timezone.utc) - self.expectedDeliveryDate).days
                 return f'Arrival Late by {late_days} day/s'
             else:
-                return 'Arrival Pending'
+                return 'Awaiting Delivery'
         else:
             return 'Delivered'
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Delivery Items'
+
+    def __str__(self):                                                      # function returning the data models to string
+        return f'00{self.quotationItem.quotation.id}: {self.inventory.name} - {self.quantity}' 

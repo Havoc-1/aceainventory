@@ -81,10 +81,10 @@
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
     <div class="container py-5">
         <div>
-            <a href="{% url 'create-request'%}?restock=true" class="btn btn-success"> Create Purchase Request </a>
+            <a href="{% url 'create-request'%}?restock=true" class="btn btn-success"> Generate Purchase Request for Low Stock Inventory </a>
         </div>
         <div>
-            <a href="{% url 'edit_inventory' %}" class="btn btn-success"> Edit Inventory </a>
+            <a href="{% url 'edit_inventory' %}" class="btn btn-success"> Edit Restocking Settings </a>
         </div>
     </div>
 {% endif %}

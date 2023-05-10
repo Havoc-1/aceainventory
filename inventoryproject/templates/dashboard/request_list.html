@@ -70,10 +70,10 @@
                     {% elif d.approvedDelivery is False %}
                         <td>Awaiting Delivery Confirmation</td>
                     {% else %} 
-                        {% if yes_count == no_count%}
+                        {% if d.confirmedDeliveryCount == d.totalDeliveryCount%}
                             <td>All Deliveries Confirmed</td>
                         {% else %}
-                            <td>({{ yes_count }}/{{ no_count }}) Delivery Confirmed </td>
+                            <td>({{ d.confirmedDeliveryCount }}/{{ d.totalDeliveryCount }}) Delivery Confirmed </td>
                         {% endif %}
                     {% endif %}
                     
