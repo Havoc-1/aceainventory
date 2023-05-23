@@ -9,12 +9,11 @@ from .models import UserProfile
 class CreateUserForm(UserCreationForm):
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-    location = forms.ModelChoiceField(queryset= Location.objects.all())
     email = forms.EmailField(required=True)
 
     class Meta:
         model = User
-        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'location', 'email')                  #  '__all__' if you want to see all
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email')                  #  '__all__' if you want to see all
 
 class EditLocation(UserChangeForm):
     class Meta:

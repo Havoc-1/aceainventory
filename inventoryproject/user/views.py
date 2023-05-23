@@ -32,10 +32,9 @@ def register(request):
         if form.is_valid():             # does data validation for us
             form.save()                 # django making life easier
             username = form.cleaned_data.get('username')
-            loc = form.cleaned_data.get('location')
             user = User.objects.get(username=username)
             UserProfile.objects.filter(user__username=form.cleaned_data.get('username')).delete()
-            user_profile = UserProfile.objects.create(user=user, location=loc)
+            user_profile = UserProfile.objects.create(user=user)
             user_profile.save()
             return redirect('user-login')       # redirects to login page after succesful user registration
     else:
@@ -48,6 +47,8 @@ def register(request):
 
 @login_required
 def view_profile(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
     userProfile = UserProfile.objects.filter(user=request.user)
     context = {
         'userProfile': userProfile,
@@ -57,6 +58,8 @@ def view_profile(request):
 
 @login_required
 def edit_profile(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
     print("REQUEST METHOD", request.method == 'POST')
     if request.method == 'POST':
         print("UPDATE PROFILE", 'update_profile' in request.POST)

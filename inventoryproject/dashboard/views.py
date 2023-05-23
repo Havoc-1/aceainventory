@@ -39,6 +39,8 @@ def index(request):
 class inventoryView(LoginRequiredMixin, View):
     template_name = 'dashboard/inventory.html'
     def get_context_data(self, **kwargs):
+        if not self.request.user.userprofile.location:
+            return redirect('dashboard-index')
         inventory = Inventory.objects.all
         kwargs['inventory'] = inventory
         filteredInventory = inventory = Inventory.objects.filter(location=self.request.user.userprofile.location)
@@ -51,6 +53,8 @@ class inventoryView(LoginRequiredMixin, View):
         return kwargs
 
     def get(self, request, *args, **kwargs):
+        if not self.request.user.userprofile.location:
+            return redirect('dashboard-index')
         return render(request, self.template_name, self.get_context_data())
 
     def post(self, request, *args, **kwargs):
@@ -200,10 +204,22 @@ class DeliveryList(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         deliveryItem = DeliveryItem.objects.all()
-        context['deliveryItem'] = deliveryItem
-        filteredDeliveryItem = deliveryItem.filter(deliveryLocation=self.request.user.userprofile.location)
+        dI = deliveryItem.filter(
+            deliveryLocation=self.request.user.userprofile.location,
+            dateArrived__isnull=True
+        )
+        context['deliveryItem'] = dI
+        filteredDeliveryItem = deliveryItem.filter(
+            deliveryLocation=self.request.user.userprofile.location,
+            dateArrived__isnull=False
+        )
         context['filteredDeliveryItem'] = filteredDeliveryItem
         return context
+    
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.userprofile.location:
+            return redirect('dashboard-index')
+        return super().get(request, *args, **kwargs)
     
 @method_decorator(login_required, name='dispatch')
 class QuotationList(ListView):
@@ -251,8 +267,8 @@ class RequestList(LoginRequiredMixin, ListView):
             yes_count = yes_items.count()
             quotation_items = QuotationItem.objects.filter(quotation__purchaseRequest=request, dateApproved__isnull=False)
             no_count = quotation_items.count()
-        kwargs['yes_count'] = yes_count
-        kwargs['no_count'] = no_count
+            request.confirmedDeliveryCount = yes_count
+            request.totalDeliveryCount = no_count
 
         return super().get_context_data(**kwargs)
     

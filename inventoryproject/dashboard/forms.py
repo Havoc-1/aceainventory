@@ -18,7 +18,7 @@ class CategoryForm(forms.ModelForm):
 class RequestForm(forms.ModelForm):
     class Meta:
         model = PurchaseRequest
-        exclude = ['requestedBy', 'requestLocation', 'dateApproved']
+        exclude = ['requestedBy', 'requestLocation', 'dateApproved', 'confirmedDeliveryCount', 'totalDeliveryCount']
 
 class RequestItemForm(forms.ModelForm):
     inventory = forms.ModelChoiceField(queryset=Inventory.objects.all(), required=True, empty_label="---------", to_field_name="id")
