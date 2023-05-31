@@ -40,7 +40,12 @@
                             </button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item">Name: {{ d.inventory }}</a>
-                                <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+                                {% if d.pQuantity == 0 %}
+                                    <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+                                {% else %}
+                                    <a class="dropdown-item">Quantity: {{ d.pQuantity }}</a>
+                                {% endif %}
+                                
                                 <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
                                 <a class="dropdown-item">Expected Delivery Date: {{ d.expectedDeliveryDate|date:"M d Y" }}</a>
                             </div>

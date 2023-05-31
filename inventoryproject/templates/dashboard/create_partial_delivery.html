@@ -1,0 +1,103 @@
+{% extends 'partials/base.html' %}
+{% block title %}Add New Quotation{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    {% include 'partials/nav.html' %}
+    <div class="card card-body">
+        <div class="content-header">
+            <h4>Provide Delivery Dates for:</h4><br>
+            <h4>{{ qItem.quantity }} {{ qItem.inventory.name }}</h4>
+            <hr>
+        </div>
+        <form id="delivery-forms" method="POST" action="{% url 'create-partial-delivery' qItem.id%}">
+            {% csrf_token %}
+            <table id="items-table">
+                {{ formset.management_form | crispy }}
+                {% for form in formset %}
+                <tr class="formset-row">
+                    <td>
+                        {{ form.expectedDeliveryDate|as_crispy_field }}
+                    </td>
+                    <td>
+                        {{ form.pQuantity|as_crispy_field }}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
+            <input type="submit" class="btn btn-success btn-block" value="Create Delivery">
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        $('.add-row').click(function () {
+            addFormsetRow();
+        });
+
+        $(document).on('click', '.delete-row', function () {
+            $(this).closest('.formset-row').remove();
+            updateFormsetIndexes();
+        });
+
+        function updateFormsetIndexes() {
+            var i = 0;
+            $('.formset-row').each(function (index) {
+                $(this).find('input, select, textarea').each(function () {
+                    var name = $(this).attr('name').replace(/formset-\d+-/g, 'formset-' + index + '-');
+                    $(this).attr('name', name);
+                    $(this).attr('id', 'id_' + name);
+                });
+                i++;
+            });
+            $('#formset-TOTAL_FORMS').val(i);
+        }
+
+        function addFormsetRow() {
+            var formCount = $('.formset-row').length;
+            var newFormHtml = $('#formset-empty-row').html().replace(/__prefix__/g, formCount);
+            var newRow = $('<tbody>').append(newFormHtml).find('.formset-row');
+            $('#items-table tbody').append(newRow);
+            $('#id_formset-TOTAL_FORMS').val(parseInt(formCount) + 1);
+            updateFormsetIndexes();
+        }
+
+        updateFormsetIndexes();
+
+        // Prevent form submission if total quantity is not equal to available quantity
+        $('#delivery-forms').submit(function (event) {
+            var totalQuantity = 0;
+            $('.formset-row').each(function () {
+                var quantity = parseInt($(this).find('input[name$="pQuantity"]').val());
+                totalQuantity += isNaN(quantity) ? 0 : quantity;
+            });
+
+            var availableQuantity = parseInt('{{ qItem.quantity }}');
+            if (totalQuantity !== availableQuantity) {
+                event.preventDefault();
+                alert('Total quantity must be equal to the available quantity. Please adjust the quantities.');
+            }
+        });
+    });
+</script>
+<script id="formset-empty-row" type="text/template">
+    <tr class="formset-row">
+        <td>
+            <input type="date" name="formset-__prefix__-expectedDeliveryDate" required>
+        </td>
+        <td>
+            <input type="number" name="formset-__prefix__-pQuantity" required>
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+        </td>
+    </tr>
+</script>
+{% endblock %}

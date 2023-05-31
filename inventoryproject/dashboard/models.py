@@ -138,6 +138,7 @@ class DeliveryItem(models.Model):
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
     quantity = models.PositiveIntegerField(null=True)
+    pQuantity = models.PositiveIntegerField(null=True)
 
     @property
     def status(self):
@@ -156,4 +157,5 @@ class DeliveryItem(models.Model):
         verbose_name_plural = 'Delivery Items'
 
     def __str__(self):                                                      # function returning the data models to string
-        return f'00{self.quotationItem.quotation.id}: {self.inventory.name} - {self.quantity}' 
+        quantity = self.pQuantity if self.pQuantity is not None and self.pQuantity > 0 else self.quantity
+        return f'00{self.quotationItem.quotation.id}: {self.inventory.name} - {quantity}'

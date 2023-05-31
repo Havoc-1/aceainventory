@@ -20,6 +20,7 @@ from django.forms import inlineformset_factory
 from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import F
+from django.forms import formset_factory
 
 
 # P.S. path has to be reflected also in urls.py
@@ -482,7 +483,47 @@ def approveQuotation(request):
             return HttpResponse("You must be logged in to perform this action.")
     else:
         return HttpResponse("NOT POST")
+
+from django.forms import formset_factory
+
+@login_required
+def create_partial_delivery(request, pk):
+    qItem = QuotationItem.objects.get(pk=pk)
+    PartialDeliveryFormSet = formset_factory(PartialDeliveryForm, extra=1)
     
+    if request.method == 'POST':
+        formset = PartialDeliveryFormSet(request.POST, prefix='formset')
+        print(formset)
+        if formset.is_valid():
+            for form in formset:
+                expected_delivery_date = form.cleaned_data['expectedDeliveryDate']
+                pQuantity = form.cleaned_data['pQuantity']
+                print(form.cleaned_data['expectedDeliveryDate'])
+                print(form.cleaned_data['pQuantity'])
+                
+                DeliveryItem.objects.create(
+                    inventory=qItem.inventory,
+                    quotationItem=qItem,
+                    quantity=qItem.quantity,
+                    dateApproved=datetime.datetime.now(datetime.timezone.utc),
+                    approvedBy=request.user,
+                    deliveryLocation=qItem.quotation.purchaseRequest.requestLocation,
+                    expectedDeliveryDate=expected_delivery_date,
+                    pQuantity=pQuantity
+                )
+            return HttpResponseRedirect(reverse('list-deliveries'))
+        else:
+            print("uh oh")
+            for form in formset:
+                print(form)
+                print(form.easdrrors)
+    else:
+        formset = PartialDeliveryFormSet(prefix='formset')
+
+    context = {'formset': formset, 'qItem': qItem}
+    return render(request, 'dashboard/create_partial_delivery.html', context)
+
+
 @login_required
 @transaction.atomic
 def arriveDelivery(request):
@@ -499,7 +540,10 @@ def arriveDelivery(request):
                     delivery.save()
 
                     inventory_item = delivery.inventory
-                    inventory_item.quantity += delivery.quantity
+                    if delivery.pQuantity > 0:
+                        inventory_item.quantity += delivery.pQuantity
+                    else:
+                        inventory_item.quantity += delivery.quantity
                     inventory_item.save()
 
                 return redirect('list-deliveries')

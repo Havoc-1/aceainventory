@@ -23,7 +23,7 @@
                     <th scope="col">Quantity</th>
                     <th scope="col">Price</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" or request.user|has_group:"Finance" %}
-                    <th scope="col">Management Approval</th>
+                    <th scope="col">Actions</th>
                     {% endif %}
                 </tr>
             </thead>
@@ -51,7 +51,7 @@
                             {% if q.deliverySet == False %}
                             <td>
                                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
-                                Set Delivery
+                                Set Single Delivery
                                 </button>
 
                                 <!-- Delivery Modal -->
@@ -76,6 +76,8 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <a href="{% url 'create-partial-delivery' q.id %}" class="btn btn-success"> Set Multiple Deliveries </a>
                             </td>
                             {% else %}
                                 <td>Delivery Created</td>

@@ -49,6 +49,19 @@ class QuotationItemForm(forms.ModelForm):
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
 
+class PartialDeliveryForm(forms.ModelForm):
+    expectedDeliveryDate = forms.DateField(
+        widget=forms.DateInput(format=('%d-%m-%Y'), 
+                               attrs={'required': True}))
+    class Meta:
+        model = DeliveryItem
+        exclude = ['id', 'quotationItem', 'quantity', 'inventory', 'deliveryLocation', 'approvedBy', 'dateApproved', 'dateArrived']
+        widgets = {
+            'pQuantity': forms.NumberInput(attrs={'required': True}),
+        }
+
+PartialDeliveryFormSet = forms.formset_factory(PartialDeliveryForm, extra=1)
+
 class InventoryWithdrawnForm(forms.ModelForm):
     class Meta:
         model = InventoryWithdrawn

@@ -16,6 +16,7 @@ urlpatterns = [
     path('create/', views.createRequest, name='create-request'),
     path('create_delivery', views.create_delivery, name='set-delivery'),
     path('requests/quotation/<int:pk>/',views.QuotationList.as_view(), name='list-quotations'),
+    path('requests/quotation/<int:pk>/partial',views.create_partial_delivery, name='create-partial-delivery'),
     path('requests/quotation/<int:pk>/create', views.quotation_create_view, name='create-quotation'),
     path('requests/quotation/<int:pk>/edit', views.edit_quotation, name='edit_quotation'),
     path('requests/quotation/<int:pk>/delete', views.delete_quotation, name='delete_quotation'),
