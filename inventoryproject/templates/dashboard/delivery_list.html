@@ -23,6 +23,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Supplier</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <th scope="col">Arrival</th>
@@ -52,6 +53,7 @@
                         </div>
                     </td>
 
+                    <td>{{ d.quotationItem.supplierName }}</td>
                     <td>{{ d.status }}</td>
 
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
@@ -79,6 +81,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Supplier</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
                     <th scope="col">Arrival</th>
@@ -102,7 +105,8 @@
                             </div>
                         </div>
                     </td>
-
+                    
+                    <td>{{ d.quotationItem.supplierName }}</td>
                     <td>{{ d.status }}</td>
 
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}

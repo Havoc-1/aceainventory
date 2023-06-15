@@ -66,7 +66,6 @@
                 var newFormHtml = $('#formset-empty-row').html().replace(/__prefix__/g, formCount);
                 $('#items-table tbody').append(newFormHtml);
                 $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
-                
                 $('.formset-row:last').find('input, select, textarea').each(function () {
                     var name = $(this).attr('name').replace(/\d+/g, formCount);
                     var id = 'id_' + name;
@@ -80,15 +79,28 @@
     </script>
     
     <script id="formset-empty-row" type="text/template">
-        <tr class="formset-row">
-            {% for field in quotation_item_formset.empty_form.visible_fields %}
-                {% if field.name != 'DELETE' %}
-                    <td>{{ field|as_crispy_field }}</td>
-                {% endif %}
-            {% endfor %}
-            <td>
-                <button type="button" class="btn btn-danger delete-row">Remove Item</button>
-            </td>
-        </tr>
+        {% for form in quotation_item_formset_empty %}
+            <tr class="formset-row">
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+                
+                <td>
+                    {{ form.inventory|as_crispy_field }}
+                </td>
+                <td>
+                    {{ form.supplierName|as_crispy_field }}
+                </td>
+                <td>
+                    {{ form.quantity|as_crispy_field }}
+                </td>
+                <td>
+                    {{ form.price|as_crispy_field }}
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+                </td>
+            </tr>
+        {% endfor %}
     </script>
 {% endblock %}

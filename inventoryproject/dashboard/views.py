@@ -287,8 +287,8 @@ def createRequest(request):
         print("RUNNING POST: ", request.POST)
         RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
         requestForm = RequestForm(request.POST or None)
-        requestItemFormsetEmpty = RequestItemFormSet(prefix='items')
         requestItemFormset = RequestItemFormSet(request.POST or None, prefix='items')
+        requestItemFormsetEmpty = RequestItemFormSet(prefix='items')
         if requestForm.is_valid() and requestItemFormset.is_valid():
             print("REQ ITEMFORMSET: ", requestItemFormset)
             pRequest = requestForm.save(commit=False)
@@ -319,12 +319,19 @@ def createRequest(request):
         
         requestItemFormset = RequestItemFormSet(prefix='items')
         requestItemFormsetEmpty = RequestItemFormSetEmpty(prefix='items')
+        for form in requestItemFormset:
+                form.fields['inventory'].queryset = inventory_items
+        for form in requestItemFormsetEmpty:
+                form.fields['inventory'].queryset = inventory_items
 
         if request.GET.get('restock'):
             
             requestItemFormset = RequestItemFormSet(initial=initial_data, prefix='items')
             for form in requestItemFormset:
                 form.fields['inventory'].queryset = inventory_items
+            for form in requestItemFormsetEmpty:
+                form.fields['inventory'].queryset = inventory_items
+            
     return render(request, 'dashboard/create_request.html', {'requestForm': requestForm, 'requestItemFormset': requestItemFormset, 'requestItemFormsetEmpty': requestItemFormsetEmpty})
 
 
@@ -397,10 +404,16 @@ def quotation_create_view(request, pk):
             quotation_item_formset.save() 
             return redirect('list-quotations', pk=pRequest.id)
     else:
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
         quotation_form = QuotationForm()
         quotation_item_formset = QuotationItemFormSet(prefix='items', initial=requestItemsData)
+        quotation_item_formset_empty = QuotationItemFormSet(prefix='items')
         # initialize formset with the delivery item data
-    return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
+        for form in quotation_item_formset:
+                form.fields['inventory'].queryset = inventory_items
+        for form in quotation_item_formset_empty:
+                form.fields['inventory'].queryset = inventory_items
+    return render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'quotation_item_formset_empty': quotation_item_formset_empty, 'pk': pk})
 
 @login_required
 def edit_quotation(request, pk):
@@ -587,4 +600,8 @@ def inventory_withdraw(request):
                     return redirect('inventory_withdraw')
             messages.success(request, 'Inventory withdrawn successfully.')
             return redirect('inventory_withdrawals')
+    else:
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        for form in formset:
+                form.fields['inventory'].queryset = inventory_items
     return render(request, 'dashboard/inventory_withdraw.html', {'formset': formset})
