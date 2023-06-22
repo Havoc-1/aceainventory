@@ -35,7 +35,7 @@
                     <td>{{ q.quantity }}</td>
                     <td>₱{{ q.price|floatformat:2 }}</td>
                     {% if q.dateApproved is None %}
-                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
+                        {% if request.user.is_authenticated and request.user|has_group:"Management" or request.user|has_group:"Administrator" %}    
                         <td>
                             <form action="{% url 'approveQuotation' %}" method="POST">
                             {% csrf_token %}
@@ -90,6 +90,7 @@
             {% endfor %}
             </tbody>           
         </table>
+        <input type=button class="btn btn-secondary" value="Go Back" onClick="javascript:history.go(-1);">
     </div>
 </div>
 

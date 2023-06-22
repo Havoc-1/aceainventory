@@ -8,10 +8,11 @@
   <a href="{% url 'inventory_withdraw' %}" class="btn btn-primary">Withdraw Inventory</a> <br>
 
 
-  <table class="table">
+  <table id="table" class="table table-bordered table-hover">
     <thead>
       <tr>
         <th>Inventory Item</th>
+        <th>Location</th>
         <th>Quantity</th>
         <th>Withdrawn By</th>
         <th>Withdrawn Date</th>
@@ -20,7 +21,8 @@
     <tbody>
       {% for withdrawal in inventory_withdrawals %}
         <tr>
-          <td>{{ withdrawal.inventory }}</td>
+          <td>{{ withdrawal.inventory.name }}</td>
+          <td>{{ withdrawal.inventory.location.name }}</td>
           <td>{{ withdrawal.quantity }}</td>
           <td>{{ withdrawal.withdrawn_by }}</td>
           <td>{{ withdrawal.withdrawn_date }}</td>
@@ -29,4 +31,20 @@
     </tbody>
   </table>
 
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready( function () {
+            var table = $('#table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            
+        });
+    </script>
 {% endblock %}
