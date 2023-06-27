@@ -8,10 +8,11 @@
   <a href="{% url 'inventory_withdraw' %}" class="btn btn-primary">Withdraw Inventory</a> <br>
 
 
-  <table id="table" class="table table-bordered table-hover">
+  <table id="table" id="table" class="table table-bordered table-hover table-bordered table-hover">
     <thead>
       <tr>
         <th>Inventory Item</th>
+        <th>Location</th>
         <th>Location</th>
         <th>Quantity</th>
         <th>Withdrawn By</th>
@@ -22,6 +23,7 @@
       {% for withdrawal in inventory_withdrawals %}
         <tr>
           <td>{{ withdrawal.inventory.name }}</td>
+          <td>{{ withdrawal.inventory.location.name.name }}</td>
           <td>{{ withdrawal.inventory.location.name }}</td>
           <td>{{ withdrawal.quantity }}</td>
           <td>{{ withdrawal.withdrawn_by }}</td>
