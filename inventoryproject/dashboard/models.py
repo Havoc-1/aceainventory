@@ -138,7 +138,7 @@ class DeliveryItem(models.Model):
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
     quantity = models.PositiveIntegerField(null=True)
-    pQuantity = models.PositiveIntegerField(null=True)
+    pQuantity = models.PositiveIntegerField(null=True, default=0)
 
     @property
     def status(self):

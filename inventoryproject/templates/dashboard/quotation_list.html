@@ -69,7 +69,7 @@
                                                     {% csrf_token %}
                                                     <div class="mb-3">
                                                         <label style="color: #000000 !important;" for="expected_date" class="form-label">Expected Arrival Date</label>
-                                                        <input type="date" class="form-control" name="expected_date " min="{{ today|date:'Y-m-d' }}" required>
+                                                        <input type="date" class="form-control" name="expected_date" min="{{ today|date:'Y-m-d' }}" required>
                                                     </div>
                                                     <input type="hidden" name="pk" value="{{q.id}}">
                                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -92,7 +92,6 @@
             {% endfor %}
             </tbody>           
         </table>
-        <input type=button class="btn btn-secondary" value="Go Back" onClick="javascript:history.go(-1);">
         <input type=button class="btn btn-secondary" value="Go Back" onClick="javascript:history.go(-1);">
     </div>
 </div>

@@ -1,18 +1,17 @@
 {%extends 'partials/base.html'%}
-{% block title %}Inventory Page{% endblock %}
+{% block title %}Withdraw Inventory Page{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block content %}
 {% include 'partials/nav.html' %}
-  <h2>Inventory Withdrawals</h2>
-  <a href="{% url 'inventory_withdraw' %}" class="btn btn-primary">Withdraw Inventory</a> <br>
-
-
+<div class="container py-5"></div>
+  <div class="text-center mb-4">
+      <h4>Inventory Withdrawals</h4>
+  </div>
   <table id="table" id="table" class="table table-bordered table-hover table-bordered table-hover">
-    <thead>
+    <thead class="thead-dark">
       <tr>
         <th>Inventory Item</th>
-        <th>Location</th>
         <th>Location</th>
         <th>Quantity</th>
         <th>Withdrawn By</th>
@@ -23,7 +22,6 @@
       {% for withdrawal in inventory_withdrawals %}
         <tr>
           <td>{{ withdrawal.inventory.name }}</td>
-          <td>{{ withdrawal.inventory.location.name.name }}</td>
           <td>{{ withdrawal.inventory.location.name }}</td>
           <td>{{ withdrawal.quantity }}</td>
           <td>{{ withdrawal.withdrawn_by }}</td>
@@ -32,7 +30,11 @@
       {% endfor %}
     </tbody>
   </table>
+</div>
 
+<div class="container py-5">
+  <a href="{% url 'inventory_withdraw' %}" class="btn btn-primary">Withdraw Inventory</a> <br>
+</div>
 {% endblock %}
 
 {% block js %}
