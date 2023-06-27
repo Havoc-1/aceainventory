@@ -69,8 +69,8 @@ class PurchaseRequest(models.Model):
     approvedQuotations = models.BooleanField(default=False)
     approvedDelivery = models.BooleanField(default=False)
     requestLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
-    confirmedDeliveryCount = models.PositiveIntegerField(null=True)
-    totalDeliveryCount = models.PositiveIntegerField(null=True)
+    confirmedDeliveryCount = models.PositiveIntegerField(null=True, default=0)
+    totalDeliveryCount = models.PositiveIntegerField(null=True, default=0)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Purchase Requests'

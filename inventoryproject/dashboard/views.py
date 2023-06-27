@@ -239,7 +239,9 @@ class QuotationList(ListView):
         # filter the quotation items based on the purchase request instance
         quotationItem = QuotationItem.objects.filter(quotation__purchaseRequest=purchase_request)
         context['quotationItem'] = quotationItem
+        context['pRequest'] = purchase_request
         context['pk'] = self.kwargs['pk']
+        context['today'] =  datetime.datetime.now(datetime.timezone.utc)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -258,18 +260,18 @@ class RequestList(LoginRequiredMixin, ListView):
     template_name = "dashboard/request_list.html" 
 
     def get_context_data(self, **kwargs):
-        pRequest = PurchaseRequest.objects.filter(approvedDelivery=False)
-        kwargs['pRequest'] = pRequest
+        pRequest = PurchaseRequest.objects.filter(Q(approvedDelivery=False) | Q(confirmedDeliveryCount__lt=F('totalDeliveryCount')))
         filteredRequest = PurchaseRequest.objects.filter(approvedDelivery=True)
-        kwargs['filteredRequest'] = filteredRequest
 
-        for request in filteredRequest:
-            yes_items = DeliveryItem.objects.filter(quotationItem__quotation__purchaseRequest=request, dateApproved__isnull=False)
-            yes_count = yes_items.count()
-            quotation_items = QuotationItem.objects.filter(quotation__purchaseRequest=request, dateApproved__isnull=False)
-            no_count = quotation_items.count()
-            request.confirmedDeliveryCount = yes_count
-            request.totalDeliveryCount = no_count
+        for request in reversed(filteredRequest):
+            
+            if request.confirmedDeliveryCount != request.totalDeliveryCount:
+                filteredRequest = filteredRequest.exclude(pk=request.pk)
+                pRequest = pRequest | PurchaseRequest.objects.filter(pk=request.pk)
+                
+        kwargs['pRequest'] = pRequest
+        kwargs['filteredRequest'] = filteredRequest
+        kwargs['today'] =  datetime.datetime.now(datetime.timezone.utc)
 
         return super().get_context_data(**kwargs)
     
@@ -280,6 +282,7 @@ class RequestList(LoginRequiredMixin, ListView):
 
 
 # =========================== DELIVERY VIEWS ======================================
+from django.contrib import messages
 
 @login_required
 def createRequest(request):
@@ -290,22 +293,29 @@ def createRequest(request):
         requestItemFormset = RequestItemFormSet(request.POST or None, prefix='items')
         requestItemFormsetEmpty = RequestItemFormSet(prefix='items')
         if requestForm.is_valid() and requestItemFormset.is_valid():
-            print("REQ ITEMFORMSET: ", requestItemFormset)
             pRequest = requestForm.save(commit=False)
             pRequest.requestedBy = request.user
             pRequest.requestLocation = request.user.userprofile.location
-            pRequest.save()  # save the delivery object first
-            requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
+            identical_requests = PurchaseRequest.objects.filter(
+                requestLocation=pRequest.requestLocation,
+                purchase_request_items__inventory__in=[form.cleaned_data['inventory'] for form in requestItemFormset]
+            ).exclude(approvedDelivery=True)
+            if identical_requests.exists():
+                messages.warning(request, 'An identical purchase request has already been created and not approved for delivery.')
+            else: 
+                print("REQ ITEMFORMSET: ", requestItemFormset)
+                pRequest.save()  # save the delivery object first
+                requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
 
-            # Save each purchase request item separately
-            for form in requestItemFormset:
-                item = form.save(commit=False)
-                item.purchaseRequest = pRequest
-                print("ITEM", item)
-                item.save()
-                print("POST FINISH")
+                # Save each purchase request item separately
+                for form in requestItemFormset:
+                    item = form.save(commit=False)
+                    item.purchaseRequest = pRequest
+                    print("ITEM", item)
+                    item.save()
+                    print("POST FINISH")
 
-            return redirect('list-deliveries')
+                return redirect('list-deliveries')
     else:
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
         restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
@@ -347,6 +357,7 @@ def create_delivery(request):
         quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)
         pRequest = quotation_item.quotation.purchaseRequest
         pRequest.approvedDelivery = True
+        pRequest.confirmedDeliveryCount += 1
         pRequest.save()
         quotation_item.deliverySet = True
         quotation_item.save()
@@ -485,6 +496,7 @@ def approveQuotation(request):
                         quotation.approvedBy = request.user
                         purchase_request = quotation.quotation.purchaseRequest
                         purchase_request.approvedQuotations = True
+                        purchase_request.totalDeliveryCount += 1
                         purchase_request.save()
                         quotation.save()
                     return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
@@ -508,11 +520,25 @@ def create_partial_delivery(request, pk):
         formset = PartialDeliveryFormSet(request.POST, prefix='formset')
         print(formset)
         if formset.is_valid():
+            i = 0
             for form in formset:
+                i += 1
+                print("I value: ", i)
                 expected_delivery_date = form.cleaned_data['expectedDeliveryDate']
                 pQuantity = form.cleaned_data['pQuantity']
-                print(form.cleaned_data['expectedDeliveryDate'])
-                print(form.cleaned_data['pQuantity'])
+                pRequest = qItem.quotation.purchaseRequest
+                pRequest.approvedDelivery = True
+                pRequest.confirmedDeliveryCount += 1
+                if pRequest.totalDeliveryCount == 0:
+                    pRequest.totalDeliveryCount += 1
+                    print("ONLY ONCE")
+                if i > 1:
+                    pRequest.totalDeliveryCount += 1
+                    print("WE RAN")
+                    print("value: ", pRequest.totalDeliveryCount)
+                pRequest.save()
+                qItem.deliverySet = True
+                qItem.save()
                 
                 DeliveryItem.objects.create(
                     inventory=qItem.inventory,
@@ -529,18 +555,17 @@ def create_partial_delivery(request, pk):
             print("uh oh")
             for form in formset:
                 print(form)
-                print(form.easdrrors)
     else:
         formset = PartialDeliveryFormSet(prefix='formset')
 
-    context = {'formset': formset, 'qItem': qItem}
+    context = {'formset': formset, 'qItem': qItem, 'today': datetime.datetime.now(datetime.timezone.utc)}
     return render(request, 'dashboard/create_partial_delivery.html', context)
 
 
 @login_required
 @transaction.atomic
 def arriveDelivery(request):
-    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     if request.user.is_authenticated:
         pk = request.POST.get('pk') if request.POST.get('pk') else None

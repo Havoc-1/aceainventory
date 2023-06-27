@@ -1,16 +1,18 @@
 {%extends 'partials/base.html'%}
-{% block title %}Home Page{% endblock %}
+{% block title %}Quotation List Page{% endblock %}
 
 {% block content %}
 {% include 'partials/nav.html' %}
 {% load bootstrap_icons %}
 
 {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-<div class="container py-5">
-    <div>
-        <a href="{% url 'create-quotation' pk %}" class="btn btn-success"> Create Quotation </a>
-    </div>
-</div>
+    {% if pRequest.approvedDelivery == False %}
+        <div class="container py-5">
+            <div>
+                <a href="{% url 'create-quotation' pk %}" class="btn btn-success"> Create Quotation </a>
+            </div>
+        </div>
+    {% endif %}
 {% endif %}
 
 <div class="container py-5">
@@ -35,16 +37,16 @@
                     <td>{{ q.quantity }}</td>
                     <td>₱{{ q.price|floatformat:2 }}</td>
                     {% if q.dateApproved is None %}
-                        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
-                        <td>
-                            <form action="{% url 'approveQuotation' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="pk" value="{{q.id}}">
-                            <button class="btn btn-primary" type="submit">Approve Quotation</button>
-                            </form>
-                        </td>
+                        {% if request.user.is_authenticated and request.user|has_group:"Management" or request.user|has_group:"Administrator" %}
+                            <td>
+                                <form action="{% url 'approveQuotation' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="pk" value="{{q.id}}">
+                                <button class="btn btn-primary" type="submit">Approve Quotation</button>
+                                </form>
+                            </td>
                         {% elif request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
-                        <td>Waiting Approval</td>
+                            <td>Waiting Approval</td>
                         {% endif %}
                     {% else %}
                         {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
@@ -59,15 +61,15 @@
                                     <div class="modal-dialog">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="deliveryModalLabel">Set Delivery Date</h5>
+                                                <h5 style="color: #000000;" class="modal-title" id="deliveryModalLabel">Set Delivery Date</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
                                                 <form action="{% url 'set-delivery' %}" method="POST">
                                                     {% csrf_token %}
                                                     <div class="mb-3">
-                                                        <label for="expected_date" class="form-label">Expected Arrival Date</label>
-                                                        <input type="date" class="form-control" name="expected_date" required>
+                                                        <label style="color: #000000 !important;" for="expected_date" class="form-label">Expected Arrival Date</label>
+                                                        <input type="date" class="form-control" name="expected_date " min="{{ today|date:'Y-m-d' }}" required>
                                                     </div>
                                                     <input type="hidden" name="pk" value="{{q.id}}">
                                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -90,6 +92,7 @@
             {% endfor %}
             </tbody>           
         </table>
+        <input type=button class="btn btn-secondary" value="Go Back" onClick="javascript:history.go(-1);">
     </div>
 </div>
 
@@ -105,29 +108,6 @@
                     buttons: []
                 }
             });
-    
-            var filteredTable = $('#filtered-table').DataTable({
-                dom: 'B<"clear">lfrtip',
-                buttons: {
-                    name: 'primary',
-                    buttons: []
-                }
-            });
-
-            $('#filtered-container').hide();
-
-            $('#unfiltered-btn').on('click', function() {
-                unfilteredTable.draw();
-                $('#unfiltered-container').show();
-                $('#filtered-container').hide();
-            });
-    
-            $('#filtered-btn').on('click', function() {
-                filteredTable.draw();
-                $('#unfiltered-container').hide();
-                $('#filtered-container').show();
-            });
-            
         });
     </script>
 {% endblock %}

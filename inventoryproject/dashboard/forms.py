@@ -60,6 +60,10 @@ class PartialDeliveryForm(forms.ModelForm):
             'pQuantity': forms.NumberInput(attrs={'required': True}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PartialDeliveryForm, self).__init__(*args, **kwargs)
+        self.fields['pQuantity'].label = "Quantity"
+
 PartialDeliveryFormSet = forms.formset_factory(PartialDeliveryForm, extra=1)
 
 class InventoryWithdrawnForm(forms.ModelForm):

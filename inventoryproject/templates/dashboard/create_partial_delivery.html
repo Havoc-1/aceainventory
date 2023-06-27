@@ -17,7 +17,8 @@
                 {% for form in formset %}
                 <tr class="formset-row">
                     <td>
-                        {{ form.expectedDeliveryDate|as_crispy_field }}
+                        <label for="formset-0-expectedDeliveryDate" class="form-label">Expected Arrival Date</label><br>
+                        <input type="date" name="formset-0-expectedDeliveryDate" min="{{ today|date:'Y-m-d' }}" required>
                     </td>
                     <td>
                         {{ form.pQuantity|as_crispy_field }}
@@ -32,6 +33,7 @@
             <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
             <input type="submit" class="btn btn-success btn-block" value="Create Delivery">
         </form>
+        <input type=button class="btn btn-secondary" value="Go Back" onClick="javascript:history.go(-1);">
     </div>
 {% endblock %}
 
@@ -90,7 +92,7 @@
 <script id="formset-empty-row" type="text/template">
     <tr class="formset-row">
         <td>
-            <input type="date" name="formset-__prefix__-expectedDeliveryDate" required>
+            <input type="date" name="formset-__prefix__-expectedDeliveryDate" min="{{ today|date:'Y-m-d' }}" required>
         </td>
         <td>
             <input type="number" name="formset-__prefix__-pQuantity" required>
