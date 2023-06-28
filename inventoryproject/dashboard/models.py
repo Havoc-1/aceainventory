@@ -123,7 +123,15 @@ class QuotationItem(models.Model):
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Quotation Items'
-
+    
+    def __str__(self):
+        if self.approvedBy:
+            initials = ''.join([name[0] for name in self.quotation.createdBy.get_full_name().split()])
+        else:
+            initials = 'unknown'
+        formatted_date = self.quotation.purchaseRequest.dateRequested.strftime('%d%b%y')
+        slug = slugify(formatted_date).upper()
+        return f'{initials}-{slug}'
 
 # ==================================== DELIVERY MODELS ======================================================= #
     

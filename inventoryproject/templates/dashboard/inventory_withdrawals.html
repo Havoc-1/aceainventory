@@ -24,8 +24,8 @@
           <td>{{ withdrawal.inventory.name }}</td>
           <td>{{ withdrawal.inventory.location.name }}</td>
           <td>{{ withdrawal.quantity }}</td>
-          <td>{{ withdrawal.withdrawn_by }}</td>
-          <td>{{ withdrawal.withdrawn_date }}</td>
+          <td>{{ withdrawal.withdrawn_by.get_full_name }}</td>
+          <td>{{ withdrawal.withdrawn_date|date:"M d Y" }}</td>
         </tr>
       {% endfor %}
     </tbody>

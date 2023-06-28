@@ -62,6 +62,7 @@ class inventoryView(LoginRequiredMixin, View):
         ctxt = {}
         print(request.POST)
         if 'inventory' in request.POST:
+            print("running request")
             inventory_form = InventoryForm(request.POST)
 
             if inventory_form.is_valid():
@@ -296,12 +297,33 @@ def createRequest(request):
             pRequest = requestForm.save(commit=False)
             pRequest.requestedBy = request.user
             pRequest.requestLocation = request.user.userprofile.location
-            identical_requests = PurchaseRequest.objects.filter(
-                requestLocation=pRequest.requestLocation,
-                purchase_request_items__inventory__in=[form.cleaned_data['inventory'] for form in requestItemFormset]
-            ).exclude(approvedDelivery=True)
-            if identical_requests.exists():
-                messages.warning(request, 'An identical purchase request has already been created and not approved for delivery.')
+            identical_items = []
+            for form in requestItemFormset:
+                identical_requests = PurchaseRequest.objects.filter(
+                    requestLocation=pRequest.requestLocation,
+                    purchase_request_items__inventory=form.cleaned_data['inventory']
+                ).exclude(approvedDelivery=True)
+                if identical_requests.exists():
+                    identical_items.append(str(form.cleaned_data['inventory']))
+            if identical_items:
+                message = 'The following items already exist in an identical purchase request and have not been approved for delivery: {}'.format(", ".join(identical_items))
+                messages.warning(request, message)
+                inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+                restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
+                initial_data=[]
+                for item in  restock_items:
+                    initial_data.append({'inventory': item.id, 'quantity': item.restocking_amount - item.quantity})
+                
+                requestForm = RequestForm()
+                RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=len(initial_data), can_delete=False, can_delete_extra=True)
+                RequestItemFormSetEmpty = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
+                
+                requestItemFormset = RequestItemFormSet(prefix='items')
+                requestItemFormsetEmpty = RequestItemFormSetEmpty(prefix='items')
+                for form in requestItemFormset:
+                        form.fields['inventory'].queryset = inventory_items
+                for form in requestItemFormsetEmpty:
+                        form.fields['inventory'].queryset = inventory_items
             else: 
                 print("REQ ITEMFORMSET: ", requestItemFormset)
                 pRequest.save()  # save the delivery object first

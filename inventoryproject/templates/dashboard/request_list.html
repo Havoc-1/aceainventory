@@ -15,6 +15,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Location</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
                     <th scope="col">Quotation</th>
@@ -25,6 +26,7 @@
                 {% for d in pRequest %}
                 <tr>
                     <td>{{ d }}</a></td>
+                    <td>{{ d.requestLocation }}</a></td>
 
                     {% if d.dateApproved is None %}
                         <td>No Quotations yet.</td>
@@ -52,6 +54,7 @@
             <thead class="thead-dark">
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Location</th>
                     <th scope="col">Status</th>
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
                     <th scope="col">Quotation</th>
@@ -62,6 +65,7 @@
                 {% for d in filteredRequest %}
                 <tr>
                     <td>{{ d }}</a></td>
+                    <td>{{ d.requestLocation }}</a></td>
 
                     {% if d.dateApproved is None %}
                         <td>No Quotations yet.</td>
