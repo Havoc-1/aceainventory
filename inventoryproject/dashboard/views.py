@@ -618,6 +618,8 @@ def arriveDelivery(request):
 
 @login_required
 def inventory_withdrawals(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
     if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         print("uh oh")
         return redirect('dashboard-index')
@@ -626,6 +628,8 @@ def inventory_withdrawals(request):
 
 @login_required
 def inventory_withdraw(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
     if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     formset = InventoryWithdrawnFormSet(request.POST or None, queryset=InventoryWithdrawn.objects.none())

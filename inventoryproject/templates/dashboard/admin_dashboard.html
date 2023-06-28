@@ -57,6 +57,7 @@
                         <form method="post" action="{% url 'update-user-location' user.user.id %}">
                             {% csrf_token %}
                             <select name="location">
+                                <option value="" {% if not user.location %} selected {% endif %}>Null</option>
                                 {% for location in locations %}
                                     <option value="{{ location.id }}"
                                         {% if location.id == user.location.id %} selected {% endif %}>
