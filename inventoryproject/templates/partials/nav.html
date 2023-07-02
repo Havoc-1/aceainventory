@@ -1,2 +1,45 @@
-<div class="app-body-navigation">
+<div class="flex sm:visible lg:invisible bg-black w-full h-12 px-2 py-2 text-gray-font justify-between fixed bottom-0 shadow-lg z-40 border-t border-gray-99 overflow-x-scroll text-center">
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" %}
+    <a class=""  href="{% url 'dashboard-admin' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Admin Panel</span>
+    </a>
+    {% endif %}
+    {% if user.is_authenticated %}
+    <a class="" href="{% url 'dashboard-index' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Dashboard</span>
+    </a>
+    {% if request.user.userprofile.location %}
+    <a class="" href="{% url 'dashboard-inventory' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Inventory</span>
+    </a>
+    <a class="" href="{% url 'list-deliveries' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Deliveries</span>
+    </a>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+    <a class="" href="{% url 'inventory_withdrawals' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Withdraw Inventory</span>
+    </a>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
+    <a class="" href="{% url 'list-requests' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Purchase Request</span>
+    </a>
+    {% endif %}
+    {% if request.user.userprofile.location %}
+    <a class="" href="{% url 'view-profile' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Profile</span>
+    </a>
+    {% endif %}
+    <a class="" href="{% url 'user-logout' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Logout</span>
+    </a>
+    {% else %}
+    <a class="" href="{% url 'user-register' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Register</span>
+    </a>
+    <a class="" href="{% url 'user-login' %}">
+      <span class="text-xs text-center ml-5 text-gray-200 font-bold">Login</span>
+    </a>
+    {% endif %}
 </div>

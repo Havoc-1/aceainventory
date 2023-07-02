@@ -16,11 +16,15 @@ class CreateUserForm(UserCreationForm):
         fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email')                  #  '__all__' if you want to see all
 
 class EditLocation(UserChangeForm):
+    password = None
+
     class Meta:
         model = UserProfile
+        exclude = ['password']
         fields = ['location']
 
 class EditProfileForm(UserChangeForm):
+    password = None
 
     class Meta: #specifying meta data
         model = User

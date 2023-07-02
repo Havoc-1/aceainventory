@@ -57,7 +57,37 @@ class InventoryWithdrawn(models.Model):
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.inventory} - {self.quantity}'  
 
+class InventoryDamaged(models.Model):
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)     
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)     
+    quantity = models.PositiveIntegerField(null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    verified_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='damage_verify_person', null=True, blank=True,)
+    reported_date = models.DateTimeField(auto_now_add=True)
+    verified_date = models.DateTimeField(null=True, blank=True)
+    remarks = models.CharField(max_length=1000, blank=True)
 
+    class Meta:
+        verbose_name_plural = 'Damaged Inventory Items'
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.inventory} - {self.quantity}'  
+    
+class InventoryReturned(models.Model):
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)     
+    quantity = models.PositiveIntegerField(null=True)
+    transferred_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    received_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_inventory_person', null=True, blank=True)
+    transferredFrom = models.ForeignKey(Location, on_delete=models.CASCADE)
+    transferredTo = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='received_inventory_location', null=True, blank=True)
+    transferDate = models.DateTimeField(auto_now_add=True)
+    arrivalDate = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Transferred Inventory Items'
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.inventory} - {self.quantity}'  
 # ==================================== PURCHASE REQUEST MODELS ======================================================= #
 
 
@@ -69,8 +99,8 @@ class PurchaseRequest(models.Model):
     approvedQuotations = models.BooleanField(default=False)
     approvedDelivery = models.BooleanField(default=False)
     requestLocation = models.ForeignKey(Location, on_delete=models.CASCADE)
-    confirmedDeliveryCount = models.PositiveIntegerField(null=True)
-    totalDeliveryCount = models.PositiveIntegerField(null=True)
+    confirmedDeliveryCount = models.PositiveIntegerField(null=True, default=0)
+    totalDeliveryCount = models.PositiveIntegerField(null=True, default=0)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Purchase Requests'
@@ -123,7 +153,15 @@ class QuotationItem(models.Model):
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Quotation Items'
-
+    
+    def __str__(self):
+        if self.approvedBy:
+            initials = ''.join([name[0] for name in self.quotation.createdBy.get_full_name().split()])
+        else:
+            initials = 'unknown'
+        formatted_date = self.quotation.purchaseRequest.dateRequested.strftime('%d%b%y')
+        slug = slugify(formatted_date).upper()
+        return f'{initials}-{slug}'
 
 # ==================================== DELIVERY MODELS ======================================================= #
     
@@ -138,7 +176,7 @@ class DeliveryItem(models.Model):
     expectedDeliveryDate = models.DateTimeField(null=True, blank=True)
     dateArrived = models.DateTimeField(null=True, blank=True)
     quantity = models.PositiveIntegerField(null=True)
-    pQuantity = models.PositiveIntegerField(null=True)
+    pQuantity = models.PositiveIntegerField(null=True, default=0)
 
     @property
     def status(self):

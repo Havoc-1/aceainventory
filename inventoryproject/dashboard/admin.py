@@ -16,6 +16,8 @@ admin.site.register(PurchaseRequest)
 admin.site.register(Quotation)
 admin.site.register(QuotationItem)
 admin.site.register(DeliveryItem)
+admin.site.register(InventoryReturned)
+admin.site.register(InventoryDamaged)
 # admin.site.unregister(Delivery)
 # except admin.sites.AlreadyRegisterd:
 #     pass

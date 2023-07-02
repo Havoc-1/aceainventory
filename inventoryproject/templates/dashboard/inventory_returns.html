@@ -1,0 +1,166 @@
+{% extends 'partials/base.html' %}
+{% block title %}Returned Inventory Items{% endblock %}
+
+{% block content %}
+
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <h2 class="mb-4 text-xl font-bold text-black">Record of Returned Inventory Items</h2>
+        <a href="{% url 'inventory_return' %}"
+            class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">Transfer Inventory</a>
+        <!-- Add a button or link to trigger the modal -->
+        {% if request.user.is_authenticated and request.user|has_group:"Administrator"%}
+        <button class="btn btn-primary" data-toggle="modal" data-target="#transferModal">Transfer ALL Inventory</button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="transferModal" tabindex="-1" role="dialog" aria-labelledby="transferModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transferModalLabel">Transfer Inventory</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="transferForm" method="POST" action="{% url 'inventory_return_all' %}">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="targetLocation">Target Location:</label>
+                                <select class="form-control" id="targetLocation" name="targetLocation">
+                                    <option value="" selected disabled>Select location</option>
+                                    {% for location in destination_locations %}
+                                        <option value="{{ location.id }}">{{ location.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Transfer</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
+        <div class="text-left mb-4">
+            <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="unfiltered-btn">Show Incoming Transfers</button>
+            <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="filtered-btn">Show Transfer Log</button>
+        </div>
+        <div id="unfiltered-container">
+            <table id="unfiltered-table" class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Inventory Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Transferred By</th>
+                        <th scope="col">Transferred From</th>
+                        <th scope="col">Transferred To</th>
+                        <th scope="col">Transfer Date</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for returned in flitered_inventory_returned %}
+                        <tr>
+                            <td>{{ returned.inventory }}</td>
+                            <td>{{ returned.quantity }}</td>
+                            <td>{{ returned.transferred_by }}</td>
+                            <td>{{ returned.transferredFrom }}</td>
+                            <td>{{ returned.transferredTo }}</td>
+                            <td>{{ returned.transferDate|date:"M d Y" }}</td>
+                            <td>
+                                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                                    {% if request.user.userprofile.location == returned.transferredTo or request.user|has_group:"Administrator"%}
+                                    <form action="{% url 'receive_transfer' %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="pk" value="{{returned.id}}">
+                                        <button class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit">Confirm Transfer</button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                                {% if request.user.is_authenticated and request.user|has_group:"Administrator" %}
+                                <form action="{% url 'delete_transfer' returned.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" type="submit">Delete</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="filtered-container">
+            <table id="filtered-table" class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Inventory Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Transferred By</th>
+                        <th scope="col">Received By</th>
+                        <th scope="col">Transferred From</th>
+                        <th scope="col">Transferred To</th>
+                        <th scope="col">Transfer Date</th>
+                        <th scope="col">Arrival Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for returned in inventory_returned %}
+                        <tr>
+                            <td>{{ returned.inventory }}</td>
+                            <td>{{ returned.quantity }}</td>
+                            <td>{{ returned.transferred_by }}</td>
+                            <td>{{ returned.received_by }}</td>
+                            <td>{{ returned.transferredFrom }}</td>
+                            <td>{{ returned.transferredTo }}</td>
+                            <td>{{ returned.transferDate|date:"M d Y" }}</td>
+                            <td>{{ returned.arrivalDate|date:"M d Y" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready( function () {
+            var unfilteredTable = $('#unfiltered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+    
+            var filteredTable = $('#filtered-table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            $('#filtered-container').hide();
+
+            $('#unfiltered-btn').on('click', function() {
+                unfilteredTable.draw();
+                $('#unfiltered-container').show();
+                $('#filtered-container').hide();
+            });
+    
+            $('#filtered-btn').on('click', function() {
+                filteredTable.draw();
+                $('#unfiltered-container').hide();
+                $('#filtered-container').show();
+            });
+            
+        });
+    </script>
+{% endblock %}

@@ -3,15 +3,14 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class="login-card">
-        <div class="login-header">
-            <h3>Login Page</h3>
-        </div>
-        <hr>
+
+<div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+        <h5 class="text-5xl font-extrabold tracking-tight">Sign in to ACEA Inventory</h5>
+        <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
         <form method="POST">
             {% csrf_token %}
             {{ form|crispy }}
-            <input class="btn btn-success" type="submit" value="Login">
+        <input class="w-full text-white focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit" value="Login">
         </form>
-    </div>
+</div>
 {% endblock %}

@@ -3,93 +3,105 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% include 'partials/nav.html' %}
-<!-- ADDINVENTORY COLLAPSIBLE  -->
-<div class="form-card">
-    <p>
-        <a class="button-5" data-toggle="collapse" href="#collapseForm" role="button" aria-expanded="false" aria-controls="collapseForm">
-            Add Inventory Entry
-        </a>
-    </p>
-    <div class="collapse" id="collapseForm">
-        <div class="card card-body">
-            <div class="content-header">
-                <h4>Add Inventory Entry</h4>
-                <hr>
+
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll ">
+            <div class="text-left">
+                <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="unfiltered-btn">Show All Inventory</button>
+                <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="filtered-btn">Show Inventory in my Location</button>
             </div>
-            <form method="POST">
-                {% csrf_token %}
-                {{ inventory_form|crispy }}
-                <input class="btn btn-success btn-block" type="submit" value="Add Inventory Entry" name="inventory">
-            </form>
-        </div>
+            <!-- ADDINVENTORY COLLAPSIBLE  -->
+            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+            <div class="text-left pt-3">
+                <button class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="button" data-drawer-target="drawer-bottom-example" data-drawer-show="drawer-bottom-example" data-drawer-placement="bottom" aria-controls="drawer-bottom-example">
+                Add Inventory Entry
+                </button>
+            </div>
+            {% endif %}
+            <!-- drawer component -->
+            <div id="drawer-bottom-example" class="fixed bottom-0 left-0 right-0 z-40 w-full p-4 overflow-y-auto transition-transform bg-white dark:bg-gray-800 translate-y-full" tabindex="-1" aria-labelledby="drawer-bottom-label">
+                <h5 id="drawer-bottom-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-500 dark:text-gray-400"><svg class="w-5 h-5 mr-2" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Add Category</h5>
+                <button type="button" data-drawer-hide="drawer-bottom-example" aria-controls="drawer-bottom-example" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" >
+                    <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    <span class="sr-only">Close menu</span>
+                </button>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ inventory_form|crispy }}
+                    <input class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit" value="Add Inventory Entry" name="inventory">
+                </form>
+            </div>
+            <div class="table-auto overflow-x-scroll" id="unfiltered-container">
+                <table id="unfiltered-table" class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col" id="name-header">Name</th>
+                            <th scope="col" id="location-header">Location</th>
+                            <th scope="col" id="type-header">Category</th>
+                            <th scope="col" id="quantity-header">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.location }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>{{ item.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-auto" id="filtered-container">
+                <table id="filtered-table" class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in filteredInventory %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.location }}</td>
+                            <td>{{ item.type }}</td>
+                            <td>{{ item.quantity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        
+    
     </div>
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+            <div class="text-left pt-3">
+            <a class="" href="{% url 'create-request'%}?restock=true">
+                <button class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900 w-fit">
+                Generate Purchase Request for Low Stock Inventory
+                </button>        
+            </a>
+            <a class="" href="{% url 'edit_inventory' %}">
+                <button class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900 w-fit">
+                    Edit Restocking Settings 
+                </button>
+            </a>
+            </div>
+        {% endif %}
+        
+    
+    
+    {% endblock %}
 </div>
 
 
-<div class="container py-5">
-    <div class="text-center mb-4">
-        <button class="btn btn-primary" id="unfiltered-btn">Show All Inventory</button>
-        <button class="btn btn-primary" id="filtered-btn">Show Inventory in my Location</button>
-    </div>
-    <div id="unfiltered-container">
-        <table id="unfiltered-table" class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col" id="name-header">Name</th>
-                    <th scope="col" id="location-header">Location</th>
-                    <th scope="col" id="type-header">Category</th>
-                    <th scope="col" id="quantity-header">Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in inventory %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.location }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.quantity }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div id="filtered-container">
-        <table id="filtered-table" class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Location</th>
-                    <th scope="col">Category</th>
-                    <th scope="col">Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in filteredInventory %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.location }}</td>
-                    <td>{{ item.type }}</td>
-                    <td>{{ item.quantity }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+        
+   
 
-{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-    <div class="container py-5">
-        <div>
-            <a href="{% url 'create-request'%}?restock=true" class="btn btn-success"> Generate Purchase Request for Low Stock Inventory </a>
-        </div>
-        <div>
-            <a href="{% url 'edit_inventory' %}" class="btn btn-success"> Edit Restocking Settings </a>
-        </div>
-    </div>
-{% endif %}
-
-{% endblock %}
 
 <!-- DATATABLES JS  -->
 {% block js %}

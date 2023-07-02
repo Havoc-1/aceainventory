@@ -1,40 +1,52 @@
 {% extends 'partials/base.html' %}
 {% block title %} Profile Page {% endblock %}
-{% include 'partials/nav.html' %}
+
 
 {% block content %}
-    <div class="profile-card">
-        <div class="profile-header">
-            <h2>Profile Page</h2>
-            <hr>
-            {% block body %}
-                <h3>Username</h3>
-                <p>
-                    {{user.username}} 
-                </p>
-                <h3>Profile Picture</h3>
-                    <img src="{{user.UserProfile.image.url}}" width ="240">
-                <h3>First Name</h3>
-                <p>
-                    {{user.first_name}} 
-                </p>
-                <h3>Last Name</h3>
-                <p>
-                    {{user.last_name}}
-                </p>
-                <h3>Location</h3>
-                <p>
-                    {% for info in userProfile %}
-                        {{ info.location }}
-                    {% endfor %}
-                </p>
-                <h3>Email</h3>
-                <p>
-                    {{user.email}}
-                </p>
-                <a class="btn btn-primary" href="/profile/edit">Edit Profile</a>
-                <a class="btn btn-primary" href="/profile/password">Change Password</a>
-            {% endblock %}
+<div class="flex flex-col w-full">
+    <div class="overflow-x-scroll">
+        <div class="flex items-center w-full justify-center">
+            <div class="max-w-xs">
+                <div class="bg-slate-200 shadow-xl rounded-lg py-3 px-3">
+                    {% block body %}
+                    <div class="p-2">
+                        <h3 class="text-center text-xl text-gray-900 font-medium leading-8">{{user.username}}</h3>
+                        <table class="text-xs my-3">
+                            <tbody>
+                                <tr>
+                                    <td class="px-2 py-2 text-gray-500 font-semibold">First Name</td>
+                                    <td class="px-2 py-2">{{user.first_name}}</td>
+                                    </tr>
+                                <tr>
+                                <td class="px-2 py-2 text-gray-500 font-semibold">Last Name</td>
+                                <td class="px-2 py-2">{{user.last_name}}</td>
+                                </tr>
+                            <tr>
+                                <td class="px-2 py-2 text-gray-500 font-semibold">Location</td>
+                                <td class="px-2 py-2">{% for info in userProfile %}
+                                    {{ info.location }}
+                                {% endfor %}</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 py-2 text-gray-500 font-semibold">Email</td>
+                                <td class="px-2 py-2">{{user.email}}</td>
+                            </tr>
+                        </tbody></table>
+            
+                        <div class="text-center my-3">
+                            <a class="" href="/profile/edit">
+                                <button class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Edit Profile</button>
+                            </a>
+                            <a class="" href="/profile/password">
+                                <button class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Change Password</button>
+                            </a>
+                            
+                        </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>    
         </div>
     </div>
+</div>
 {% endblock %}

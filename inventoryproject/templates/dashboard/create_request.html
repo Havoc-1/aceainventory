@@ -3,17 +3,14 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    {% include 'partials/nav.html' %}
-    <div class="card card-body">
-        <div class="content-header">
-            <h4>Create Purchase Request</h4>
-            <hr>
-        </div>
 
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <h5 class="mb-4 text-xl font-bold text-black">Create Purchase Request</h5>
+        <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
         <form method="POST" action="{% url 'create-request' %}">
             {% csrf_token %}
-
-            <table id="items-table">
+            <table class="w-full"id="items-table">
                 {{ requestItemFormset.management_form | crispy}}
                 {% for form in requestItemFormset %}
                     <tr class="formset-row">
@@ -28,81 +25,101 @@
                             {{ form.quantity|as_crispy_field }}
                         </td>
                         <td>
-                            <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+                            <button type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 delete-row">Remove Item</button>
                         </td>
                     </tr>
                 {% endfor %}
             </table>
 
-            <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
-            <input type="submit" class="btn btn-success btn-block" value="Create Delivery">
+            <button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 add-row">Add 1 More Product</button>
+            <input type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 btn-block" value="Create Request">
         </form>
-    </div>
+        <input type=button class="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" value="Go Back" onClick="javascript:history.go(-1);">
 {% endblock %}
-
 {% block js %}
-    <script>
-        $(document).ready(function () {
-            $('.add-row').click(function () {
-                addFormsetRow();
-            });
+<script>
+    $(document).ready(function () {
+        {% if messages %}
+            $('#messageModal').modal('show');
+        {% endif %}
 
-            $(document).on('click', '.delete-row', function () {
-                $(this).closest('.formset-row').remove();
-                updateFormsetIndexes();
-            });
-
-            function updateFormsetIndexes() {
-                var i = 0;
-                $('.formset-row').each(function () {
-                    $(this).find('input, select, textarea').each(function () {
-                        var name = $(this).attr('name').replace(/\d+/g, i);
-                        $(this).attr('name', name);
-                        $(this).attr('id', 'id_' + name);
-                    });
-                    i++;
-                });
-                $('#id_items-TOTAL_FORMS').val(i);
-                console.log(i);
-            }
-
-            function addFormsetRow() {
-                var formCount = $('#id_items-TOTAL_FORMS').val();
-                var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
-                var newRow = $('<tbody>').append(newFormHtml).find('.formset-row');
-                $('#items-table tbody').append(newRow);
-                $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
-                
-                newRow.find('input, select, textarea').each(function () {
-                    var name = $(this).attr('name').replace(/\d+/g, formCount);
-                    var id = 'id_' + name;
-                    $(this).attr('name', name);
-                    $(this).attr('id', id);
-                    $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
-                });
-                updateFormsetIndexes();
-            }
-
-
+        $('.add-row').click(function () {
+            addFormsetRow();
         });
-    </script>
-    <script id="formset-template" type="text/template">
-        {% for form in requestItemFormsetEmpty %}
-            <tr class="formset-row">
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
-                
-                <td>
-                    {{ form.inventory|as_crispy_field }}
-                </td>
-                <td>
-                    {{ form.quantity|as_crispy_field }}
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger delete-row">Remove Item</button>
-                </td>
-            </tr>
-        {% endfor %}
-    </script>
+
+        $(document).on('click', '.delete-row', function () {
+            $(this).closest('.formset-row').remove();
+            updateFormsetIndexes();
+            checkFormValidity();
+        });
+
+        function updateFormsetIndexes() {
+            var i = 0;
+            $('.formset-row').each(function () {
+                $(this).find('input, select, textarea').each(function () {
+                    var name = $(this).attr('name').replace(/\d+/g, i);
+                    $(this).attr('name', name);
+                    $(this).attr('id', 'id_' + name);
+                });
+                i++;
+            });
+            $('#id_items-TOTAL_FORMS').val(i);
+            console.log(i);
+        }
+
+        function addFormsetRow() {
+            var formCount = $('#id_items-TOTAL_FORMS').val();
+            var newFormHtml = $('#formset-template').html().replace(/__prefix__/g, formCount);
+            var newRow = $('<tbody>').append(newFormHtml).find('.formset-row');
+            $('#items-table tbody').append(newRow);
+            $('#id_items-TOTAL_FORMS').val(parseInt(formCount) + 1);
+            console.log("help")
+            newRow.find('input, select, textarea').each(function () {
+                var name = $(this).attr('name').replace(/\d+/g, formCount);
+                var id = 'id_' + name;
+                $(this).attr('name', name);
+                $(this).attr('id', id);
+                $('label[for="' + $(this).attr('id') + '"]').attr('for', id);
+            });
+            updateFormsetIndexes();
+            checkFormValidity();
+        }
+
+        function checkFormValidity() {
+            var formCount = $('.formset-row').length;
+            if (formCount === 0) {
+                $('input[type="submit"]').prop('disabled', true);
+            } else {
+                $('input[type="submit"]').prop('disabled', false);
+            }
+        }
+
+        checkFormValidity();
+    });
+</script>
+
+<script id="formset-template" type="text/template">
+    {% for form in requestItemFormsetEmpty %}
+        <tr class="formset-row">
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            <td>
+                {{ form.inventory|as_crispy_field }}
+            </td>
+            <td>
+                {{ form.quantity|as_crispy_field }}
+            </td>
+            <td>
+                <button type="button" class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900 delete-row">Remove Item</button>
+            </td>
+        </tr>
+    {% endfor %}
+</script>
+
 {% endblock %}
+
+    </div>
+</div>
+

@@ -77,3 +77,31 @@ class InventoryWithdrawnForm(forms.ModelForm):
         
 InventoryWithdrawnFormSet = modelformset_factory(
     InventoryWithdrawn, form=InventoryWithdrawnForm, extra=1)
+
+class InventoryReturnedForm(forms.ModelForm):
+    class Meta:
+        model = InventoryReturned
+        fields = ['inventory', 'quantity', 'transferredTo']
+        exclude = ['transferredFrom']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+            'transferredTo': forms.Select(attrs={'class': 'form-control', 'required': True}),
+        }
+
+InventoryReturnedFormSet = forms.modelformset_factory(
+    InventoryReturned,
+    form=InventoryReturnedForm,
+    extra=1,
+    can_delete=True
+)
+
+class InventoryDamagedForm(forms.ModelForm):
+    class Meta:
+        model = InventoryDamaged
+        fields = ['inventory', 'quantity', 'remarks']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
+        }
