@@ -28,6 +28,25 @@ class Type(models.Model):
     def __str__(self):                                                      
         return f'{self.name}'
 
+class Supplier(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class SupplierItem(models.Model):
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='items')
+    inventory_name = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField()
+    price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_mode = models.CharField(max_length=100)
+    notes = models.TextField(blank=True)
+    dateApproved = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.inventory_name} ({self.supplier})"
+
 class Inventory(models.Model):
     name = models.CharField(max_length=100, null=True)
     type = models.ForeignKey(Type, on_delete=models.CASCADE, null=True)
@@ -159,11 +178,15 @@ class QuotationItem(models.Model):
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)
     approvedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='approved_quotations',null=True, blank=True)
+    isRejected = models.BooleanField(default=False)
     dateApproved = models.DateTimeField(null=True, blank=True)
     supplierName = models.CharField(max_length=100, null=True)
+    methodOfPayment = models.CharField(max_length=100, null=True)
     deliverySet = models.BooleanField(default=False)
     quantity = models.PositiveIntegerField(null=True)
-    price = models.PositiveIntegerField(null=True)
+    pricePerUnit = models.PositiveIntegerField(blank=True, null=True)
+    totalPrice = models.PositiveIntegerField(blank=True, null=True)
+    remarks = models.CharField(max_length=1000, blank=True)
 
     class Meta:                                                             # django admin data models are pluralized (they add 's')
         verbose_name_plural = 'Quotation Items'

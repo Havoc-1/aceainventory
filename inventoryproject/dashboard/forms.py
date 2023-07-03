@@ -37,14 +37,26 @@ class QuotationForm(forms.ModelForm):
         exclude = ['id', 'purchaseRequest', 'createdBy', 'dateCreated']
 
 class QuotationItemForm(forms.ModelForm):
+    methodOfPayment = forms.ChoiceField(choices=[
+        ('Debit', 'Debit'),
+        ('Credit', 'Credit'),
+        ('Cash', 'Cash'),
+        ('Installment - 1 Month', 'Installment - 1 Month'),
+        ('Installment - 2 Months', 'Installment - 2 Months'),
+        ('Installment - 3 Months', 'Installment - 3 Months'),
+        ('Installment - 6 Months', 'Installment - 6 Months'),
+    ], required=True)
     class Meta:
         model = QuotationItem
-        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved', 'deliverySet']
+        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved', 'deliverySet', 'isRejected']
         widgets = {
             'inventory': forms.Select(attrs={'required': True}),
             'supplierName': forms.TextInput(attrs={'required': True}),
             'quantity': forms.NumberInput(attrs={'required': True}),
-            'price': forms.NumberInput(attrs={'required': True}),
+            'pricePerUnit': forms.NumberInput(attrs={'required': False}),
+            'totalPrice': forms.NumberInput(attrs={'required': False}),
+            'methodOfPayment': forms.Select(attrs={'required': True}),
+            'remarks': forms.TextInput(attrs={'required': False}),
         }
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)

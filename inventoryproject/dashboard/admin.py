@@ -19,6 +19,8 @@ admin.site.register(DeliveryItem)
 admin.site.register(InventoryReturned)
 admin.site.register(InventoryDamaged)
 admin.site.register(InventoryRecount)
+admin.site.register(Supplier)
+admin.site.register(SupplierItem)
 # admin.site.unregister(Delivery)
 # except admin.sites.AlreadyRegisterd:
 #     pass

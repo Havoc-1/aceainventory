@@ -27,6 +27,8 @@ urlpatterns = [
     path('requests/', views.RequestList.as_view(), name='list-requests'),
     path('create/', views.createRequest, name='create-request'),
     path('create_delivery', views.create_delivery, name='set-delivery'),
+    path('suppliers',views.supplier_list, name='supplier_list'),
+    path('suppliers/<int:pk>',views.view_supplier, name='view_supplier'),
     path('requests/quotation/<int:pk>/',views.QuotationList.as_view(), name='list-quotations'),
     path('requests/quotation/<int:pk>/partial',views.create_partial_delivery, name='create-partial-delivery'),
     path('requests/quotation/<int:pk>/create', views.quotation_create_view, name='create-quotation'),
@@ -36,5 +38,6 @@ urlpatterns = [
     # path('approvePurchaseRequest',views.approvePurchaseRequest, name ='approvePurchaseRequest'),
     path('arriveDelivery',views.arriveDelivery, name ='arriveDelivery'),
     path('approveQuotation',views.approveQuotation, name ='approveQuotation'),
+    path('rejectQuotation',views.rejectQuotation, name ='rejectQuotation'),
 ]
 # P.S. path has to be reflected also in views.py

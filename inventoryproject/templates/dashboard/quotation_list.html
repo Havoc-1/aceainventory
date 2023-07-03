@@ -37,7 +37,10 @@
                         <th scope="col">Supplier Name</th>
                         <th scope="col">Items</th>
                         <th scope="col">Quantity</th>
-                        <th scope="col">Price</th>
+                        <th scope="col">Price per Unit</th>
+                        <th scope="col">Total Price</th>
+                        <th scope="col">Method of Payment</th>
+                        <th scope="col">Remarks</th>
                         {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Management" or request.user|has_group:"Finance" %}
                         <th scope="col">Actions</th>
                         {% endif %}
@@ -49,14 +52,24 @@
                         <td>{{ q.supplierName }}</td>
                         <td>{{ q.inventory.name }}</td>
                         <td>{{ q.quantity }}</td>
-                        <td>₱{{ q.price|floatformat:2|intcomma }}</td>
+                        <td>₱{{ q.pricePerUnit|floatformat:2|intcomma }}</td>
+                        <td>₱{{ q.totalPrice|floatformat:2|intcomma }}</td>
+                        <td>{{ q.methodOfPayment }}</td>
+                        <td>{{ q.remarks}}</td>
                         {% if q.dateApproved is None %}
-                            {% if request.user.is_authenticated and request.user|has_group:"Management" or request.user|has_group:"Administrator" %}
+                            {% if q.isRejected == True %}
+                            <td>Quotation Rejected</td>
+                            {% elif request.user.is_authenticated and request.user|has_group:"Management" or request.user|has_group:"Administrator" %}
                             <td>
                                 <form action="{% url 'approveQuotation' %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="pk" value="{{q.id}}">
                                 <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit">Approve Quotation</button>
+                                </form>
+                                <form action="{% url 'rejectQuotation' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="pk" value="{{q.id}}">
+                                <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit">Reject Quotation</button>
                                 </form>
                             </td>
                             {% elif request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}

@@ -445,6 +445,7 @@ def quotation_create_view(request, pk):
     requestItemsData = [{'inventory': item.inventory, 'quantity': item.quantity} for item in requestItems]
     # create list of dictionaries with inventory and quantity data
     QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=len(requestItems))
+    quotation_item_formset_empty = QuotationItemFormSet(prefix='items')
     # generate formset with extra forms equal to the number of delivery items
     if request.method == 'POST':
         quotation_form = QuotationForm(request.POST or None)
@@ -461,6 +462,29 @@ def quotation_create_view(request, pk):
             quotation.save() 
             quotation_item_formset.instance = quotation  
             quotation_item_formset.save() 
+            for form in quotation_item_formset:
+                if form.cleaned_data['pricePerUnit']:
+                    form.instance.totalPrice = form.cleaned_data['pricePerUnit'] * form.cleaned_data['quantity']
+                elif form.cleaned_data['totalPrice']:
+                    form.instance.pricePerUnit = form.cleaned_data['totalPrice'] / form.cleaned_data['quantity']
+                else:
+                    render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
+                form.save()
+                supplier, created = Supplier.objects.get_or_create(
+                    name=form.cleaned_data['supplierName'],
+                )
+
+                SupplierItem.objects.create(
+                    supplier=supplier,
+                    inventory_name=form.instance.inventory.name,
+                    quantity=form.instance.quantity,
+                    price_per_unit=form.instance.pricePerUnit,
+                    total_price=form.instance.totalPrice,
+                    payment_mode=form.instance.methodOfPayment,
+                    notes=form.instance.remarks,
+                    dateApproved=pRequest.dateApproved,
+                )
+            
             return redirect('list-quotations', pk=pRequest.id)
     else:
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
@@ -548,6 +572,29 @@ def approveQuotation(request):
                         purchase_request.totalDeliveryCount += 1
                         
                         purchase_request.save()
+                        quotation.save()
+                    return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
+                else:
+                    return HttpResponse("Quotation not found.")
+            else:
+                return HttpResponse("No quotation ID specified.")
+        else:
+            return HttpResponse("You must be logged in to perform this action.")
+    else:
+        return HttpResponse("NOT POST")
+
+@login_required
+def rejectQuotation(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            pk = request.POST.get('pk')
+            if pk:
+                quotation = QuotationItem.objects.filter(id=pk).first()
+                if quotation:
+                    if quotation.dateApproved is None:
+                        quotation.isRejected = True
                         quotation.save()
                     return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
                 else:
@@ -1055,3 +1102,20 @@ def recount_inventory(request):
         for form in formset:
             form.fields['inventory'].queryset = inventory_items
     return render(request, 'dashboard/recount_inventory.html', {'formset': formset})
+
+def supplier_list(request):
+    suppliers = Supplier.objects.all()
+    return render(request, 'dashboard/supplier_list.html', {'suppliers': suppliers})
+
+def view_supplier(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
+    supplier = get_object_or_404(Supplier, pk=pk)
+    print(supplier)
+    supplier_items = SupplierItem.objects.filter(supplier=supplier)
+    context = {
+        'supplier': supplier,
+        'supplier_items': supplier_items,
+        'pk': pk,
+    }
+    return render(request, 'dashboard/supplier_list_items.html', context)
