@@ -1,0 +1,28 @@
+{% extends 'partials/base.html' %}
+{% block title %}Data Import{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% if error_message %}
+    <h5 class="mb-4 text-2xl font-bold text-black">{{ error_message }}</h5>
+{% endif %}
+{% if missing_rows %}
+    <h5 class="mb-4 text-2xl font-bold text-black">{{ missing_rows }}</h5>
+{% endif %}
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <br>
+        <h5 class="mb-4 text-2xl font-bold text-black">Upload Excel/CSV File for Inventory</h5>
+        <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form }}
+            <button type="submit">Import</button>
+        </form>
+          
+        <input type=button class="text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
+    </div>
+</div>
+{% endblock %}
+

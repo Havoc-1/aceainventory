@@ -105,3 +105,6 @@ class InventoryDamagedForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
             'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
         }
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField(label='Select a file')

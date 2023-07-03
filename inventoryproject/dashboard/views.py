@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 from django.forms import model_to_dict, modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
@@ -882,3 +883,139 @@ def verify_damage(request):
             return HttpResponse("No damaged ID specified.")
     else:
         return HttpResponse("You must be logged in to perform this action.")
+
+import json
+
+def import_data(request):
+    if request.method == 'POST':
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            if file.name.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif file.name.endswith('.xlsx'):
+                df = pd.read_excel(file)
+            else:
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': 'Invalid file format'})
+            
+            required_columns = ['name', 'type', 'location', 'quantity']
+            missing_columns = set(required_columns) - set(df.columns)
+
+            if missing_columns:
+                error_message = f"Missing columns: {', '.join(missing_columns)}"
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': error_message})
+            
+            locations = Location.objects.all()
+            types = Type.objects.all()
+
+            # Iterate over the rows of the DataFrame and extract the necessary information
+            preview_data = []
+            missing_rows = []
+            for index, row in df.iterrows():
+                name = row['name']
+                type_id = row['type']
+                location_id = row['location']
+                quantity = row['quantity']
+                
+                # Skip the row if any of the required fields are missing or NaN
+                if pd.isna(name) or pd.isna(type_id) or pd.isna(location_id) or pd.isna(quantity):
+                    missing_rows.append(index)
+                    continue
+
+                # Find the corresponding location and type objects based on their IDs
+                location_obj = locations.get(id=location_id) if location_id else None
+                location_name = location_obj.name if location_id else ''
+                type_name = types.get(id=type_id).name if location_id else ''
+
+                # Create a dictionary with the extracted data
+                data = {
+                    'name': name,
+                    'type_id': type_id,
+                    'type_name': type_name,
+                    'location_id': location_id,
+                    'location_name': location_name,
+                    'quantity': quantity,
+                    'restocking_threshold': row.get('restocking_threshold', 0),
+                    'restocking_amount': row.get('restocking_amount', 0),
+                }
+                print("WAHT")
+                # Add the dictionary to the preview_data list
+                preview_data.append(data)
+
+            if not preview_data:  # Check if preview_data is 
+                print("WasdadsAHT")
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': 'File does not have valid values'})
+            # Convert preview_data to a JSON string
+            preview_data_json = json.dumps(preview_data)
+
+            # Store the preview_data and missing_rows in the session
+            
+            request.session['preview_data'] = preview_data_json
+            request.session['missing_rows'] = missing_rows
+            return redirect('import_confirm')
+    else:
+        form = FileUploadForm()
+    return render(request, 'dashboard/import.html', {'form': form})
+
+
+
+import json
+
+
+def confirm_import(request):
+    preview_data = request.session.get('preview_data')
+    if not preview_data:
+        return redirect('inventory_import')
+
+    # Convert the JSON string to a list of dictionaries
+    preview_data = json.loads(preview_data)
+
+    # Get the locations and types from the database
+    locations = Location.objects.all()
+    types = Type.objects.all()
+
+    # Convert the preview_data to a pandas DataFrame
+    df = pd.DataFrame(preview_data)
+
+    # Replace NaN values with 0 in the restocking_amount and restocking_threshold columns
+    df['restocking_amount'].fillna(0, inplace=True)
+    df['restocking_threshold'].fillna(0, inplace=True)
+
+    # Convert the DataFrame back to a list of dictionaries
+    updated_preview_data = df.to_dict(orient='records')
+
+    if request.method == 'POST':
+        # Save the data to the Inventory model
+        for item in updated_preview_data:
+            # Find the corresponding location and type objects based on their IDs
+            location_id = item['location_id']
+            location = locations.get(id=location_id)
+
+            type_id = item['type_id']
+            type = types.get(id=type_id)
+
+            # Check if an inventory item with the same name and location exists
+            existing_item = Inventory.objects.filter(name=item['name'], location=location).first()
+
+            if existing_item:
+                # If an existing item is found, update its quantity
+                existing_item.quantity = F('quantity') + item['quantity']
+                existing_item.save()
+            else:
+                # If no existing item is found, create a new inventory item
+                inventory_item = Inventory(
+                    name=item['name'],
+                    type=type,  # Assign the type object
+                    location=location,  # Assign the location object
+                    quantity=item['quantity'],
+                    restocking_threshold=item['restocking_threshold'],
+                    restocking_amount=item['restocking_amount'],
+                )
+                inventory_item.save()
+
+        # Clear the preview_data from the session
+        del request.session['preview_data']
+
+        return redirect('dashboard-inventory')
+
+    return render(request, 'dashboard/confirm_import.html', {'preview_data': updated_preview_data, 'locations': locations, 'types': types})
