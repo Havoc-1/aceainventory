@@ -88,6 +88,20 @@ class InventoryReturned(models.Model):
     
     def __str__(self):                                                      # function returning the data models to string
         return f'{self.inventory} - {self.quantity}'  
+
+class InventoryRecount(models.Model):
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE, null=True)     
+    oQuantity = models.PositiveIntegerField(null=True)
+    rQuantity = models.PositiveIntegerField(null=True)
+    recounted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    recountDate = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Recounted Inventory Log'
+    
+    def __str__(self):                                                      # function returning the data models to string
+        return f'{self.inventory} - {self.rQuantity}'  
 # ==================================== PURCHASE REQUEST MODELS ======================================================= #
 
 

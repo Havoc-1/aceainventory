@@ -108,3 +108,19 @@ class InventoryDamagedForm(forms.ModelForm):
 
 class FileUploadForm(forms.Form):
     file = forms.FileField(label='Select a file')
+
+class RecountForm(forms.ModelForm):
+    class Meta:
+        model = InventoryRecount
+        fields = ['inventory', 'rQuantity']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'rQuantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+        }
+
+InventoryReturnedFormSet = forms.modelformset_factory(
+    InventoryRecount,
+    form=RecountForm,
+    extra=1,
+    can_delete=True
+)

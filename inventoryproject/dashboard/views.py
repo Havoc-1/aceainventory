@@ -1019,3 +1019,39 @@ def confirm_import(request):
         return redirect('dashboard-inventory')
 
     return render(request, 'dashboard/confirm_import.html', {'preview_data': updated_preview_data, 'locations': locations, 'types': types})
+
+def recount_list(request):
+    recounts = InventoryRecount.objects.all()
+    return render(request, 'dashboard/recount_list.html', {'recounts': recounts})
+
+def recount_inventory(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    formset = InventoryReturnedFormSet(request.POST or None, queryset=InventoryRecount.objects.none())
+    if request.method == 'POST':
+        print(formset)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for instance in instances:
+                print(instance)
+                inventory = instance.inventory
+                quantity = instance.rQuantity
+                instance.oQuantity = inventory.quantity
+                inventory.quantity = quantity
+                inventory.save()
+                instance.recounted_by = request.user
+                instance.recountDate = datetime.datetime.now(datetime.timezone.utc)
+                instance.location = request.user.userprofile.location
+                instance.save()
+            print("it made it through")
+            messages.success(request, 'Inventory withdrawn successfully.')
+            return redirect('recount_list')
+        else:
+            print("uhoh")
+    else:
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        for form in formset:
+            form.fields['inventory'].queryset = inventory_items
+    return render(request, 'dashboard/recount_inventory.html', {'formset': formset})
