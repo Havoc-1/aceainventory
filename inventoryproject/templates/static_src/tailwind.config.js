@@ -42,7 +42,20 @@ module.exports = {
         // '../../**/*.py'
     ],
     theme: {
-        extend: {},
+        colors: {
+            'backg' : '#e5e6e6',
+            'sidebarnav' : '#f2f2f2',
+            'card-bg' : '#1d232a',
+            'warn' : '#f97564',
+            'blueb' : '#4a9fff',
+            'proceedb' : '#00c39a',
+            'filters': '#8a9597',
+            'error' : '#e42f01',
+            'add' : '#0891b2',
+            'back-btn' : '#2b3440',
+            'degree-two' : '#00c3f2',
+            'view-btn' : '#1dcdbc',
+        },
     },
     plugins: [
         /**
