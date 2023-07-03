@@ -1,10 +1,10 @@
-<div class="flex w-60 flex-col bg-black p-5 text-white hidden sm:block">
+<div class="flex w-60 flex-col bg-sidebarnav p-5 text-black hidden sm:block">
   <div class="flex h-12 items-center justify-center">
     <span class="bg-green-500 p-5 text-xl font-bold italic">ACEA</span>
   </div>
   <nav class="flex-1 pt-5">
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" %}
-    <a class="items-center text-white" href="{% url 'dashboard-admin' %}">
+    <a class="items-center text-black" href="{% url 'dashboard-admin' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
           <path d="M18.75 12.75h1.5a.75.75 0 000-1.5h-1.5a.75.75 0 000 1.5zM12 6a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 6zM12 18a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 0112 18zM3.75 6.75h1.5a.75.75 0 100-1.5h-1.5a.75.75 0 000 1.5zM5.25 18.75h-1.5a.75.75 0 010-1.5h1.5a.75.75 0 010 1.5zM3 12a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5A.75.75 0 013 12zM9 3.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5zM12.75 12a2.25 2.25 0 114.5 0 2.25 2.25 0 01-4.5 0zM9 15.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z" />
@@ -14,7 +14,7 @@
     </a>
     {% endif %}
     {% if user.is_authenticated %}
-    <a class="items-center text-white" href="{% url 'dashboard-index' %}">
+    <a class="items-center text-black" href="{% url 'dashboard-index' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 011.414 0l7 7A1 1 0 0117 11h-1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-3a1 1 0 00-1-1H9a1 1 0 00-1 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-6H3a1 1 0 01-.707-1.707l7-7z" clip-rule="evenodd" />
@@ -23,7 +23,7 @@
       </div>
     </a>
     {% if request.user.userprofile.location %}
-    <a class="items-center text-white" href="{% url 'dashboard-inventory' %}">
+    <a class="items-center text-black" href="{% url 'dashboard-inventory' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z" />
@@ -32,7 +32,7 @@
         <span>Inventory</span>
       </div>
     </a>
-    <a class="items-center text-white" href="{% url 'list-deliveries' %}">
+    <a class="items-center text-black" href="{% url 'list-deliveries' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path d="M6.5 3c-1.051 0-2.093.04-3.125.117A1.49 1.49 0 002 4.607V10.5h9V4.606c0-.771-.59-1.43-1.375-1.489A41.568 41.568 0 006.5 3zM2 12v2.5A1.5 1.5 0 003.5 16h.041a3 3 0 015.918 0h.791a.75.75 0 00.75-.75V12H2z" />
@@ -44,7 +44,7 @@
     {% endif %}
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
       {% if request.user.userprofile.location %}
-    <a class="items-center text-white" href="{% url 'inventory_withdrawals' %}">
+    <a class="items-center text-black" href="{% url 'inventory_withdrawals' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
           <path d="M11.47 1.72a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06l-1.72-1.72V7.5h-1.5V4.06L9.53 5.78a.75.75 0 01-1.06-1.06l3-3zM11.25 7.5V15a.75.75 0 001.5 0V7.5h3.75a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9a3 3 0 013-3h3.75z" />
@@ -52,26 +52,26 @@
         <span>Withdraw Inventory</span>
       </div>
     </a>
-    <a class="items-center text-white" href="{% url 'damaged_inventory' %}">
+    <a class="items-center text-black" href="{% url 'damaged_inventory' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-          <path d="M11.47 1.72a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06l-1.72-1.72V7.5h-1.5V4.06L9.53 5.78a.75.75 0 01-1.06-1.06l3-3zM11.25 7.5V15a.75.75 0 001.5 0V7.5h3.75a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9a3 3 0 013-3h3.75z" />
-        </svg>                        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>                                                
         <span>Report Damaged Inventory</span>
       </div>
     </a>
-    <a class="items-center text-white" href="{% url 'inventory_returned' %}">
+    <a class="items-center text-black" href="{% url 'inventory_returned' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-          <path d="M11.47 1.72a.75.75 0 011.06 0l3 3a.75.75 0 01-1.06 1.06l-1.72-1.72V7.5h-1.5V4.06L9.53 5.78a.75.75 0 01-1.06-1.06l3-3zM11.25 7.5V15a.75.75 0 001.5 0V7.5h3.75a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9a3 3 0 013-3h3.75z" />
-        </svg>                        
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+        </svg>                                
         <span>Transfer Inventory</span>
       </div>
     </a>
       {% endif %}
     {% endif %}
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
-    <a class="items-center text-white" href="{% url 'list-requests' %}">
+    <a class="items-center text-black" href="{% url 'list-requests' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
           <path fill-rule="evenodd" d="M7.502 6h7.128A3.375 3.375 0 0118 9.375v9.375a3 3 0 003-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 00-.673-.05A3 3 0 0015 1.5h-1.5a3 3 0 00-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6zM13.5 3A1.5 1.5 0 0012 4.5h4.5A1.5 1.5 0 0015 3h-1.5z" clip-rule="evenodd" />
@@ -81,8 +81,20 @@
       </div>
     </a>
     {% endif %}
+    <hr class="h-px my-8 bg-black border-1 border-black">
+    <div class="flex cursor-pointer items-center space-x-4 p-2 ">
+      {% if user.is_authenticated %}                  <!-- if statement to show different navigation buttons -->
+        {% if request.user.userprofile.location %}
+          <a href="{% url 'view-profile' %}">
+              <span class="content-left font-bold text-lg">
+                {{user.username}}
+              </span>
+          </a>
+        {% endif %} 
+      {% endif %} 
+    </div>
     {% if request.user.userprofile.location %}
-    <a class="items-center text-white" href="{% url 'view-profile' %}">
+    <a class="items-center text-black" href="{% url 'view-profile' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-5.5-2.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10 12a5.99 5.99 0 00-4.793 2.39A6.483 6.483 0 0010 16.5a6.483 6.483 0 004.793-2.11A5.99 5.99 0 0010 12z" clip-rule="evenodd" />
@@ -91,7 +103,7 @@
       </div>
     </a>
     {% endif %}
-    <a class="items-center text-white" href="{% url 'user-logout' %}">
+    <a class="items-center text-black" href="{% url 'user-logout' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
@@ -100,7 +112,7 @@
       </div>
     </a>
     {% else %}
-    <a class="items-center text-white" href="{% url 'user-register' %}">
+    <a class="items-center text-black" href="{% url 'user-register' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
@@ -108,7 +120,7 @@
         <span>Register</span>
       </div>
     </a>
-    <a class="items-center text-white" href="{% url 'user-login' %}">
+    <a class="items-center text-black" href="{% url 'user-login' %}">
       <div class="flex cursor-pointer items-center space-x-4 p-2 ">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
@@ -116,6 +128,6 @@
         <span>Login</span>
       </div>
     </a>
-    {% endif %}
+    {% endif %}  
   </nav>
 </div>

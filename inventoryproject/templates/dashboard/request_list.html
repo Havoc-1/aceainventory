@@ -4,10 +4,12 @@
 {% block content %}    
 <div class="flex flex-col w-full">
     <div class="table-auto overflow-x-scroll">
+    <h2 class="mb-4 text-xl font-bold text-black">Purchase Requests</h2>
+    <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
         <div class="text-left mb-4">
-        <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="unfiltered-btn">Show All Pending Purchase Requests</button>
-        <button class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 sm:mt-6" id="filtered-btn">Show All Accomplished Purchase Requests</button>
-    </div>
+            <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="unfiltered-btn">Show All Pending Purchase Requests</button>
+            <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="filtered-btn">Show All Accomplished Purchase Requests</button>
+        </div>
     <div id="unfiltered-container">
         <table id="unfiltered-table" class="table table-striped table-hover">
             <thead class="thead-dark">
@@ -39,7 +41,7 @@
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
                     <td>
                         <a class="" href="{% url 'list-quotations' d.id %}">
-                            <button class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900">
+                            <button class="text-black bg-view-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">
                                 View Quotation
                             </button>
                         </a>
@@ -86,7 +88,7 @@
                     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" or request.user|has_group:"Management" %}
                     <td>
                         <a class="" href="{% url 'list-quotations' d.id %}">
-                            <button class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900">
+                            <button class="text-black bg-view-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">
                                 View Quotation
                             </button>
                         </a>

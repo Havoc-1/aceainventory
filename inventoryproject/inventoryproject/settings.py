@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
     'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
     'crispy_bootstrap4',
+    'django_browser_reload',
     'compressor',
     'tailwind',
     'templates'
@@ -60,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 
 ]
 
@@ -161,6 +163,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-NPM_BIN_PATH = "C:/ProgramData/nvm/v18.16.1/npm.cmd"
+NPM_BIN_PATH = "C:/ProgramData/nvm/v18.16.0/npm.cmd"
 
 
