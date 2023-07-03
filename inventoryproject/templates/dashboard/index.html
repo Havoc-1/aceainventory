@@ -5,7 +5,168 @@
 
 
 <div class="lg:container flex lg:flex-row sm:flex-col flex-wrap sm:overflow-x-scroll items-center justify-center gap-5 p-5">    
-    <!--INSERT NEW DASHBOARD FEATURES HERE + WARNING FOR REQUESTING AUTH-->
+    <!-- WARNING MESSAGE -->
+    {% if not request.user.userprofile.location %}
+        <h2>Hello {{ request.user.get_full_name }}!! Please contact your admin to give you access to the rest of the website.</h2>
+        <!-- INSERT WARNING MESSAGE -->
+    {% endif %}
+
+    <!-- SUMMARY REPORTS -->
+    <!-- ADMIN SUMMARY REPORTS -->
+    <hr>
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" %}
+        <h2>Admin Summary Report</h2>
+        {% if users_without_location.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="adminDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ users_without_location.count }} newly registered user/s that need updating their location.
+                </button>
+                <div class="dropdown-menu">
+                    {% for user in users_without_location %}
+                        <a class="dropdown-item" href="{% url 'dashboard-admin'%}">{{ user.user.username }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No Tasks requiring action.</h2></div>
+        {% endif %}
+    {% endif %}
+    
+
+    <!-- ENGINEERING SUMMARY REPORTS -->
+    <hr>
+    {% if request.user.is_authenticated and request.user|has_group:"Engineering" %}
+        <h2>Engineering Summary Report</h2>
+        {% if restock_items.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ restock_items.count }} inventory item/s that are low in stock.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in restock_items %}
+                        <a class="dropdown-item" href="{% url 'create-request'%}?restock=true">{{ item.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No low stock inventory.</h2></div>
+        {% endif %}
+        {% if arriving_delivery.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ arriving_delivery.count }} pending deliveries.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in arriving_delivery %}
+                        <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.expectedDeliveryDate|date:"M d Y" }} - {{ item.inventory.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No pending deliveries.</h2></div>
+        {% endif %}
+        {% if filtered_damaged_inventory.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ filtered_damaged_inventory.count }} damaged inventory that needs action.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in filtered_damaged_inventory %}
+                        <a class="dropdown-item" href="{% url 'damaged_inventory'%}">{{ item.quantity }}x {{ item.inventory.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No damaged inventory requiring action.</h2></div>
+        {% endif %}
+        {% if flitered_inventory_returned.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ flitered_inventory_returned.count }} transferred item/s that have not been received yet.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in flitered_inventory_returned %}
+                        <a class="dropdown-item" href="{% url 'inventory_returned'%}">{{ item.quantity }}x {{ item.inventory.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No items being transferred to your currenty location from another warehouse.</h2></div>
+        {% endif %}
+    {% endif %}
+
+
+    <!-- FINANCE SUMMARY REPORTS -->
+    <hr>
+    {% if request.user.is_authenticated and request.user|has_group:"Finance" %}
+        <h2>Finance Summary Report</h2>
+        {% if request_pending.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ request_pending.count }} purchase request/s that do not have quotations yet.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in request_pending %}
+                        <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No purchase requests requiring new quotations.</h2></div>
+        {% endif %}
+        {% if request_delivery.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ request_delivery.count }} purchase requests that are awaiting delivery details.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in request_delivery %}
+                        <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No purchase requests requiring delivery details.</h2></div>
+        {% endif %}
+        {% if delivery_today.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ delivery_today.count }} deliveries that arrived today.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in delivery_today %}
+                        {% if item.pQuantity == 0 %}
+                            <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.quantity }}x {{ item.inventory.name }} - {{ item.deliveryLocation }}</a>
+                        {% else %}
+                            <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.pQuantity }}x {{ item.inventory.name }} - {{ item.deliveryLocation }}</a>
+                        {% endif %} 
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No completed deliveries today.</h2></div>
+        {% endif %}
+    {% endif %}
+
+    <!-- MANAGEMENT SUMMARY REPORTS -->
+    <hr>
+    {% if request.user.is_authenticated and request.user|has_group:"Management" %}
+        <h2>Management Summary Report</h2>
+        {% if request_approval.count > 0 %}     
+            <div>
+                <button class="btn btn-link dropdown-toggle" type="button" id="engDropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    There are {{ request_approval.count }} requests with quotations that need approval.
+                </button>
+                <div class="dropdown-menu" aria-labelledby="engDropdownMenuButton">
+                    {% for item in request_approval %}
+                        <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div><h2>No completed deliveries today.</h2></div>
+        {% endif %}
+    {% endif %}
 </div>
 
 {% endblock %}

@@ -21,19 +21,39 @@ from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import F
 from django.forms import formset_factory
-
+from django.utils import timezone
 
 # P.S. path has to be reflected also in urls.py
 @login_required
 def index(request):
-    if 'searchBar' in request.GET:                          # Search Functionality
-        searchBar = request.GET['searchBar']
-        multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
-        inventory = Inventory.objects.filter(multiple_query)
-    else: 
-        inventory = Inventory.objects.all                    # makes it so inventory can be viewed by non-staff (ENGINEERING)                
+    users_without_location = UserProfile.objects.exclude(location__isnull=False)
+    inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+    restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
+    delivery_items = DeliveryItem.objects.all()
+    arriving_delivery = delivery_items.filter(deliveryLocation=request.user.userprofile.location, dateArrived__isnull=True)
+    damaged_inventory = InventoryDamaged.objects.all()
+    filtered_damaged_inventory = damaged_inventory.filter(verified_by__isnull=True,location=request.user.userprofile.location)
+    inventory_returned = InventoryReturned.objects.all()
+    query = Q(arrivalDate__isnull=True)
+    query.add(Q(received_by__isnull=True), Q.AND)
+    query.add(Q(transferredTo=request.user.userprofile.location), Q.AND)
+    flitered_inventory_returned = inventory_returned.filter(query)
+    request_pending = PurchaseRequest.objects.filter(dateApproved__isnull=True)
+    request_delivery = PurchaseRequest.objects.filter(Q(approvedDelivery=False))
+    today = timezone.now().date()
+    delivery_today = delivery_items.filter(dateArrived__date=today)
+    request_approval = PurchaseRequest.objects.filter(Q(approvedQuotations=False))
+
     context ={
-        'inventory': inventory,
+        'users_without_location': users_without_location,
+        'restock_items': restock_items,
+        'arriving_delivery': arriving_delivery,
+        'filtered_damaged_inventory': filtered_damaged_inventory,
+        'flitered_inventory_returned': flitered_inventory_returned,
+        'request_pending': request_pending,
+        'request_delivery': request_delivery,
+        'delivery_today': delivery_today,
+        'request_approval': request_approval,
     }
     return render(request, 'dashboard/index.html', context)
 
@@ -816,7 +836,8 @@ def damaged_inventory(request):
     
     damaged_inventory = InventoryDamaged.objects.all()
     filtered_damaged_inventory = InventoryDamaged.objects.filter(
-        verified_by__isnull=True
+        verified_by__isnull=True,
+        location=request.user.userprofile.location
     )
 
     context = {
