@@ -1076,7 +1076,7 @@ def recount_inventory(request):
             return redirect('dashboard-index')
     if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
-    formset = InventoryReturnedFormSet(request.POST or None, queryset=InventoryRecount.objects.none())
+    formset = InventoryRecountFormSet(request.POST or None, queryset=InventoryRecount.objects.none())
     if request.method == 'POST':
         print(formset)
         if formset.is_valid():
