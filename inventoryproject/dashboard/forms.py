@@ -93,13 +93,14 @@ InventoryWithdrawnFormSet = modelformset_factory(
 class InventoryReturnedForm(forms.ModelForm):
     class Meta:
         model = InventoryReturned
-        fields = ['inventory', 'quantity', 'transferredTo']
-        exclude = ['transferredFrom']
+        fields = ['inventory', 'quantity', 'transferredTo']  # Include 'transferredTo' here
+        exclude = ['transferredFrom', 'arrivalDate', 'transferDate', 'received_by']
         widgets = {
             'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
             'transferredTo': forms.Select(attrs={'class': 'form-control', 'required': True}),
         }
+
 
 InventoryReturnedFormSet = forms.modelformset_factory(
     InventoryReturned,
@@ -130,7 +131,7 @@ class RecountForm(forms.ModelForm):
             'rQuantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
         }
 
-InventoryReturnedFormSet = forms.modelformset_factory(
+InventoryRecountFormSet = forms.modelformset_factory(
     InventoryRecount,
     form=RecountForm,
     extra=1,
