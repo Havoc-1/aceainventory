@@ -101,7 +101,6 @@ class InventoryReturnedForm(forms.ModelForm):
             'transferredTo': forms.Select(attrs={'class': 'form-control', 'required': True}),
         }
 
-
 InventoryReturnedFormSet = forms.modelformset_factory(
     InventoryReturned,
     form=InventoryReturnedForm,

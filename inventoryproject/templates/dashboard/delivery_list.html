@@ -6,7 +6,7 @@
 <div class="flex flex-col w-full">
     <div class="table-auto overflow-x-scroll">
         <h5 class="mb-4 text-2xl font-bold text-black">Deliveries</h5>
-        <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
+        <hr class="h-px mb-0 mt-0 bg-black border-1 border-black">
             <div class="text-left mb-4">
                 <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="unfiltered-btn">Show Current Deliveries</button>
                 <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="filtered-btn">Show Previous Deliveries</button>
@@ -55,7 +55,7 @@
                                     <form action="{% url 'arriveDelivery' %}" method="POST">
                                     {% csrf_token %}
                                     <input type="hidden" name="pk" value="{{d.id}}">
-                                    <button class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit">Confirm Delivery Arrival</button>
+                                    <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit">Confirm Delivery Arrival</button>
                                     </form>
                                 </td>
                                 {% else %}
@@ -112,15 +112,15 @@
                     </tbody>
                 </table>
             </div>
-            <div class="mb-4">
-                {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                <a class="" href="{% url 'create-request'%}">
-                    <button class="focus:outline-none w-full text-white bg-add font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2">Create Purchase Request</button>
-                </a>
-                {% endif %}
-            </div>
-        {% endblock %}
     </div>
+    <div class="mt-4">
+        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+        <a class="" href="{% url 'create-request'%}">
+            <button class="focus:outline-none w-full text-white bg-add font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2">Create Purchase Request</button>
+        </a>
+        {% endif %}
+    </div>
+    {% endblock %}
 </div>
 
 

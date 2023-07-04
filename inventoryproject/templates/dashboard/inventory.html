@@ -6,7 +6,7 @@
 
 <div class="flex flex-col w-full">
     <h2 class="mb-4 text-xl font-bold text-black">Inventory</h2>
-    <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
+    <hr class="h-px mb-0 mt-0 bg-black border-1 border-black">
     <div class="table-auto overflow-x-scroll">
             <div class="text-left">
                 <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="unfiltered-btn">Show All Inventory</button>
@@ -62,7 +62,7 @@
     <!-- ADDINVENTORY COLLAPSIBLE  -->
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
     <div class="text-left pt-3">
-        <button class="w-full focus:outline-none text-white bg-add font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2" type="button" data-drawer-target="drawer-bottom-example" data-drawer-show="drawer-bottom-example" data-drawer-placement="bottom" aria-controls="drawer-bottom-example">
+        <button class="w-full focus:outline-none text-white bg-proceedb font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2" type="button" data-drawer-target="drawer-bottom-example" data-drawer-show="drawer-bottom-example" data-drawer-placement="bottom" aria-controls="drawer-bottom-example">
         Add Inventory Entry
         </button>
     </div>
@@ -77,24 +77,24 @@
         <form method="POST">
             {% csrf_token %}
             {{ inventory_form|crispy }}
-            <input class="focus:outline-none w-full text-white bg-add hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit" value="Add Inventory Entry" name="inventory">
+            <input class="focus:outline-none w-full text-white bg-proceedb hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" type="submit" value="Add Inventory Entry" name="inventory">
         </form>
     </div>
 
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
             <div class="text-left pt-3">
             <a class="" href="{% url 'create-request'%}?restock=true">
-                <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
+                <button class="text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
                 Generate Purchase Request for Low Stock Inventory
                 </button>        
             </a>
             <a class="" href="{% url 'inventory_import'%}">
-                <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
+                <button class="text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
                 Import Data from Excel/CSV
                 </button>        
             </a>
             <a class="" href="{% url 'edit_inventory' %}">
-                <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
+                <button class="text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 w-fit">
                     Edit Restocking Settings 
                 </button>
             </a>

@@ -79,7 +79,7 @@
                             {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" and q.dateApproved %}
                                 {% if q.deliverySet == False %}
                                 <td>
-                                    <button class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
+                                    <button class="text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="button" data-toggle="modal" data-target="#deliveryModal{{q.id}}">
                                     Set Single Delivery
                                     </button>
     
@@ -99,14 +99,14 @@
                                                             <input type="date" class="form-control" name="expected_date"  min="{{ today|date:'Y-m-d' }}" required>
                                                         </div>
                                                         <input type="hidden" name="pk" value="{{q.id}}">
-                                                        <button type="submit" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Submit</button>
+                                                        <button type="submit" class="w-full text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">Submit</button>
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
     
-                                    <a href="{% url 'create-partial-delivery' q.id %}" class="focus:outline-none text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:focus:ring-yellow-900"> Set Multiple Deliveries </a>
+                                    <a href="{% url 'create-partial-delivery' q.id %}" class="text-black bg-degree-two text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2"> Set Multiple Deliveries </a>
                                 </td>
                                 {% else %}
                                     <td>Delivery Created</td>
@@ -119,16 +119,18 @@
                 {% endfor %}
                 </tbody>           
             </table>
-            <input type=button class="text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
         </div>
     </div>
     {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Finance" %}
+        <br class="mt-2">
         <a class = ""href="{% url 'create-quotation' pk %}">
-            <button class="w-full text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">
+            <button class="w-full text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">
                 Create Quotation 
             </button>
         </a>
-        {% endif %}
+    {% endif %}
+    <br class="mt-2">
+    <input type=button class="w-fit text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
     {% endblock %}
 </div>
 

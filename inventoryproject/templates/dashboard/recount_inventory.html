@@ -17,7 +17,7 @@
         <li>
           <div class="flex items-center">
             <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-            <a href="{% url 'inventory_withdrawals' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Record of Previous Withdrawals</a>
+            <a href="{% url 'recount_list' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Record of Recounted Inventory</a>
           </div>
         </li>
         <li aria-current="page">
@@ -29,7 +29,7 @@
       </ol>
   </nav>
   <br>
-  <h5 class="mb-4 text-2xl font-bold text-black">Recount Inventory</h5>
+  <h5 class="mb-4 text-2xl font-bold text-black">Recount Inventory Form</h5>
   <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
       <form method="POST">
         {% csrf_token %}
@@ -46,8 +46,9 @@
         <button type="button" class="w-full text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 add-row">Add 1 More Product</button>
         <button class="w-full text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit">Confirm Inventory Recount</button>
       </form>
-      <input type=button class="text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
     </div>
+    <br class="mt-2">
+    <input type=button class="w-fit text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
   {% endblock %}
 </div>
 
