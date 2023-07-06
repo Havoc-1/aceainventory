@@ -1,0 +1,65 @@
+{% extends 'partials/base.html' %}
+{% block title %}Data Import{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+              <li class="inline-flex items-center">
+                <a href="{% url 'dashboard-index' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                  <a href="{% url 'dashboard-inventory' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Inventory</a>
+                </div>
+              </li>
+              <li aria-current="page">
+                <div class="flex items-center">
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                  <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Upload CSV</span>
+                </div>
+              </li>
+            </ol>
+        </nav>
+        <br>
+        <h5 class="mb-4 text-2xl font-bold text-black">Upload Excel/CSV File for Inventory</h5>
+        <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
+        <form method="post" enctype="multipart/form-data" class="gap-5 p-5 block w-full text-sm text-gray-900 border rounded-lg cursor-pointer bg-white shadow-lg">
+            {% csrf_token %}
+            {{ form }}
+            <br class="mt-2">
+            <button type="submit" class="text-black bg-add text-sm font-medium rounded-lg mt-5 px-2 py-2.5 text-center mr-2 mb-2 w-full">Import</button>
+        </form>
+        {% if error_message %}
+        <div class="flex flex-row justify-center p-2 block w-full rounded-lg bg-error shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6 mt-2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>              
+            <h5 class="m-2 text-2xl font-bold text-white">{{ error_message }}</h5>
+        </div>
+        {% endif %}
+        {% if missing_rows %}
+        <div class="flex flex-row p-2 block w-full rounded-lg bg-error shadow-lg"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6 mt-2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>          
+            <h5 class="mb-4 text-2xl font-bold text-white">{{ missing_rows }}</h5>
+        </div>
+        {% endif %}
+    </div>
+    <br class="mt-2">
+    <a href="{% url 'dashboard-inventory' %}" class="">
+        <button class="w-fit text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">
+            Go Back
+        </button>
+    </a>
+</div>
+{% endblock %}
+

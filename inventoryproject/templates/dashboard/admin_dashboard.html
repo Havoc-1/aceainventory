@@ -3,103 +3,102 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-{% include 'partials/nav.html' %}
-{% load bootstrap_icons %}
 
-
-<div class="form-card">
-    <p>
-        <a class="button-5" data-toggle="collapse" href="#collapseForm" role="button" aria-expanded="false" aria-controls="collapseForm">
-            Add Category
-        </a>
-    </p>
-    <div class="collapse" id="collapseForm">
-        <div class="card card-body">
-            <div class="content-header">
-                <h4>Add New Category</h4>
-                <hr>
-            </div>
-            <form method="POST">
-                {% csrf_token %}
-                {{ category_form|crispy }}
-                <input class="btn btn-success btn-block" type="submit" value="Add Category" name="category">
-            </form>
-        </div>
-    </div>
-</div>
-
-<br><br>
-<div class="container py-5">
-    <table id="table" class="table table-bordered table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Username</th>
-                <th scope="col">Location</th>
-                <th scope="col">Roles</th>
-                <th scope="col">Update Location</th>
-                <th scope="col">Update Roles</th>
-                <th scope="col">Remove Roles</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
+<div class="flex flex-col w-full">
+    <h2 class="mb-4 text-xl font-bold text-black">Admin Dashboard</h2>
+    <hr class="h-px mb-4 mt-0 bg-black border-1 border-black">
+    <div class="table-auto overflow-x-auto shadow-md sm:rounded-md">
+        <table id="table" class="table table-striped">
+            <thead class="bg-card-bg text-white">
                 <tr>
-                    <td>{{ user.user.username }}</td>
-                    <td>{{ user.location }}</td>
-                    <td>
-                        {% for group in user.user.groups.all %}
-                            {{ group.name }}
-                        {% empty %}
-                            No groups
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <form method="post" action="{% url 'update-user-location' user.user.id %}">
-                            {% csrf_token %}
-                            <select name="location">
-                                {% for location in locations %}
-                                    <option value="{{ location.id }}"
-                                        {% if location.id == user.location.id %} selected {% endif %}>
-                                        {{ location.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit">Update</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="post" action="{% url 'update-user-groups' user.user.id %}">
-                            {% csrf_token %}
-                            <select name="add_group">
-                                <option value="" disabled selected>-------------------</option>
-                                {% for group in groups %}
-                                    {% if group not in user.user.groups.all %}
-                                        <option value="{{ group.id }}">{{ group.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            <button type="submit">Add Role</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="post" action="{% url 'update-user-groups' user.user.id %}">
-                            {% csrf_token %}
-                            <select name="remove_group">
-                                {% for group in user.user.groups.all %}
-                                    <option value="{{ group.id }}">{{ group.name }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit">Remove Role</button>
-                        </form>
-                    </td>
+                    <th scope="col">Username</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col">Update Location</th>
+                    <th scope="col">Update Roles</th>
+                    <th scope="col">Remove Roles</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.user.username }}</td>
+                        <td>{{ user.location }}</td>
+                        <td>
+                            {% for group in user.user.groups.all %}
+                                {{ group.name }}
+                            {% empty %}
+                                No groups
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'update-user-location' user.user.id %}">
+                                {% csrf_token %}
+                                <select name="location">
+                                    <option value="" {% if not user.location %} selected {% endif %}>Null</option>
+                                    {% for location in locations %}
+                                        <option value="{{ location.id }}"
+                                            {% if location.id == user.location.id %} selected {% endif %}>
+                                            {{ location.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">Update</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'update-user-groups' user.user.id %}">
+                                {% csrf_token %}
+                                <select name="add_group">
+                                    <option value="" disabled selected>-------------------</option>
+                                    {% for group in groups %}
+                                        {% if group not in user.user.groups.all %}
+                                            <option value="{{ group.id }}">{{ group.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2">Add Role</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'update-user-groups' user.user.id %}">
+                                {% csrf_token %}
+                                <select name="remove_group">
+                                    {% for group in user.user.groups.all %}
+                                        <option value="{{ group.id }}">{{ group.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="text-black bg-warn font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2">Remove Role</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="text-center pt-3">
+        <button class="text-white w-full bg-add font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 focus:outline-none" type="button" data-drawer-target="drawer-bottom-example" data-drawer-show="drawer-bottom-example" data-drawer-placement="bottom" aria-controls="drawer-bottom-example">
+        Add Category
+        </button>
+     </div>
+     
+     <!-- drawer component -->
+     <div id="drawer-bottom-example" class="fixed bottom-0 left-0 right-0 z-40 w-full p-4 overflow-y-auto transition-transform bg-white translate-y-full" tabindex="-1" aria-labelledby="drawer-bottom-label">
+         <h5 id="drawer-bottom-label" class="inline-flex items-center mb-4 text-base font-semibold text-gray-500"><svg class="w-5 h-5 mr-2" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>Add Category</h5>
+         <button type="button" data-drawer-hide="drawer-bottom-example" aria-controls="drawer-bottom-example" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white" >
+             <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+             <span class="sr-only">Close menu</span>
+         </button>
+         <form method="POST">
+            {% csrf_token %}
+            {{ category_form|crispy }}
+            <input class="focus:outline-none text-white bg-add font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2" type="submit" value="Add Category" name="category">
+        </form>
+     </div>    
+    {% endblock %}
 </div>
 
-
-{% endblock %}
 
 
 {% block js %}

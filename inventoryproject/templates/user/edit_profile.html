@@ -1,28 +1,26 @@
 {% extends 'partials/base.html' %}
-{% block title %} Profile Page {% endblock %}
+{% block title %} Edit Profile {% endblock %}
 {% load crispy_forms_tags %}
 
 
 {% block content %}
-    <div class="profile-card">
-        <div class="profile-header">
-            <h2>Edit Profile</h2>
-        </div>
-        <hr>
+<div class="w-full max-h-screen overflow-y-auto max-w-sm px-3 py-2 bg-card-bg border border-gray-200 rounded-lg shadow-lg sm:p-6 md:p-8">
+    <h5 class="mb-2 text-4xl font-bold tracking-tight text-white">Edit Profile</h5>
+    <div class="overflow-auto">
         {% block body %}
-            <form method="POST" enctype="multipart/form-data"> <!-- to allow images-->
-                {% csrf_token %}
-                {{ form|crispy }}
-                <button class="btn btn-outline-info" type="submit" name="update_profile">Update Profile</button>
-            </form>
-            <hr><hr>
-            <h2>Update Location</h2>
-            <hr>
-            <form method="POST">
-                {% csrf_token %}
-                {{ form_other|crispy }}
-                <button class="btn btn-outline-info" type="submit" name="update_location">Update Location</button>
-            </form>
+        <form method="POST" enctype="multipart/form-data" class="text-white"> <!-- to allow images-->
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button class="w-full text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit" name="update_profile">Update Profile</button>
+        </form>
+        <h5 class="mb-2 text-xl font-bold tracking-tight text-white">Update Location</h2>
+        <form method="POST" class="text-white">
+            {% csrf_token %}
+            {{ form_other|crispy }}
+            <button class="w-full text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit" name="update_location">Update Location</button>
+        </form>
         {% endblock %}
-    </div>
-{% endblock %}
+    </div>    
+
+</div>
+{% endblock %}    

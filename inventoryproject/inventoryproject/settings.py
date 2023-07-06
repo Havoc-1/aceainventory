@@ -39,14 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     # Below are created registered apps
     'dashboard.apps.DashboardConfig',   # command for first time: "python manage.py startapp dashboard"
     'user.apps.UserConfig',             # command for first time: "python manage.py startapp user"
     'crispy_forms',                     # command for first time: "pip install django-crispy-forms"
     'django_bootstrap_icons',           # command for first time: "pip install django-bootstrap-icons"
-    'compressor',                       # command for first time: "pip install django_compressor AND pip install django-libsass"
-    'templates',
-    'crispy_bootstrap4'
+    'crispy_bootstrap4',
+    'django_browser_reload',
+    'compressor',
+    'tailwind',
+    'templates'
+    
 ]   
 
 MIDDLEWARE = [
@@ -57,6 +61,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
+
 ]
 
 ROOT_URLCONF = 'inventoryproject.urls'
@@ -136,9 +142,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = (BASE_DIR/"asert/")
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static"
-]
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+
 
 # for images
 MEDIA_URL = '/images/'
@@ -149,12 +155,14 @@ LOGIN_REDIRECT_URL = 'dashboard-index'
 
 LOGIN_URL = 'user-login'
 
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'django_libsass.SassCompiler'),
-)
 
-#The list of finder backends that know how to find static files in various locations
-#to get scss to work
-STATICFILES_FINDERS = [
-    'compressor.finders.CompressorFinder'
+
+TAILWIND_APP_NAME = 'templates'
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]
+
+NPM_BIN_PATH = "C:/ProgramData/nvm/v18.16.0/npm.cmd"
+
+

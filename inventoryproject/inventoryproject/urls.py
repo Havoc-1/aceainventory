@@ -32,4 +32,5 @@ urlpatterns = [
     path('profile/', user_view.view_profile, name='view-profile'),
     path('profile/edit/', user_view.edit_profile, name='edit-profile'),
     path('profile/password/', user_view.change_password, name='password'),
+    path("__reload__/", include("django_browser_reload.urls")),
 ] + static(settings.MEDIA_URL, document_root =settings.MEDIA_ROOT) #auto create URL to reference images

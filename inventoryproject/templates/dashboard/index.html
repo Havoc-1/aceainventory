@@ -2,85 +2,375 @@
 {% block title %}Home Page{% endblock %}
 
 {% block content %}
-{% include 'partials/nav.html' %}
-{% load bootstrap_icons %}
 
-<!-- NOT YET IMPLEMENTED | LOOK INTO CONVERTING TABLES INTO CARDS | HARDCODED FOR DEMO -->
-<div class="app-body-main-content">
-    <section class="service-section">
-        <div class="tiles">
-            <article class="tile">
-                <div class="tile-header">
-                    <h3>
-                        <span>Delivery 1</span>
-                        <span>Warehouse Name</span>
-                    </h3>
-                </div>
-                <p>
-                    <a class="btn" data-toggle="collapse" href="#collapse1" role="button" aria-expanded="false" aria-controls="collapse1">
-                        See more
-                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
-                    </a>
-                </p>
-                <div class="collapse" id="collapse1">
-                    <div class="card card-body">
-                        <p>
-                            Various information inside this card
-                        </p>
+
+<div class="lg:container flex overflow-x-scroll lg:flex-col items-left justify-center lg:gap-5 lg:p-5 sm:p-0 sm:gap-0">    
+    <!-- WARNING MESSAGE -->
+    {% if not request.user.userprofile.location %}
+    <div class="">
+        <h2 class="text-6xl font-bold">Welcome, <br>{{ request.user.get_full_name }} <br><br></h2>
+        <span class="text-4xl font-normal">
+            Please contact your admin to give you access to the rest of the website.
+        </span>
+        <!-- INSERT WARNING MESSAGE -->
+    </div>
+    {% endif %}
+
+    <!-- SUMMARY REPORTS -->
+    <!-- ADMIN SUMMARY REPORTS -->    
+    {% if request.user.is_authenticated and request.user|has_group:"Administrator" %}    
+    <div class="sm: container flex flex-col justify-center items-left gap-3 sm:ml-8 flex-wrap">  
+        <div class="">
+            <h2 class="lg:text-xl font-normal sm:text-xs">Welcome,</h2>
+            <h1 class="lg:text-2xl font-bold mt-0 mb-4 sm:text-base">{{ request.user.get_full_name }}</h1>
+        </div>    
+        <h2 class="lg:text-6xl font-extrabold sm:text-xl">Admin Summary Report</h2>
+        <hr class="h-px mb-4 mt-4 bg-black border-1 border-black">
+        {% if users_without_location.count > 0 %}     
+            <div class="">
+                <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                    <div class="relative flex">
+                        <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                    </div>
+                    <span class="font-bold bg-red">
+                        There are {{ users_without_location.count }} newly registered user/s that need updating their location.
+                    </span>
+                    <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div id="dropdownNotification" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                    <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                        Notifications
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="w-full pl-3">
+                            <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                                <li>
+                                  {% for user in users_without_location %}
+                                    <a class="flex px-4 py-3 hover:bg-gray-700 hover:text-white rounded-lg w-full" href="{% url 'dashboard-admin'%}">{{ user.user.username }}</a>
+                                  {% endfor %} 
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </article>
-            <article class="tile">
-                <div class="tile-header">
-                    <h3>
-                        <span>Delivery 2</span>
-                        <span>Warehouse Name 2</span>
-                    </h3>
-                </div>
-                <p>
-                    <a class="btn" data-toggle="collapse" href="#collapse2" role="button" aria-expanded="false" aria-controls="collapse2">
-                        See more
-                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
-                    </a>
-                </p>
-                <div class="collapse" id="collapse2">
-                    <div class="card card-body">
-                        <p>
-                            Various information inside this card
-                        </p>
+            </div>
+        {% else %}
+            <div><h2 class="text-gray-500 text-sm mb-1.5">No Tasks requiring action.</h2></div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if request.user.is_authenticated and request.user|has_group:"Engineering" %}   
+    <!-- ENGINEERING SUMMARY REPORTS -->
+    <div class="sm: container flex flex-col justify-center items-left gap-3 sm:ml-8 flex-wrap">
+        <div class="">
+            <h2 class="lg:text-xl font-normal sm:text-xs">Welcome,</h2>
+            <h1 class="lg:text-2xl font-bold mt-0 mb-4 sm:text-base">{{ request.user.get_full_name }}</h1>
+        </div>    
+        <h2 class="lg:text-6xl font-extrabold sm:text-xl">Engineering Summary Report</h2>
+        <hr class="h-px mb-4 mt-4 bg-black border-1 border-black">
+        {% if restock_items.count > 0 %}     
+            <div class="">
+                <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification1" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                    <div class="relative flex">
+                        <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                    </div>
+                    <span class="font-bold bg-red">
+                        There are {{ restock_items.count }} inventory item/s that are low in stock.
+                    </span>
+                    <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <!-- Dropdown menu -->
+                <div id="dropdownNotification1" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                    <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                        Notifications
+                    </div>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                        <div class="w-full pl-3">
+                            <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                                <li>
+                                    {% for item in restock_items %}
+                                    <a class="dropdown-item" href="{% url 'create-request'%}?restock=true">{{ item.name }}</a>
+                                {% endfor %}
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </article>
-            <article class="tile">
-                <div class="tile-header">
-                    <i class="ph-file-light"></i>
-                    <h3>
-                        <span>Delivery 3</span>
-                        <span>Warehouse Name 3</span>
-                    </h3>
+            </div>
+    {% else %}
+        <div><h2 class="text-gray-500 text-sm mb-1.5">No low stock inventory.</h2></div>
+    {% endif %}
+    {% if arriving_delivery.count > 0 %}
+    <div class="">
+        <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification2" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+            <div class="relative flex">
+                <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+            </div>
+            <span class="font-bold bg-red">
+                There are {{ arriving_delivery.count }} pending deliveries.
+            </span>
+            <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div id="dropdownNotification2" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+            <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                Notifications
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="w-full pl-3">
+                    <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                        <li>
+                        {% for item in arriving_delivery %}
+                            <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.expectedDeliveryDate|date:"M d Y" }} - {{ item.inventory.name }}</a>
+                        {% endfor %}
+                        </li>
+                    </ul>
                 </div>
-                <p>
-                    <a class="btn" data-toggle="collapse" href="#collapse3" role="button" aria-expanded="false" aria-controls="collapse3">
-                        See more
-                        {% bs_icon 'chevron-right' extra_classes="nav-icons" %}
-                    </a>
-                </p>
-                <div class="collapse" id="collapse3">
-                    <div class="card card-body">
-                        <p>
-                            Various information inside this card
-                        </p>
-                    </div>
-                </div>
-            </article>
+            </div>
         </div>
-        <div class="service-section-footer">
-            <p>footer information</p>
+    </div>     
+    {% else %}
+        <div><h2 class="text-gray-500 text-sm mb-1.5">No pending deliveries.</h2></div>
+    {% endif %}
+    {% if filtered_damaged_inventory.count > 0 %}
+    <div class="">
+        <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification3" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+            <div class="relative flex">
+                <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+            </div>
+            <span class="font-bold bg-red">
+                There are {{ filtered_damaged_inventory.count }} damaged inventory that needs action.
+            </span>
+            <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div id="dropdownNotification3" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+            <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                Notifications
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="w-full pl-3">
+                    <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                        <li>
+                        {% for item in filtered_damaged_inventory %}
+                            <a class="dropdown-item" href="{% url 'damaged_inventory'%}">{{ item.quantity }}x {{ item.inventory.name }}</a>
+                        {% endfor %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>     
+    {% else %}
+        <div><h2 class="text-gray-500 text-sm mb-1.5">No damaged inventory requiring action.</h2></div>
+    {% endif %}
+    {% if flitered_inventory_returned.count > 0 %}     
+    <div class="">
+        <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification4" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+            <div class="relative flex">
+                <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+            </div>
+            <span class="font-bold bg-red">
+                There are {{ flitered_inventory_returned.count }} transferred item/s that have not been received yet.
+            </span>
+            <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+        <!-- Dropdown menu -->
+        <div id="dropdownNotification4" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+            <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                Notifications
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <div class="w-full pl-3">
+                    <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                        <li>
+                        {% for item in flitered_inventory_returned %}
+                            <a class="dropdown-item" href="{% url 'inventory_returned'%}">{{ item.quantity }}x {{ item.inventory.name }}</a>
+                        {% endfor %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+        <div><h2 class="text-gray-500 text-sm mb-1.5">No items being transferred to your currenty location from another warehouse.</h2></div>
+    {% endif %}
 
+    </div>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user|has_group:"Finance" %}   
+    <!-- FINANCE SUMMARY REPORTS -->
+    <div class="sm: container flex flex-col justify-center items-left gap-3 sm:ml-8 flex-wrap">
+        <div class="">
+            <h2 class="lg:text-xl font-normal sm:text-xs">Welcome,</h2>
+            <h1 class="lg:text-2xl font-bold mt-0 mb-4 sm:text-base">{{ request.user.get_full_name }}</h1>
+        </div>
+        <h2 class="lg:text-6xl font-extrabold sm:text-xl">Finance Summary Report</h2>
+        <hr class="h-px mb-4 mt-4 bg-black border-1 border-black">
+        {% if request_pending.count > 0 %}     
+        <div class="">
+            <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification5" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                <div class="relative flex">
+                    <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                </div>
+                <span class="font-bold bg-red">
+                    There are {{ request_pending.count }} purchase request/s that do not have quotations yet.
+                </span>
+                <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="dropdownNotification5" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                    Notifications
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <div class="w-full pl-3">
+                        <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                            <li>
+                            {% for item in request_pending %}
+                                <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                            {% endfor %} 
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div><h2 class="text-gray-500 text-sm mb-1.5">No purchase requests requiring new quotations.</h2></div>
+        {% endif %}
+        {% if request_delivery.count > 0 %}
+        <div class="">
+            <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification6" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                <div class="relative flex">
+                    <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                </div>
+                <span class="font-bold bg-red">
+                    There are {{ request_delivery.count }} purchase requests that are awaiting delivery details.
+                </span>
+                <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="dropdownNotification6" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                    Notifications
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <div class="w-full pl-3">
+                        <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                            <li>
+                            {% for item in request_delivery %}
+                                <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                            {% endfor %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div><h2 class="text-gray-500 text-sm mb-1.5">No purchase requests requiring delivery details.</h2></div>
+        {% endif %}
+        {% if delivery_today.count > 0 %}     
+        <div class="">
+            <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification7" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                <div class="relative flex">
+                    <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                </div>
+                <span class="font-bold bg-red">
+                    There are {{ delivery_today.count }} deliveries that arrived today.
+                </span>
+                <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="dropdownNotification7" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                    Notifications
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <div class="w-full pl-3">
+                        <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                            <li>
+                            {% for item in delivery_today %}
+                                {% if item.pQuantity == 0 %}
+                                    <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.quantity }}x {{ item.inventory.name }} - {{ item.deliveryLocation }}</a>
+                                {% else %}
+                                    <a class="dropdown-item" href="{% url 'list-deliveries'%}">{{ item.pQuantity }}x {{ item.inventory.name }} - {{ item.deliveryLocation }}</a>
+                                {% endif %} 
+                            {% endfor %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div><h2 class="text-gray-500 text-sm mb-1.5">No completed deliveries today.</h2></div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if request.user.is_authenticated and request.user|has_group:"Management" %}   
+     <!-- MANAGEMENT SUMMARY REPORTS -->
+     <div class="sm: container flex flex-col justify-center items-left gap-3 sm:ml-8 flex-wrap">
+        <div class="">
+            <h2 class="lg:text-xl font-normal sm:text-xs">Welcome,</h2>
+            <h1 class="lg:text-2xl font-bold mt-0 mb-4 sm:text-base">{{ request.user.get_full_name }}</h1>
+        </div>    
+        <h2 class="lg:text-6xl font-extrabold sm:text-xl">Management Summary Report</h2>
+        <hr class="h-px mb-4 mt-4 bg-black border-1 border-black">
+        {% if request_approval.count > 0 %}     
+        <div class="">
+            <button id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification8" class="inline-flex items-center text-sm font-medium text-center hover:text-gray-900 focus:outline-none dark:hover:text-white dark:text-gray-400" type="button"> 
+                <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+                <div class="relative flex">
+                    <div class="relative inline-flex w-3 h-3 bg-red-500 rounded-full -top-2 right-3 dark:border-gray-900"></div>
+                </div>
+                <span class="font-bold bg-red">
+                    There are {{ request_approval.count }} requests with quotations that need approval.
+                </span>
+                <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <!-- Dropdown menu -->
+            <div id="dropdownNotification8" class="z-20 hidden w-full max-w-sm bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-800 dark:divide-gray-700" aria-labelledby="dropdownNotificationButton">
+                <div class="block px-4 py-2 font-medium bg-warn text-center text-white rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
+                    Notifications
+                </div>
+                <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                    <div class="w-full pl-3">
+                        <ul class="h-48 py-2 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                            <li>
+                            {% for item in request_approval %}
+                                <a class="dropdown-item" href="{% url 'list-quotations' item.pk %}">{{ item.requestedBy.get_full_name }} - {{ item.requestLocation }}</a>
+                            {% endfor %} 
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div><h2 class="text-gray-500 text-sm mb-1.5">No completed deliveries today.</h2></div>
+            {% endif %}
+     </div>
 
+     {% endif %}
+</div>
 {% endblock %}
+
+
+
 
 {% block js %}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -101,5 +391,4 @@
     );
     } );
     </script>
-</div>
 {% endblock %}

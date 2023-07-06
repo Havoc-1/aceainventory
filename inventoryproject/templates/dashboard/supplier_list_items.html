@@ -1,0 +1,58 @@
+{%extends 'partials/base.html'%}
+{% block title %}Supplier Management{% endblock %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+<div class="flex flex-col w-full">
+  <div class="table-auto overflow-x-scroll">
+    <h2 class="mb-4 text-xl font-bold text-black">List of Transactions for {{supplier.name}}</h2>
+    <hr class="h-px mb-8 mt-0 bg-black border-1 border-black">
+    <table id="table" class="table table-striped table-hover">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col">Items</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price per Unit</th>
+            <th scope="col">Total Price</th>
+            <th scope="col">Method of Payment</th>
+            <th scope="col">Remarks</th>
+            <th scope="col">Date of Transaction</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in supplier_items %}
+          <tr>
+            <tr>
+                <td>{{ s.inventory_name }}</td>
+                <td>{{ s.quantity }}</td>
+                <td>₱{{ s.price_per_unit|floatformat:2|intcomma }}</td>
+                <td>₱{{ s.total_price|floatformat:2|intcomma }}</td>
+                <td>{{ s.payment_mode }}</td>
+                <td>{{ s.notes}}</td>
+                <td>{{ s.dateApproved|date:"M d Y" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <br class="mt-2">
+  <input type=button class="w-fit text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
+  {% endblock %}
+</div>
+  
+{% block js %}  
+    <script>
+        $(document).ready( function () {
+            var table = $('#table').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: {
+                    name: 'primary',
+                    buttons: []
+                }
+            });
+
+            
+        });
+    </script>
+{% endblock %}

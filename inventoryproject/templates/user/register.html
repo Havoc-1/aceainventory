@@ -3,15 +3,12 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <div class = "profile-card">
-        <div class="profile-header">
-            <h2>Registration Page</h2>
-        </div>
-        <hr>
-        <form method="POST">
+<div class="w-full max-w-sm px-3 py-2 bg-card-bg rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+    <h5 class="mb-2 text-2xl font-bold tracking-tight text-white">Registration Page</h5>    
+        <form method="POST" class="text-white">
             {% csrf_token %}            <!-- django requires csrf to make it secure -->
             {{ form|crispy }}              <!-- check user/views.py for this || from UserCreationForms and django.crispy-->
-            <input class="btn btn-success" type="submit" value="Register">
+            <input class="w-full text-black bg-proceedb focus:outline-none text-white bg-emerald hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2" type="submit" value="Register">
         </form>
-    </div>
+</div>
 {% endblock %}

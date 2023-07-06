@@ -1,39 +1,72 @@
 {% extends 'partials/base.html' %}
-{% block title %}Add New Quotation{% endblock %}
+{% block title %}Multiple Delivery Setup{% endblock %}
 {% load crispy_forms_tags %}
 
 {% block content %}
-    {% include 'partials/nav.html' %}
-    <div class="card card-body">
-        <div class="content-header">
-            <h4>Provide Delivery Dates for:</h4><br>
-            <h4>{{ qItem.quantity }} {{ qItem.inventory.name }}</h4>
-            <hr>
-        </div>
+
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <nav class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+              <li class="inline-flex items-center">
+                <a href="{% url 'dashboard-index' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                  Dashboard
+                </a>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                  <a href="{% url 'list-requests' %}" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Purchase Requests</a>
+                </div>
+              </li>
+              <li>
+                <div class="flex items-center">
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                  <a href="#" onClick="javascript:history.go(-1);" class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2 dark:text-gray-400 dark:hover:text-white">Quotation List</a>
+                </div>
+              </li>
+              <li aria-current="page">
+                <div class="flex items-center">
+                  <svg aria-hidden="true" class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                  <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 dark:text-gray-400">Set Multiple Deliveries</span>
+                </div>
+              </li>
+            </ol>
+        </nav>
+        <br>
+        <h5 class="mb-4 text-2xl font-bold text-black">Set Multiple Delivieres</h5> <!--Potentially get PO ID name here?-->
+        <hr class="h-px mb-4 mt-0 bg-black border-1 border-black">
+        <h5 class="mb-4 text-l font-bold text-black">Provide Delivery Dates for:</h5>
+        <h4 class="font-normal text-black">{{ qItem.quantity }} {{ qItem.inventory.name }}</h4>
+        <hr class="h-px my-8 bg-gray-200 border-0 dark:bg-gray-700">
         <form id="delivery-forms" method="POST" action="{% url 'create-partial-delivery' qItem.id%}">
             {% csrf_token %}
-            <table id="items-table">
+            <table class="w-full" id="items-table">
                 {{ formset.management_form | crispy }}
                 {% for form in formset %}
                 <tr class="formset-row">
                     <td>
-                        {{ form.expectedDeliveryDate|as_crispy_field }}
+                        <label for="formset-0-expectedDeliveryDate" class="form-label">Expected Arrival Date</label><br>
+                        <input type="date" name="formset-0-expectedDeliveryDate" min="{{ today|date:'Y-m-d' }}" required>
                     </td>
                     <td>
                         {{ form.pQuantity|as_crispy_field }}
                     </td>
                     <td>
-                        <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+                        <button type="button" class="text-black bg-warn font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 delete-row">Remove Item</button>
                     </td>
                 </tr>
                 {% endfor %}
             </table>
-
-            <button type="button" class="btn btn-success add-row">Add 1 More Product</button>
-            <input type="submit" class="btn btn-success btn-block" value="Create Delivery">
+            <button type="button" class="w-full text-black bg-add text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 add-row">Add 1 More Delivery Date</button>
+            <input type="submit" class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2 btn-block" value="Create Delivery">
         </form>
     </div>
-{% endblock %}
+    <br class="mt-2">
+    <input type=button class="w-fit text-white bg-back-btn text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" value="Go Back" onClick="javascript:history.go(-1);">
+    {% endblock %}
+</div>
+
 
 {% block js %}
 <script>
@@ -45,6 +78,7 @@
         $(document).on('click', '.delete-row', function () {
             $(this).closest('.formset-row').remove();
             updateFormsetIndexes();
+            checkFormValidity();
         });
 
         function updateFormsetIndexes() {
@@ -67,9 +101,21 @@
             $('#items-table tbody').append(newRow);
             $('#id_formset-TOTAL_FORMS').val(parseInt(formCount) + 1);
             updateFormsetIndexes();
+            checkFormValidity();
         }
 
+        function checkFormValidity() {
+            var formCount = $('.formset-row').length;
+            if (formCount === 0) {
+                $('#delivery-forms input[type="submit"]').prop('disabled', true);
+            } else {
+                $('#delivery-forms input[type="submit"]').prop('disabled', false);
+            }
+        }
+
+
         updateFormsetIndexes();
+        checkFormValidity();
 
         // Prevent form submission if total quantity is not equal to available quantity
         $('#delivery-forms').submit(function (event) {
@@ -90,13 +136,13 @@
 <script id="formset-empty-row" type="text/template">
     <tr class="formset-row">
         <td>
-            <input type="date" name="formset-__prefix__-expectedDeliveryDate" required>
+            <input type="date" name="formset-__prefix__-expectedDeliveryDate" min="{{ today|date:'Y-m-d' }}" required>
         </td>
         <td>
             <input type="number" name="formset-__prefix__-pQuantity" required>
         </td>
         <td>
-            <button type="button" class="btn btn-danger delete-row">Remove Item</button>
+            <button type="button" class="text-black bg-warn font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 delete-row">Remove Item</button>
         </td>
     </tr>
 </script>

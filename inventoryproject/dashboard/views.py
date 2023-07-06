@@ -1,4 +1,5 @@
 import datetime
+import pandas as pd
 from django.forms import model_to_dict, modelformset_factory
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
@@ -21,19 +22,39 @@ from django.contrib import messages
 from django.utils.decorators import method_decorator
 from django.db.models import F
 from django.forms import formset_factory
-
+from django.utils import timezone
 
 # P.S. path has to be reflected also in urls.py
 @login_required
 def index(request):
-    if 'searchBar' in request.GET:                          # Search Functionality
-        searchBar = request.GET['searchBar']
-        multiple_query = Q(Q(name__icontains=searchBar) | Q(location__icontains=searchBar))
-        inventory = Inventory.objects.filter(multiple_query)
-    else: 
-        inventory = Inventory.objects.all                    # makes it so inventory can be viewed by non-staff (ENGINEERING)                
+    users_without_location = UserProfile.objects.exclude(location__isnull=False)
+    inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+    restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
+    delivery_items = DeliveryItem.objects.all()
+    arriving_delivery = delivery_items.filter(deliveryLocation=request.user.userprofile.location, dateArrived__isnull=True)
+    damaged_inventory = InventoryDamaged.objects.all()
+    filtered_damaged_inventory = damaged_inventory.filter(verified_by__isnull=True,location=request.user.userprofile.location)
+    inventory_returned = InventoryReturned.objects.all()
+    query = Q(arrivalDate__isnull=True)
+    query.add(Q(received_by__isnull=True), Q.AND)
+    query.add(Q(transferredTo=request.user.userprofile.location), Q.AND)
+    flitered_inventory_returned = inventory_returned.filter(query)
+    request_pending = PurchaseRequest.objects.filter(dateApproved__isnull=True)
+    request_delivery = PurchaseRequest.objects.filter(Q(approvedDelivery=False))
+    today = timezone.now().date()
+    delivery_today = delivery_items.filter(dateArrived__date=today)
+    request_approval = PurchaseRequest.objects.filter(Q(approvedQuotations=False))
+
     context ={
-        'inventory': inventory,
+        'users_without_location': users_without_location,
+        'restock_items': restock_items,
+        'arriving_delivery': arriving_delivery,
+        'filtered_damaged_inventory': filtered_damaged_inventory,
+        'flitered_inventory_returned': flitered_inventory_returned,
+        'request_pending': request_pending,
+        'request_delivery': request_delivery,
+        'delivery_today': delivery_today,
+        'request_approval': request_approval,
     }
     return render(request, 'dashboard/index.html', context)
 
@@ -62,6 +83,7 @@ class inventoryView(LoginRequiredMixin, View):
         ctxt = {}
         print(request.POST)
         if 'inventory' in request.POST:
+            print("running request")
             inventory_form = InventoryForm(request.POST)
 
             if inventory_form.is_valid():
@@ -239,7 +261,9 @@ class QuotationList(ListView):
         # filter the quotation items based on the purchase request instance
         quotationItem = QuotationItem.objects.filter(quotation__purchaseRequest=purchase_request)
         context['quotationItem'] = quotationItem
+        context['pRequest'] = purchase_request
         context['pk'] = self.kwargs['pk']
+        context['today'] =  datetime.datetime.now(datetime.timezone.utc)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -258,18 +282,18 @@ class RequestList(LoginRequiredMixin, ListView):
     template_name = "dashboard/request_list.html" 
 
     def get_context_data(self, **kwargs):
-        pRequest = PurchaseRequest.objects.filter(approvedDelivery=False)
-        kwargs['pRequest'] = pRequest
+        pRequest = PurchaseRequest.objects.filter(Q(approvedDelivery=False) | Q(confirmedDeliveryCount__lt=F('totalDeliveryCount')))
         filteredRequest = PurchaseRequest.objects.filter(approvedDelivery=True)
-        kwargs['filteredRequest'] = filteredRequest
 
-        for request in filteredRequest:
-            yes_items = DeliveryItem.objects.filter(quotationItem__quotation__purchaseRequest=request, dateApproved__isnull=False)
-            yes_count = yes_items.count()
-            quotation_items = QuotationItem.objects.filter(quotation__purchaseRequest=request, dateApproved__isnull=False)
-            no_count = quotation_items.count()
-            request.confirmedDeliveryCount = yes_count
-            request.totalDeliveryCount = no_count
+        for request in reversed(filteredRequest):
+            
+            if request.confirmedDeliveryCount != request.totalDeliveryCount:
+                filteredRequest = filteredRequest.exclude(pk=request.pk)
+                pRequest = pRequest | PurchaseRequest.objects.filter(pk=request.pk)
+                
+        kwargs['pRequest'] = pRequest
+        kwargs['filteredRequest'] = filteredRequest
+        kwargs['today'] =  datetime.datetime.now(datetime.timezone.utc)
 
         return super().get_context_data(**kwargs)
     
@@ -280,6 +304,7 @@ class RequestList(LoginRequiredMixin, ListView):
 
 
 # =========================== DELIVERY VIEWS ======================================
+from django.contrib import messages
 
 @login_required
 def createRequest(request):
@@ -290,49 +315,82 @@ def createRequest(request):
         requestItemFormset = RequestItemFormSet(request.POST or None, prefix='items')
         requestItemFormsetEmpty = RequestItemFormSet(prefix='items')
         if requestForm.is_valid() and requestItemFormset.is_valid():
-            print("REQ ITEMFORMSET: ", requestItemFormset)
             pRequest = requestForm.save(commit=False)
             pRequest.requestedBy = request.user
             pRequest.requestLocation = request.user.userprofile.location
-            pRequest.save()  # save the delivery object first
-            requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
-
-            # Save each purchase request item separately
+            identical_items = []
             for form in requestItemFormset:
-                item = form.save(commit=False)
-                item.purchaseRequest = pRequest
-                print("ITEM", item)
-                item.save()
-                print("POST FINISH")
+                identical_requests = PurchaseRequest.objects.filter(
+                    requestLocation=pRequest.requestLocation,
+                    purchase_request_items__inventory=form.cleaned_data['inventory']
+                ).exclude(approvedDelivery=True)
+                if identical_requests.exists():
+                    identical_items.append(str(form.cleaned_data['inventory']))
+            if identical_items:
+                message = 'The following items already exist in an identical purchase request and have not been approved for delivery: {}'.format(", ".join(identical_items))
+                messages.warning(request, message)
+                inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+                restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
+                initial_data=[]
+                for item in  restock_items:
+                    initial_data.append({'inventory': item.id, 'quantity': item.restocking_amount - item.quantity})
+                
+                requestForm = RequestForm()
+                RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=len(initial_data), can_delete=False, can_delete_extra=True)
+                RequestItemFormSetEmpty = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
+                
+                requestItemFormset = RequestItemFormSet(prefix='items')
+                requestItemFormsetEmpty = RequestItemFormSetEmpty(prefix='items')
+                for form in requestItemFormset:
+                        form.fields['inventory'].queryset = inventory_items
+                for form in requestItemFormsetEmpty:
+                        form.fields['inventory'].queryset = inventory_items
+            else: 
+                print("REQ ITEMFORMSET: ", requestItemFormset)
+                pRequest.save()  # save the delivery object first
+                requestItemFormset.instance = pRequest  # set the delivery object as the instance for the formset
 
-            return redirect('list-deliveries')
+                # Save each purchase request item separately
+                for form in requestItemFormset:
+                    item = form.save(commit=False)
+                    item.purchaseRequest = pRequest
+                    print("ITEM", item)
+                    item.save()
+                    print("POST FINISH")
+
+                return redirect('list-deliveries')
     else:
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
         restock_items = inventory_items.filter(quantity__lt=F('restocking_threshold'))
         initial_data=[]
         for item in  restock_items:
             initial_data.append({'inventory': item.id, 'quantity': item.restocking_amount - item.quantity})
-        
+
         requestForm = RequestForm()
-        RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=len(initial_data), can_delete=False, can_delete_extra=True)
+        RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
         RequestItemFormSetEmpty = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=1, can_delete=False, can_delete_extra=True)
-        
+
         requestItemFormset = RequestItemFormSet(prefix='items')
         requestItemFormsetEmpty = RequestItemFormSetEmpty(prefix='items')
+
         for form in requestItemFormset:
-                form.fields['inventory'].queryset = inventory_items
+            form.fields['inventory'].queryset = inventory_items
+
         for form in requestItemFormsetEmpty:
-                form.fields['inventory'].queryset = inventory_items
+            form.fields['inventory'].queryset = inventory_items
+        
 
         if request.GET.get('restock'):
-            
+            RequestItemFormSet = inlineformset_factory(PurchaseRequest, PurchaseRequestItem, form=RequestItemForm, extra=len(initial_data), can_delete=False, can_delete_extra=True)
             requestItemFormset = RequestItemFormSet(initial=initial_data, prefix='items')
             for form in requestItemFormset:
+                print("")
                 form.fields['inventory'].queryset = inventory_items
             for form in requestItemFormsetEmpty:
+                print("")
                 form.fields['inventory'].queryset = inventory_items
-            
     return render(request, 'dashboard/create_request.html', {'requestForm': requestForm, 'requestItemFormset': requestItemFormset, 'requestItemFormsetEmpty': requestItemFormsetEmpty})
+
 
 
 
@@ -347,6 +405,7 @@ def create_delivery(request):
         quotation_item = get_object_or_404(QuotationItem, id=quotation_item_pk)
         pRequest = quotation_item.quotation.purchaseRequest
         pRequest.approvedDelivery = True
+        pRequest.confirmedDeliveryCount += 1
         pRequest.save()
         quotation_item.deliverySet = True
         quotation_item.save()
@@ -386,6 +445,7 @@ def quotation_create_view(request, pk):
     requestItemsData = [{'inventory': item.inventory, 'quantity': item.quantity} for item in requestItems]
     # create list of dictionaries with inventory and quantity data
     QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=len(requestItems))
+    quotation_item_formset_empty = QuotationItemFormSet(prefix='items')
     # generate formset with extra forms equal to the number of delivery items
     if request.method == 'POST':
         quotation_form = QuotationForm(request.POST or None)
@@ -402,6 +462,29 @@ def quotation_create_view(request, pk):
             quotation.save() 
             quotation_item_formset.instance = quotation  
             quotation_item_formset.save() 
+            for form in quotation_item_formset:
+                if form.cleaned_data['pricePerUnit']:
+                    form.instance.totalPrice = form.cleaned_data['pricePerUnit'] * form.cleaned_data['quantity']
+                elif form.cleaned_data['totalPrice']:
+                    form.instance.pricePerUnit = form.cleaned_data['totalPrice'] / form.cleaned_data['quantity']
+                else:
+                    render(request, 'dashboard/create_quotation.html', {'quotation_form': quotation_form, 'quotation_item_formset': quotation_item_formset, 'pk': pk})
+                form.save()
+                supplier, created = Supplier.objects.get_or_create(
+                    name=form.cleaned_data['supplierName'],
+                )
+
+                SupplierItem.objects.create(
+                    supplier=supplier,
+                    inventory_name=form.instance.inventory.name,
+                    quantity=form.instance.quantity,
+                    price_per_unit=form.instance.pricePerUnit,
+                    total_price=form.instance.totalPrice,
+                    payment_mode=form.instance.methodOfPayment,
+                    notes=form.instance.remarks,
+                    dateApproved=pRequest.dateApproved,
+                )
+            
             return redirect('list-quotations', pk=pRequest.id)
     else:
         inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
@@ -485,7 +568,33 @@ def approveQuotation(request):
                         quotation.approvedBy = request.user
                         purchase_request = quotation.quotation.purchaseRequest
                         purchase_request.approvedQuotations = True
+                        print(purchase_request.totalDeliveryCount)
+                        purchase_request.totalDeliveryCount += 1
+                        
                         purchase_request.save()
+                        quotation.save()
+                    return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
+                else:
+                    return HttpResponse("Quotation not found.")
+            else:
+                return HttpResponse("No quotation ID specified.")
+        else:
+            return HttpResponse("You must be logged in to perform this action.")
+    else:
+        return HttpResponse("NOT POST")
+
+@login_required
+def rejectQuotation(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            pk = request.POST.get('pk')
+            if pk:
+                quotation = QuotationItem.objects.filter(id=pk).first()
+                if quotation:
+                    if quotation.dateApproved is None:
+                        quotation.isRejected = True
                         quotation.save()
                     return redirect('list-quotations', pk=quotation.quotation.purchaseRequest.id)
                 else:
@@ -508,11 +617,25 @@ def create_partial_delivery(request, pk):
         formset = PartialDeliveryFormSet(request.POST, prefix='formset')
         print(formset)
         if formset.is_valid():
+            i = 0
             for form in formset:
+                i += 1
+                print("I value: ", i)
                 expected_delivery_date = form.cleaned_data['expectedDeliveryDate']
                 pQuantity = form.cleaned_data['pQuantity']
-                print(form.cleaned_data['expectedDeliveryDate'])
-                print(form.cleaned_data['pQuantity'])
+                pRequest = qItem.quotation.purchaseRequest
+                pRequest.approvedDelivery = True
+                pRequest.confirmedDeliveryCount += 1
+                if pRequest.totalDeliveryCount == 0:
+                    pRequest.totalDeliveryCount += 1
+                    print("ONLY ONCE")
+                if i > 1:
+                    pRequest.totalDeliveryCount += 1
+                    print("WE RAN")
+                    print("value: ", pRequest.totalDeliveryCount)
+                pRequest.save()
+                qItem.deliverySet = True
+                qItem.save()
                 
                 DeliveryItem.objects.create(
                     inventory=qItem.inventory,
@@ -529,18 +652,17 @@ def create_partial_delivery(request, pk):
             print("uh oh")
             for form in formset:
                 print(form)
-                print(form.easdrrors)
     else:
         formset = PartialDeliveryFormSet(prefix='formset')
 
-    context = {'formset': formset, 'qItem': qItem}
+    context = {'formset': formset, 'qItem': qItem, 'today': datetime.datetime.now(datetime.timezone.utc)}
     return render(request, 'dashboard/create_partial_delivery.html', context)
 
 
 @login_required
 @transaction.atomic
 def arriveDelivery(request):
-    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     if request.user.is_authenticated:
         pk = request.POST.get('pk') if request.POST.get('pk') else None
@@ -571,6 +693,8 @@ def arriveDelivery(request):
 
 @login_required
 def inventory_withdrawals(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
     if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         print("uh oh")
         return redirect('dashboard-index')
@@ -579,6 +703,8 @@ def inventory_withdrawals(request):
 
 @login_required
 def inventory_withdraw(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
     if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
         return redirect('dashboard-index')
     formset = InventoryWithdrawnFormSet(request.POST or None, queryset=InventoryWithdrawn.objects.none())
@@ -605,3 +731,391 @@ def inventory_withdraw(request):
         for form in formset:
                 form.fields['inventory'].queryset = inventory_items
     return render(request, 'dashboard/inventory_withdraw.html', {'formset': formset})
+
+@login_required
+def inventory_returned(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(
+            name='Engineering').exists():
+        return redirect('dashboard-index')
+    inventory_returned = InventoryReturned.objects.all()
+    query = Q(arrivalDate__isnull=True)
+    query.add(Q(received_by__isnull=True), Q.AND)
+    query.add(Q(transferredFrom=request.user.userprofile.location), Q.AND)
+    query.add(Q(transferredTo=request.user.userprofile.location), Q.OR)
+
+    flitered_inventory_returned = inventory_returned.filter(query)
+    destination_locations = Location.objects.exclude(name=request.user.userprofile.location)
+    return render(request, 'dashboard/inventory_returns.html', {'inventory_returned': inventory_returned, 'flitered_inventory_returned': flitered_inventory_returned, 'destination_locations': destination_locations})
+
+@login_required
+def inventory_return(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(
+            name='Engineering').exists():
+        return redirect('dashboard-index')
+    form = InventoryReturnedForm(request.POST or None)
+    formset = InventoryReturnedFormSet(request.POST or None, queryset=InventoryReturned.objects.none())
+    if request.method == 'POST':
+        print("posting")
+        if formset.is_valid():
+            print("valid")
+            instances = formset.save(commit=False)
+            for instance in instances:
+                instance.transferred_by = request.user
+                instance.transferredFrom = request.user.userprofile.location
+                instance.save()
+                return redirect('inventory_returned')   
+        else:
+            print(form.errors)
+            print(form)
+    else:
+        locations = Location.objects.exclude(name=request.user.userprofile.location)
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        for form in formset:
+            form.fields['inventory'].queryset = inventory_items
+            form.fields['transferredTo'].queryset = locations
+            
+    return render(request, 'dashboard/inventory_return.html', {'formset': formset})
+
+@login_required
+def inventory_return_all(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(
+            name='Engineering').exists():
+        return redirect('dashboard-index')
+    source_location = request.user.userprofile.location
+    target_location_id = request.POST.get('targetLocation')
+    if target_location_id:
+        try:
+            target_location = Location.objects.get(id=target_location_id)
+            inventory_items = Inventory.objects.filter(location=source_location)
+            for item in inventory_items:
+                InventoryReturned.objects.create(
+                    inventory=item,
+                    quantity=item.quantity,
+                    transferred_by=request.user,
+                    transferredFrom=source_location,
+                    transferredTo=target_location,
+                    transferDate=datetime.datetime.now(datetime.timezone.utc)
+                )
+            return redirect('inventory_returned')
+        except Location.DoesNotExist:
+            return HttpResponse("Invalid target location.")
+    return render(request, 'dashboard/inventory_returns.html')
+
+def receive_transfer(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            returned_item = InventoryReturned.objects.get(id=pk)
+            if returned_item:
+                if returned_item.arrivalDate is None:
+                    returned_item.arrivalDate = datetime.datetime.now(datetime.timezone.utc)
+                    
+                    transferred_quantity = returned_item.quantity
+                    transferred_from = returned_item.transferredFrom
+                    transferred_to = returned_item.transferredTo
+                    inventory_name = returned_item.inventory.name
+
+                    # Update the inventory quantity for the source location
+                    inventory_source = Inventory.objects.get(location=transferred_from, name=inventory_name)
+                    inventory_source.quantity -= transferred_quantity
+                    print("Source: ", inventory_source)
+                    inventory_source.save()
+
+                    # Get or create the inventory item at the destination location
+                    inventory_destination, created = Inventory.objects.get_or_create(
+                        name=inventory_name,
+                        type=inventory_source.type,
+                        location=transferred_to,
+                        defaults={
+                            'quantity': transferred_quantity,
+                            'restocking_threshold': inventory_source.restocking_threshold,
+                            'restocking_amount': inventory_source.restocking_amount
+                        }
+                    )
+
+                    if not created:
+                        inventory_destination.quantity += transferred_quantity
+                        print("its alive")
+                        inventory_destination.save()
+                    print("Destination: ", inventory_destination)
+
+                    returned_item.save()
+
+                return redirect('inventory_returned')
+            else:
+                return HttpResponse("Order not found.")
+        else:
+            return HttpResponse("No order ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+    
+def delete_transfer(request, pk):
+    transfer = InventoryReturned.objects.get(pk=pk)
+    transfer.delete()
+    return redirect('inventory_returned')
+
+def damaged_inventory(request):
+    if not request.user.userprofile.location:
+        return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    form = InventoryDamagedForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            inventory_damaged = form.save(commit=False)
+            inventory_damaged.created_by = request.user
+            inventory_damaged.location = request.user.userprofile.location
+            inventory_damaged.reported_date = datetime.datetime.now(datetime.timezone.utc)
+            inventory_damaged.save()
+            return redirect('damaged_inventory')
+    else:
+        form = InventoryDamagedForm()
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        form.fields['inventory'].queryset = inventory_items
+    
+    damaged_inventory = InventoryDamaged.objects.all()
+    filtered_damaged_inventory = InventoryDamaged.objects.filter(
+        verified_by__isnull=True,
+        location=request.user.userprofile.location
+    )
+
+    context = {
+        'form': form,
+        'damaged_inventory': damaged_inventory,
+        'filtered_damaged_inventory': filtered_damaged_inventory
+    }
+    return render(request, 'dashboard/damaged_inventory.html', context)
+
+def delete_damage(request, pk):
+    dmg = InventoryDamaged.objects.get(pk=pk)
+    dmg.delete()
+    return redirect('damaged_inventory')
+
+def verify_damage(request):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    
+    if request.user.is_authenticated:
+        pk = request.POST.get('pk') if request.POST.get('pk') else None
+        if pk:
+            damaged_item = InventoryDamaged.objects.get(id=pk)
+            if damaged_item:
+                if damaged_item.verified_date is None:
+                    damaged_item.verified_date = datetime.datetime.now(datetime.timezone.utc)
+                    damaged_item.verified_by = request.user
+                    
+                    inventory_name = damaged_item.inventory.name
+                    damaged_from = damaged_item.location
+
+                    # Update the inventory quantity for the source location
+                    inventory_source = Inventory.objects.get(location=damaged_from, name=inventory_name)
+                    inventory_source.quantity -= damaged_item.quantity
+                    inventory_source.save()
+
+                    damaged_item.save()
+
+                return redirect('damaged_inventory')
+            else:
+                return HttpResponse("Damaged item not found.")
+        else:
+            return HttpResponse("No damaged ID specified.")
+    else:
+        return HttpResponse("You must be logged in to perform this action.")
+
+import json
+
+def import_data(request):
+    if request.method == 'POST':
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            file = request.FILES['file']
+            if file.name.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif file.name.endswith('.xlsx'):
+                df = pd.read_excel(file)
+            else:
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': 'Invalid file format'})
+            
+            required_columns = ['name', 'type', 'location', 'quantity']
+            missing_columns = set(required_columns) - set(df.columns)
+
+            if missing_columns:
+                error_message = f"Missing columns: {', '.join(missing_columns)}"
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': error_message})
+            
+            locations = Location.objects.all()
+            types = Type.objects.all()
+
+            # Iterate over the rows of the DataFrame and extract the necessary information
+            preview_data = []
+            missing_rows = []
+            for index, row in df.iterrows():
+                name = row['name']
+                type_id = row['type']
+                location_id = row['location']
+                quantity = row['quantity']
+                
+                # Skip the row if any of the required fields are missing or NaN
+                if pd.isna(name) or pd.isna(type_id) or pd.isna(location_id) or pd.isna(quantity):
+                    missing_rows.append(index)
+                    continue
+
+                # Find the corresponding location and type objects based on their IDs
+                location_obj = locations.get(id=location_id) if location_id else None
+                location_name = location_obj.name if location_id else ''
+                type_name = types.get(id=type_id).name if location_id else ''
+
+                # Create a dictionary with the extracted data
+                data = {
+                    'name': name,
+                    'type_id': type_id,
+                    'type_name': type_name,
+                    'location_id': location_id,
+                    'location_name': location_name,
+                    'quantity': quantity,
+                    'restocking_threshold': row.get('restocking_threshold', 0),
+                    'restocking_amount': row.get('restocking_amount', 0),
+                }
+                print("WAHT")
+                # Add the dictionary to the preview_data list
+                preview_data.append(data)
+
+            if not preview_data:  # Check if preview_data is 
+                print("WasdadsAHT")
+                return render(request, 'dashboard/import.html', {'form': form, 'error_message': 'File does not have valid values'})
+            # Convert preview_data to a JSON string
+            preview_data_json = json.dumps(preview_data)
+
+            # Store the preview_data and missing_rows in the session
+            
+            request.session['preview_data'] = preview_data_json
+            request.session['missing_rows'] = missing_rows
+            return redirect('import_confirm')
+    else:
+        form = FileUploadForm()
+    return render(request, 'dashboard/import.html', {'form': form})
+
+
+
+import json
+
+
+def confirm_import(request):
+    preview_data = request.session.get('preview_data')
+    if not preview_data:
+        return redirect('inventory_import')
+
+    # Convert the JSON string to a list of dictionaries
+    preview_data = json.loads(preview_data)
+
+    # Get the locations and types from the database
+    locations = Location.objects.all()
+    types = Type.objects.all()
+
+    # Convert the preview_data to a pandas DataFrame
+    df = pd.DataFrame(preview_data)
+
+    # Replace NaN values with 0 in the restocking_amount and restocking_threshold columns
+    df['restocking_amount'].fillna(0, inplace=True)
+    df['restocking_threshold'].fillna(0, inplace=True)
+
+    # Convert the DataFrame back to a list of dictionaries
+    updated_preview_data = df.to_dict(orient='records')
+
+    if request.method == 'POST':
+        # Save the data to the Inventory model
+        for item in updated_preview_data:
+            # Find the corresponding location and type objects based on their IDs
+            location_id = item['location_id']
+            location = locations.get(id=location_id)
+
+            type_id = item['type_id']
+            type = types.get(id=type_id)
+
+            # Check if an inventory item with the same name and location exists
+            existing_item = Inventory.objects.filter(name=item['name'], location=location).first()
+
+            if existing_item:
+                # If an existing item is found, update its quantity
+                existing_item.quantity = F('quantity') + item['quantity']
+                existing_item.save()
+            else:
+                # If no existing item is found, create a new inventory item
+                inventory_item = Inventory(
+                    name=item['name'],
+                    type=type,  # Assign the type object
+                    location=location,  # Assign the location object
+                    quantity=item['quantity'],
+                    restocking_threshold=item['restocking_threshold'],
+                    restocking_amount=item['restocking_amount'],
+                )
+                inventory_item.save()
+
+        # Clear the preview_data from the session
+        del request.session['preview_data']
+
+        return redirect('dashboard-inventory')
+
+    return render(request, 'dashboard/confirm_import.html', {'preview_data': updated_preview_data, 'locations': locations, 'types': types})
+
+def recount_list(request):
+    recounts = InventoryRecount.objects.all()
+    return render(request, 'dashboard/recount_list.html', {'recounts': recounts})
+
+def recount_inventory(request):
+    if not request.user.userprofile.location:
+            return redirect('dashboard-index')
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Engineering').exists():
+        return redirect('dashboard-index')
+    formset = InventoryRecountFormSet(request.POST or None, queryset=InventoryRecount.objects.none())
+    if request.method == 'POST':
+        print(formset)
+        if formset.is_valid():
+            instances = formset.save(commit=False)
+            for instance in instances:
+                print(instance)
+                inventory = instance.inventory
+                quantity = instance.rQuantity
+                instance.oQuantity = inventory.quantity
+                inventory.quantity = quantity
+                inventory.save()
+                instance.recounted_by = request.user
+                instance.recountDate = datetime.datetime.now(datetime.timezone.utc)
+                instance.location = request.user.userprofile.location
+                instance.save()
+            print("it made it through")
+            messages.success(request, 'Inventory withdrawn successfully.')
+            return redirect('recount_list')
+        else:
+            print("uhoh")
+    else:
+        inventory_items = Inventory.objects.filter(location=request.user.userprofile.location)
+        for form in formset:
+            form.fields['inventory'].queryset = inventory_items
+    return render(request, 'dashboard/recount_inventory.html', {'formset': formset})
+
+def supplier_list(request):
+    suppliers = Supplier.objects.all()
+    return render(request, 'dashboard/supplier_list.html', {'suppliers': suppliers})
+
+def view_supplier(request, pk):
+    if not request.user.groups.filter(name='Administrator').exists() and not request.user.groups.filter(name='Finance').exists() and not request.user.groups.filter(name='Management').exists():
+        return redirect('dashboard-index')
+    supplier = get_object_or_404(Supplier, pk=pk)
+    print(supplier)
+    supplier_items = SupplierItem.objects.filter(supplier=supplier)
+    context = {
+        'supplier': supplier,
+        'supplier_items': supplier_items,
+        'pk': pk,
+    }
+    return render(request, 'dashboard/supplier_list_items.html', context)

@@ -3,14 +3,25 @@
 
 
 {% block content %}
-
-    <div class="logout-card">
-            <div class="alert alert-danger">
-                <h2>Logout Page</h2>
-                <hr>
-                <h4>You are succesfully logged out!</h4>
+<div class="flex flex-col w-full">
+        <div class="flex items-center w-full justify-center">
+            <div class="max-w-xs">
+                <div class="bg-error shadow-xl rounded-lg py-3 px-3">
+                    <h5 class="text-2xl font-extrabold text-white tracking-tight">Logged out</h5>
+                    <br>
+                    <h4 class="font-normal text-white">You are succesfully logged out!</h4>
+                    <br>
+                    <a class="" href="{% url 'user-login' %}">
+                        <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            </svg>
+                            <span>Exit</span>
+                        </button>
+                    </a>
+                </div>
             </div>
-            <a href="{% url 'user-login' %}">Exit</a>
-    </div>
+        </div>
+</div>
 {% endblock %}
 

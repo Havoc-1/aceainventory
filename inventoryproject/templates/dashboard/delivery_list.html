@@ -1,126 +1,129 @@
 {%extends 'partials/base.html'%}
-{% block title %}Home Page{% endblock %}
+{% block title %}Deliveries Page{% endblock %}
 
 {% block content %}
-{% include 'partials/nav.html' %}
-{% load bootstrap_icons %}
 
-{% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-<div class="container py-5">
-    <div>
-        <a href="{% url 'create-request'%}" class="btn btn-success"> Create Purchase Request </a>
-    </div>
-</div>
-{% endif %}
-
-<div class="container py-5">
-    <div class="text-center mb-4">
-        <button class="btn btn-primary" id="unfiltered-btn">Show Current Deliveries</button>
-        <button class="btn btn-primary" id="filtered-btn">Show Previous Deliveries</button>
-    </div>
-    <div id="unfiltered-container">
-        <table id="unfiltered-table" class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Supplier</th>
-                    <th scope="col">Status</th>
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                    <th scope="col">Arrival</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for d in deliveryItem %}
-                <tr>
-                    <td>
-                        <!-- Add a clickable dropdown button to show the delivery details -->
-                        <div class="dropdown">
-                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ d }}
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item">Name: {{ d.inventory }}</a>
-                                {% if d.pQuantity == 0 %}
-                                    <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+<div class="flex flex-col w-full">
+    <div class="table-auto overflow-x-scroll">
+        <h5 class="mb-4 text-2xl font-bold text-black">Deliveries</h5>
+        <hr class="h-px mb-0 mt-0 bg-black border-1 border-black">
+            <div class="text-left mb-4">
+                <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="unfiltered-btn">Show Current Deliveries</button>
+                <button class="text-white bg-filters font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2 sm:mt-6" id="filtered-btn">Show Previous Deliveries</button>
+            </div>
+            <div id="unfiltered-container">
+                <table id="unfiltered-table" class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Supplier</th>
+                            <th scope="col">Status</th>
+                            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                            <th scope="col">Arrival</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in deliveryItem %}
+                        <tr>
+                            <td>
+                                <!-- Add a clickable dropdown button to show the delivery details -->
+                                <div class="dropdown">
+                                    <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{ d }}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item">Name: {{ d.inventory }}</a>
+                                        {% if d.pQuantity == 0 %}
+                                            <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+                                        {% else %}
+                                            <a class="dropdown-item">Quantity: {{ d.pQuantity }}</a>
+                                        {% endif %}
+                                        
+                                        <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
+                                        <a class="dropdown-item">Expected Delivery Date: {{ d.expectedDeliveryDate|date:"M d Y" }}</a>
+                                    </div>
+                                </div>
+                            </td>
+        
+                            <td>{{ d.quotationItem.supplierName }}</td>
+                            <td>{{ d.status }}</td>
+        
+                            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                                {% if d.dateArrived == null %}
+                                <td>
+                                    <form action="{% url 'arriveDelivery' %}" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="pk" value="{{d.id}}">
+                                    <button class="text-black bg-proceedb text-sm font-medium rounded-lg px-2 py-2.5 text-center mr-2 mb-2" type="submit">Confirm Delivery Arrival</button>
+                                    </form>
+                                </td>
                                 {% else %}
-                                    <a class="dropdown-item">Quantity: {{ d.pQuantity }}</a>
-                                {% endif %}
-                                
-                                <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
-                                <a class="dropdown-item">Expected Delivery Date: {{ d.expectedDeliveryDate|date:"M d Y" }}</a>
-                            </div>
-                        </div>
-                    </td>
-
-                    <td>{{ d.quotationItem.supplierName }}</td>
-                    <td>{{ d.status }}</td>
-
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                        {% if d.dateArrived == null %}
-                        <td>
-                            <form action="{% url 'arriveDelivery' %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="pk" value="{{d.id}}">
-                            <button class="btn btn-primary" type="submit">Confirm Delivery Arrival</button>
-                            </form>
-                        </td>
-                        {% else %}
-                        <td>
-                            Delivery Complete
-                        </td>
-                        {% endif%}
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                <td>
+                                    Delivery Complete
+                                </td>
+                                {% endif%}
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div id="filtered-container">
+                <table id="filtered-table" class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Supplier</th>
+                            <th scope="col">Status</th>
+                            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                            <th scope="col">Arrival</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in filteredDeliveryItem %}
+                        <tr>
+                            <td>
+                                <!-- Add a clickable dropdown button to show the delivery details -->
+                                <div class="dropdown">
+                                    <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{ d }}
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <a class="dropdown-item">Name: {{ d.inventory }}</a>
+                                        <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
+                                        <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
+                                        <a class="dropdown-item">Expected Delivery Date: {{ d.expectedDeliveryDate|date:"M d Y" }}</a>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td>{{ d.quotationItem.supplierName }}</td>
+                            <td>{{ d.status }}</td>
+        
+                            {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+                                <td>
+                                    Delivery arrived on {{ d.dateArrived|date:"M d Y" }}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
     </div>
-    <div id="filtered-container">
-        <table id="filtered-table" class="table table-bordered table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Supplier</th>
-                    <th scope="col">Status</th>
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                    <th scope="col">Arrival</th>
-                    {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for d in filteredDeliveryItem %}
-                <tr>
-                    <td>
-                        <!-- Add a clickable dropdown button to show the delivery details -->
-                        <div class="dropdown">
-                            <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ d }}
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <a class="dropdown-item">Name: {{ d.inventory }}</a>
-                                <a class="dropdown-item">Quantity: {{ d.quantity }}</a>
-                                <a class="dropdown-item">Location: {{ d.deliveryLocation }}</a>
-                                <a class="dropdown-item">Expected Delivery Date: {{ d.expectedDeliveryDate|date:"M d Y" }}</a>
-                            </div>
-                        </div>
-                    </td>
-                    
-                    <td>{{ d.quotationItem.supplierName }}</td>
-                    <td>{{ d.status }}</td>
-
-                    {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
-                        <td>
-                            Delivery arrived on {{ d.dateArrived|date:"M d Y" }}
-                        </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="mt-4">
+        {% if request.user.is_authenticated and request.user|has_group:"Administrator" or request.user|has_group:"Engineering" %}
+        <a class="" href="{% url 'create-request'%}">
+            <button class="focus:outline-none w-full text-white bg-add font-medium rounded-lg text-sm px-2 py-2.5 mr-2 mb-2">Create Purchase Request</button>
+        </a>
+        {% endif %}
     </div>
+    {% endblock %}
 </div>
-{% endblock %}
+
+
 
 <!-- DATATABLES JS  -->
 {% block js %}
@@ -158,6 +161,4 @@
             
         });
     </script>
-    
-    </div>
 {% endblock %}

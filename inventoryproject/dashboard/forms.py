@@ -37,14 +37,26 @@ class QuotationForm(forms.ModelForm):
         exclude = ['id', 'purchaseRequest', 'createdBy', 'dateCreated']
 
 class QuotationItemForm(forms.ModelForm):
+    methodOfPayment = forms.ChoiceField(choices=[
+        ('Debit', 'Debit'),
+        ('Credit', 'Credit'),
+        ('Cash', 'Cash'),
+        ('Installment - 1 Month', 'Installment - 1 Month'),
+        ('Installment - 2 Months', 'Installment - 2 Months'),
+        ('Installment - 3 Months', 'Installment - 3 Months'),
+        ('Installment - 6 Months', 'Installment - 6 Months'),
+    ], required=True)
     class Meta:
         model = QuotationItem
-        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved', 'deliverySet']
+        exclude = ['id', 'quotation', 'approvedBy', 'dateApproved', 'deliverySet', 'isRejected']
         widgets = {
             'inventory': forms.Select(attrs={'required': True}),
             'supplierName': forms.TextInput(attrs={'required': True}),
             'quantity': forms.NumberInput(attrs={'required': True}),
-            'price': forms.NumberInput(attrs={'required': True}),
+            'pricePerUnit': forms.NumberInput(attrs={'required': False}),
+            'totalPrice': forms.NumberInput(attrs={'required': False}),
+            'methodOfPayment': forms.Select(attrs={'required': True}),
+            'remarks': forms.TextInput(attrs={'required': False}),
         }
         
 QuotationItemFormSet = inlineformset_factory(Quotation, QuotationItem, form=QuotationItemForm, extra=1, can_delete=False, can_delete_extra=True)
@@ -77,3 +89,50 @@ class InventoryWithdrawnForm(forms.ModelForm):
         
 InventoryWithdrawnFormSet = modelformset_factory(
     InventoryWithdrawn, form=InventoryWithdrawnForm, extra=1)
+
+class InventoryReturnedForm(forms.ModelForm):
+    class Meta:
+        model = InventoryReturned
+        fields = ['inventory', 'quantity', 'transferredTo']  # Include 'transferredTo' here
+        exclude = ['transferredFrom', 'arrivalDate', 'transferDate', 'received_by']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+            'transferredTo': forms.Select(attrs={'class': 'form-control', 'required': True}),
+        }
+
+InventoryReturnedFormSet = forms.modelformset_factory(
+    InventoryReturned,
+    form=InventoryReturnedForm,
+    extra=1,
+    can_delete=True
+)
+
+class InventoryDamagedForm(forms.ModelForm):
+    class Meta:
+        model = InventoryDamaged
+        fields = ['inventory', 'quantity', 'remarks']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
+        }
+
+class FileUploadForm(forms.Form):
+    file = forms.FileField(label='Select a file')
+
+class RecountForm(forms.ModelForm):
+    class Meta:
+        model = InventoryRecount
+        fields = ['inventory', 'rQuantity']
+        widgets = {
+            'inventory': forms.Select(attrs={'class': 'form-control', 'required': True}),
+            'rQuantity': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
+        }
+
+InventoryRecountFormSet = forms.modelformset_factory(
+    InventoryRecount,
+    form=RecountForm,
+    extra=1,
+    can_delete=True
+)
