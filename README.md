@@ -70,6 +70,10 @@ Install dependencies
 ```bash
   pip -r requirements.txt
 ```
+or
+```bash
+  pip install -r /path/to/requirements.txt
+```
 
 Start the server
 
@@ -89,9 +93,9 @@ Account credentials
 | Management     | Department00 | 
 
 ## Screenshots
-
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
-
+![LoginScreen](https://github.com/Havoc-1/aceainventory/assets/87105826/6f634052-951e-4c74-8166-55139e327054)
+![EngineerDashboard](https://github.com/Havoc-1/aceainventory/assets/87105826/88526317-0a9d-49e5-a844-d7a64f41e6ef)
+![InventoryScreen](https://github.com/Havoc-1/aceainventory/assets/87105826/b0b8eb50-9bb0-4b58-a50f-ef51fc9016ca)
 
 ## Used By
 
